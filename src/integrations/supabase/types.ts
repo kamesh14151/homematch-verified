@@ -14,16 +14,330 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          property_id: string
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          property_id: string
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          property_id?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          auto_delete_date: string
+          created_at: string
+          document_type: string
+          encrypted: boolean | null
+          file_url: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          auto_delete_date?: string
+          created_at?: string
+          document_type: string
+          encrypted?: boolean | null
+          file_url: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          auto_delete_date?: string
+          created_at?: string
+          document_type?: string
+          encrypted?: boolean | null
+          file_url?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      landlords: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          pan_number: string | null
+          pan_verified: boolean | null
+          pincode: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          pan_number?: string | null
+          pan_verified?: boolean | null
+          pincode?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          pan_number?: string | null
+          pan_verified?: boolean | null
+          pincode?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          address: string
+          created_at: string
+          description: string | null
+          eb_bill_number: string | null
+          house_type: string
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          landlord_id: string
+          parking: boolean | null
+          pincode: string | null
+          rent: number
+          separate_meter: boolean | null
+          title: string
+          updated_at: string
+          video_url: string | null
+          water_supply: boolean | null
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          description?: string | null
+          eb_bill_number?: string | null
+          house_type: string
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          landlord_id: string
+          parking?: boolean | null
+          pincode?: string | null
+          rent: number
+          separate_meter?: boolean | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+          water_supply?: boolean | null
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          description?: string | null
+          eb_bill_number?: string | null
+          house_type?: string
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          landlord_id?: string
+          parking?: boolean | null
+          pincode?: string | null
+          rent?: number
+          separate_meter?: boolean | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+          water_supply?: boolean | null
+        }
+        Relationships: []
+      }
+      property_images: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          id: string
+          image_url: string
+          property_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url: string
+          property_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          property_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_images_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_properties: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_properties_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          company: string | null
+          created_at: string
+          expected_rent: number | null
+          family_members: number | null
+          id: string
+          occupation: string | null
+          preferred_house_type: string | null
+          preferred_location: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          expected_rent?: number | null
+          family_members?: number | null
+          id?: string
+          occupation?: string | null
+          preferred_house_type?: string | null
+          preferred_location?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          expected_rent?: number | null
+          family_members?: number | null
+          id?: string
+          occupation?: string | null
+          preferred_house_type?: string | null
+          preferred_location?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "landlord" | "tenant"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +464,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["landlord", "tenant"],
+    },
   },
 } as const
