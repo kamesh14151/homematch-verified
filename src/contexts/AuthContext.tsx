@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select("role")
       .eq("user_id", userId)
       .maybeSingle();
-    setUserRole((data as any)?.role ?? null);
+    setUserRole(data?.role ?? null);
   };
 
   useEffect(() => {
