@@ -21,6 +21,7 @@ type PropertyData = {
   facilities: { water: boolean; separateMeter: boolean; parking: boolean };
   verified: boolean;
   landlordName: string;
+  landlordPhone: string | null;
   landlordId: string;
   memberSince: string;
   totalListings: number;
@@ -54,6 +55,7 @@ const fallbackProperty: PropertyData = {
   facilities: { water: true, separateMeter: true, parking: true },
   verified: true,
   landlordName: "Owner",
+  landlordPhone: null,
   landlordId: "",
   memberSince: "Recently",
   totalListings: 1,
@@ -136,7 +138,7 @@ export default function PropertyDetail() {
 
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("full_name, created_at")
+        .select("full_name, phone, created_at")
         .eq("user_id", propertyRow.landlord_id)
         .maybeSingle();
 
@@ -182,6 +184,7 @@ export default function PropertyDetail() {
         },
         verified: !!propertyRow.is_verified,
         landlordName: profileData?.full_name || "Landlord",
+        landlordPhone: profileData?.phone || null,
         landlordId: propertyRow.landlord_id,
         memberSince: profileData?.created_at ? new Date(profileData.created_at).toLocaleDateString("en-IN") : "Recently",
         totalListings: listingsCount ?? 1,
@@ -203,6 +206,35 @@ export default function PropertyDetail() {
     [property.address]
   );
   const videoSource = useMemo(() => getVideoSource(property.videoUrl), [property.videoUrl]);
+
+  const handleContactLandlord = () => {
+    const rawPhone = (property.landlordPhone || "").trim();
+    if (!rawPhone) {
+      toast({
+        title: "Phone not available",
+        description: "Landlord phone number is not added yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const digits = rawPhone.replace(/\D/g, "");
+    if (digits.length < 10) {
+      toast({
+        title: "Invalid phone",
+        description: "Landlord phone number looks invalid.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const normalizedPhone = digits.length === 10 ? `91${digits}` : digits;
+    const text = encodeURIComponent(
+      `Hi ${property.landlordName}, I am interested in your property "${property.title}" (${property.houseType}) listed at ${property.address}.`
+    );
+    const whatsappUrl = `https://wa.me/${normalizedPhone}?text=${text}`;
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  };
 
   const handleStartChat = async () => {
     if (!user) {
@@ -442,7 +474,7 @@ export default function PropertyDetail() {
                   <Button className="h-11 w-full" onClick={handleStartChat} disabled={chatLoading || loading}>
                     {chatLoading ? "Opening chat..." : "Chat with seller"}
                   </Button>
-                  <Button variant="outline" className="h-11 w-full">Contact Landlord</Button>
+                  <Button variant="outline" className="h-11 w-full" onClick={handleContactLandlord}>Contact Landlord</Button>
 
                   <div className="rounded-lg border p-4">
                     <p className="text-sm font-semibold">Posted in</p>
