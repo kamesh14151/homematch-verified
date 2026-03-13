@@ -23,24 +23,96 @@ const navItems = [
 ];
 
 type PincodeResult = {
-  state?: string;
-  city?: string;
-  village?: string;
-  district?: string;
-  office?: string;
-  pincode?: string;
+  city: string;
+  area: string;
+  pincode: string;
+  district: string;
+  state: string;
 };
 
-let cachedPincodeData: PincodeResult[] | null = null;
-
-const loadPincodeData = async () => {
-  if (cachedPincodeData) return cachedPincodeData;
-
-  const module = await import("india-pincode-search/db/pincode_db.json");
-  const dataset = ((module as { default?: PincodeResult[] }).default ?? []) as PincodeResult[];
-  cachedPincodeData = dataset;
-  return dataset;
+type SuggestionOption = {
+  label: string;
+  record: PincodeResult;
 };
+
+const parseCsvLine = (line: string) => {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+
+    if (char === '"') {
+      const nextChar = line[i + 1];
+      if (inQuotes && nextChar === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  result.push(current.trim());
+  return result;
+};
+
+const parsePincodeCsv = (csvText: string): PincodeResult[] => {
+  const lines = csvText
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  if (lines.length <= 1) return [];
+
+  const headers = parseCsvLine(lines[0]).map((header) => header.toLowerCase());
+  const getIndex = (name: string) => headers.findIndex((header) => header === name.toLowerCase());
+
+  const cityIndex = getIndex("City");
+  const areaIndex = getIndex("Area");
+  const pincodeIndex = getIndex("Pincode");
+  const districtIndex = getIndex("District");
+  const stateIndex = getIndex("State");
+
+  if ([cityIndex, areaIndex, pincodeIndex, districtIndex, stateIndex].some((index) => index === -1)) {
+    return [];
+  }
+
+  return lines.slice(1).map((line) => {
+    const cols = parseCsvLine(line);
+    return {
+      city: cols[cityIndex] ?? "",
+      area: cols[areaIndex] ?? "",
+      pincode: (cols[pincodeIndex] ?? "").replace(/\D/g, "").slice(0, 6),
+      district: cols[districtIndex] ?? "",
+      state: cols[stateIndex] ?? "",
+    };
+  }).filter((item) => item.pincode.length > 0);
+};
+
+const toKey = (record: PincodeResult) => `${record.pincode}|${record.area}|${record.city}|${record.district}|${record.state}`;
+
+const dedupeBy = (records: PincodeResult[]) => {
+  const map = new Map<string, PincodeResult>();
+  records.forEach((record) => {
+    const key = toKey(record);
+    if (!map.has(key)) map.set(key, record);
+  });
+  return Array.from(map.values());
+};
+
+const recordLabel = (record: PincodeResult) =>
+  `${record.pincode} - ${record.area}, ${record.city}, ${record.district}, ${record.state}`;
 
 export default function AddProperty() {
   const { toast } = useToast();
@@ -48,14 +120,25 @@ export default function AddProperty() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [pincodeOptions, setPincodeOptions] = useState<Array<{ pincode: string; label: string; address: string }>>([]);
-  const [addressOptions, setAddressOptions] = useState<Array<{ address: string; pincode: string; label: string }>>([]);
+  const [dataset, setDataset] = useState<PincodeResult[]>([]);
+  const [pincodeOptions, setPincodeOptions] = useState<SuggestionOption[]>([]);
+  const [areaOptions, setAreaOptions] = useState<SuggestionOption[]>([]);
+  const [cityOptions, setCityOptions] = useState<SuggestionOption[]>([]);
+  const [districtOptions, setDistrictOptions] = useState<SuggestionOption[]>([]);
+  const [stateOptions, setStateOptions] = useState<SuggestionOption[]>([]);
   const [showPincodeDropdown, setShowPincodeDropdown] = useState(false);
-  const [showAddressDropdown, setShowAddressDropdown] = useState(false);
+  const [showAreaDropdown, setShowAreaDropdown] = useState(false);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [showDistrictDropdown, setShowDistrictDropdown] = useState(false);
+  const [showStateDropdown, setShowStateDropdown] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
-    address: "",
+    addressLine: "",
+    area: "",
+    city: "",
+    district: "",
+    state: "",
     pincode: "",
     rent: "",
     houseType: "",
@@ -83,110 +166,77 @@ export default function AddProperty() {
     setForm((previous) => ({ ...previous, [key]: value }));
   };
 
+  const applyRecordToLocationFields = (record: PincodeResult) => {
+    updateField("pincode", record.pincode);
+    updateField("area", record.area);
+    updateField("city", record.city);
+    updateField("district", record.district);
+    updateField("state", record.state);
+  };
+
   useEffect(() => {
-    const pincodeQuery = form.pincode.trim();
-    if (pincodeQuery.length < 2) {
+    const loadData = async () => {
+      try {
+        const response = await fetch("/data/India_pincode.csv");
+        const csvText = await response.text();
+        setDataset(parsePincodeCsv(csvText));
+      } catch {
+        setDataset([]);
+      }
+    };
+
+    void loadData();
+  }, []);
+
+  useEffect(() => {
+    const q = form.pincode.trim();
+    if (q.length < 1) {
       setPincodeOptions([]);
       return;
     }
-
-    let isActive = true;
-
-    const loadPincodes = async () => {
-      try {
-        const dataset = await loadPincodeData();
-        const uniqueByPincode = new Map<string, { label: string; address: string }>();
-
-        dataset
-          .filter((item) => (item.pincode ?? "").startsWith(pincodeQuery))
-          .forEach((item) => {
-            const pincode = item.pincode ?? "";
-            if (!pincode || uniqueByPincode.has(pincode)) return;
-
-            const office = item.office ?? "Office";
-            const district = item.district ?? "District";
-            const state = item.state ?? "India";
-            const address = `${office}, ${district}, ${state}`;
-            uniqueByPincode.set(pincode, {
-              label: `${pincode} - ${office}, ${district}, ${state}`,
-              address,
-            });
-          });
-
-        if (isActive) {
-          setPincodeOptions(
-            Array.from(uniqueByPincode.entries())
-              .slice(0, 40)
-              .map(([pincode, value]) => ({ pincode, label: value.label, address: value.address }))
-          );
-        }
-      } catch {
-        if (isActive) setPincodeOptions([]);
-      }
-    };
-
-    void loadPincodes();
-
-    return () => {
-      isActive = false;
-    };
-  }, [form.pincode]);
+    const matches = dedupeBy(dataset.filter((item) => item.pincode.startsWith(q))).slice(0, 50);
+    setPincodeOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+  }, [dataset, form.pincode]);
 
   useEffect(() => {
-    const addressQuery = form.address.trim().toLowerCase();
-    if (addressQuery.length < 3) {
-      setAddressOptions([]);
+    const q = form.area.trim().toLowerCase();
+    if (q.length < 1) {
+      setAreaOptions([]);
       return;
     }
+    const matches = dedupeBy(dataset.filter((item) => item.area.toLowerCase().includes(q))).slice(0, 50);
+    setAreaOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+  }, [dataset, form.area]);
 
-    let isActive = true;
+  useEffect(() => {
+    const q = form.city.trim().toLowerCase();
+    if (q.length < 1) {
+      setCityOptions([]);
+      return;
+    }
+    const matches = dedupeBy(dataset.filter((item) => item.city.toLowerCase().includes(q))).slice(0, 50);
+    setCityOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+  }, [dataset, form.city]);
 
-    const loadAddresses = async () => {
-      try {
-        const dataset = await loadPincodeData();
-        const uniqueByAddress = new Map<string, { pincode: string; label: string }>();
+  useEffect(() => {
+    const q = form.district.trim().toLowerCase();
+    if (q.length < 1) {
+      setDistrictOptions([]);
+      return;
+    }
+    const matches = dedupeBy(dataset.filter((item) => item.district.toLowerCase().includes(q))).slice(0, 50);
+    setDistrictOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+  }, [dataset, form.district]);
 
-        dataset
-          .filter((item) => {
-            const office = (item.office ?? "").toLowerCase();
-            const district = (item.district ?? "").toLowerCase();
-            const city = (item.city ?? "").toLowerCase();
-            const village = (item.village ?? "").toLowerCase();
-            return office.includes(addressQuery) || district.includes(addressQuery) || city.includes(addressQuery) || village.includes(addressQuery);
-          })
-          .forEach((item) => {
-            const office = item.office ?? "";
-            const district = item.district ?? "";
-            const state = item.state ?? "";
-            const pincode = item.pincode ?? "";
-            if (!office || !district || !state || !pincode) return;
-
-            const address = `${office}, ${district}, ${state}`;
-            if (uniqueByAddress.has(address)) return;
-            uniqueByAddress.set(address, {
-              pincode,
-              label: `${address} - ${pincode}`,
-            });
-          });
-
-        if (isActive) {
-          setAddressOptions(
-            Array.from(uniqueByAddress.entries())
-              .slice(0, 40)
-              .map(([address, value]) => ({ address, pincode: value.pincode, label: value.label }))
-          );
-        }
-      } catch {
-        if (isActive) setAddressOptions([]);
-      }
-    };
-
-    void loadAddresses();
-
-    return () => {
-      isActive = false;
-    };
-  }, [form.address]);
+  useEffect(() => {
+    const q = form.state.trim().toLowerCase();
+    if (q.length < 1) {
+      setStateOptions([]);
+      return;
+    }
+    const matches = dedupeBy(dataset.filter((item) => item.state.toLowerCase().includes(q))).slice(0, 50);
+    setStateOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+  }, [dataset, form.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,8 +245,13 @@ export default function AddProperty() {
       return;
     }
 
-    if (!form.title || !form.address || !form.rent || !form.houseType) {
-      toast({ title: "Missing required details", description: "Please fill title, address, rent and house type.", variant: "destructive" });
+    const composedAddress = [form.addressLine, form.area, form.city, form.district, form.state, form.pincode]
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .join(", ");
+
+    if (!form.title || !composedAddress || !form.rent || !form.houseType) {
+      toast({ title: "Missing required details", description: "Please fill title, location details, rent and house type.", variant: "destructive" });
       return;
     }
 
@@ -206,7 +261,7 @@ export default function AddProperty() {
       .insert({
         landlord_id: user.id,
         title: form.title,
-        address: form.address,
+        address: composedAddress,
         pincode: form.pincode || null,
         rent: Number(form.rent),
         house_type: form.houseType,
@@ -306,45 +361,167 @@ export default function AddProperty() {
                   />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <Label>Property Address</Label>
+                  <Label>Address Line</Label>
+                  <Textarea
+                    placeholder="House / street / landmark"
+                    value={form.addressLine}
+                    onChange={(event) => updateField("addressLine", event.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Area</Label>
                   <div className="relative">
-                    <Textarea
-                      placeholder="Type area/office name and select address"
-                      value={form.address}
+                    <Input
+                      placeholder="Type area and select"
+                      value={form.area}
                       onChange={(event) => {
-                        updateField("address", event.target.value);
-                        setShowAddressDropdown(true);
+                        updateField("area", event.target.value);
+                        setShowAreaDropdown(true);
                       }}
-                      onFocus={() => setShowAddressDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowAddressDropdown(false), 120)}
-                      required
+                      onFocus={() => setShowAreaDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowAreaDropdown(false), 120)}
                     />
-                    {showAddressDropdown && form.address.trim().length >= 3 && (
+                    {showAreaDropdown && form.area.trim().length >= 1 && (
                       <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
-                        {addressOptions.length > 0 ? (
-                          addressOptions.map((option) => (
+                        {areaOptions.length > 0 ? (
+                          areaOptions.map((option, index) => (
                             <button
-                              key={`${option.address}-${option.pincode}`}
+                              key={`${option.record.pincode}-${option.record.area}-${index}`}
                               type="button"
                               className="block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent last:border-b-0"
                               onMouseDown={(event) => event.preventDefault()}
                               onClick={() => {
-                                updateField("address", option.address);
-                                updateField("pincode", option.pincode);
-                                setShowAddressDropdown(false);
+                                applyRecordToLocationFields(option.record);
+                                setShowAreaDropdown(false);
                               }}
                             >
                               {option.label}
                             </button>
                           ))
                         ) : (
-                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching addresses found</div>
+                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching areas found</div>
                         )}
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">Type at least 3 letters (area/post office) to get address suggestions</p>
                 </div>
+
+                <div className="space-y-2">
+                  <Label>City</Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Type city and select"
+                      value={form.city}
+                      onChange={(event) => {
+                        updateField("city", event.target.value);
+                        setShowCityDropdown(true);
+                      }}
+                      onFocus={() => setShowCityDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowCityDropdown(false), 120)}
+                    />
+                    {showCityDropdown && form.city.trim().length >= 1 && (
+                      <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
+                        {cityOptions.length > 0 ? (
+                          cityOptions.map((option, index) => (
+                            <button
+                              key={`${option.record.pincode}-${option.record.city}-${index}`}
+                              type="button"
+                              className="block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent last:border-b-0"
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() => {
+                                applyRecordToLocationFields(option.record);
+                                setShowCityDropdown(false);
+                              }}
+                            >
+                              {option.label}
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching cities found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>District</Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Type district and select"
+                      value={form.district}
+                      onChange={(event) => {
+                        updateField("district", event.target.value);
+                        setShowDistrictDropdown(true);
+                      }}
+                      onFocus={() => setShowDistrictDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowDistrictDropdown(false), 120)}
+                    />
+                    {showDistrictDropdown && form.district.trim().length >= 1 && (
+                      <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
+                        {districtOptions.length > 0 ? (
+                          districtOptions.map((option, index) => (
+                            <button
+                              key={`${option.record.pincode}-${option.record.district}-${index}`}
+                              type="button"
+                              className="block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent last:border-b-0"
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() => {
+                                applyRecordToLocationFields(option.record);
+                                setShowDistrictDropdown(false);
+                              }}
+                            >
+                              {option.label}
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching districts found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>State</Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Type state and select"
+                      value={form.state}
+                      onChange={(event) => {
+                        updateField("state", event.target.value);
+                        setShowStateDropdown(true);
+                      }}
+                      onFocus={() => setShowStateDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowStateDropdown(false), 120)}
+                    />
+                    {showStateDropdown && form.state.trim().length >= 1 && (
+                      <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
+                        {stateOptions.length > 0 ? (
+                          stateOptions.map((option, index) => (
+                            <button
+                              key={`${option.record.pincode}-${option.record.state}-${index}`}
+                              type="button"
+                              className="block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent last:border-b-0"
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() => {
+                                applyRecordToLocationFields(option.record);
+                                setShowStateDropdown(false);
+                              }}
+                            >
+                              {option.label}
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching states found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label>PIN Code</Label>
                   <div className="relative">
@@ -363,17 +540,14 @@ export default function AddProperty() {
                     {showPincodeDropdown && form.pincode.trim().length >= 2 && (
                       <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
                         {pincodeOptions.length > 0 ? (
-                          pincodeOptions.map((option) => (
+                          pincodeOptions.map((option, index) => (
                             <button
-                              key={option.pincode}
+                              key={`${option.record.pincode}-${index}`}
                               type="button"
                               className="block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent last:border-b-0"
                               onMouseDown={(event) => event.preventDefault()}
                               onClick={() => {
-                                updateField("pincode", option.pincode);
-                                if (!form.address.trim()) {
-                                  updateField("address", option.address);
-                                }
+                                applyRecordToLocationFields(option.record);
                                 setShowPincodeDropdown(false);
                               }}
                             >
