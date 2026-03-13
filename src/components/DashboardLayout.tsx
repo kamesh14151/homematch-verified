@@ -32,13 +32,31 @@ interface DashboardLayoutProps {
   children: ReactNode;
   navItems: NavItem[];
   title: string;
+  onLogout?: () => Promise<void> | void;
 }
 
-function DashboardSidebar({ navItems, title }: { navItems: NavItem[]; title: string }) {
+function DashboardSidebar({
+  navItems,
+  title,
+  onLogout,
+}: {
+  navItems: NavItem[];
+  title: string;
+  onLogout?: () => Promise<void> | void;
+}) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { signOut } = useAuth();
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    if (onLogout) {
+      await onLogout();
+      return;
+    }
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <TooltipProvider delayDuration={120}>
@@ -90,7 +108,7 @@ function DashboardSidebar({ navItems, title }: { navItems: NavItem[]; title: str
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <SidebarMenuButton
-                        onClick={async () => { await signOut(); navigate("/"); }}
+                        onClick={handleLogout}
                         className="text-muted-foreground hover:text-destructive"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
@@ -109,11 +127,11 @@ function DashboardSidebar({ navItems, title }: { navItems: NavItem[]; title: str
   );
 }
 
-export function DashboardLayout({ children, navItems, title }: DashboardLayoutProps) {
+export function DashboardLayout({ children, navItems, title, onLogout }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <DashboardSidebar navItems={navItems} title={title} />
+        <DashboardSidebar navItems={navItems} title={title} onLogout={onLogout} />
         <div className="flex-1 flex flex-col">
           <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-card/80 px-4 backdrop-blur-lg">
             <SidebarTrigger />

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { AdminRoute } from "@/components/AdminRoute";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -42,6 +43,8 @@ import SavedHouses from "./pages/tenant/SavedHouses";
 import Applications from "./pages/tenant/Applications";
 import TenantMessages from "./pages/tenant/Messages";
 import TenantProfile from "./pages/tenant/Profile";
+import AdminLogin from "./pages/admin/Login";
+import AdminDashboard from "./pages/admin/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +91,10 @@ const App = () => (
               <Route path="/tenant/applications" element={<ProtectedRoute requiredRole="tenant"><Applications /></ProtectedRoute>} />
               <Route path="/tenant/messages" element={<ProtectedRoute requiredRole="tenant"><TenantMessages /></ProtectedRoute>} />
               <Route path="/tenant/profile" element={<ProtectedRoute requiredRole="tenant"><TenantProfile /></ProtectedRoute>} />
+
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
