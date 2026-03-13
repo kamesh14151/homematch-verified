@@ -119,6 +119,25 @@ const tenantSteps = [
 
 const topCities = ["Mumbai", "Delhi / NCR", "Bangalore", "Chennai", "Hyderabad", "Pune", "Kolkata", "Ahmedabad"];
 
+const rentverifyLinks = [
+  { label: "About Us", to: "/about-us" },
+  { label: "Our Services", to: "/our-services" },
+  { label: "Price Trends", to: "/price-trends" },
+  { label: "Post Property Free", to: "/post-property-free" },
+  { label: "Articles", to: "/articles" },
+  { label: "Sitemap", to: "/sitemap" },
+];
+
+const companyLinks = [
+  { label: "Company", to: "/company" },
+  { label: "About AJ STUDIOZ", to: "/about-aj-studioz" },
+  { label: "Contact Us", to: "/contact-us" },
+  { label: "Careers", to: "/careers" },
+  { label: "Terms & Conditions", to: "/terms-conditions" },
+  { label: "Privacy Policy", to: "/privacy-policy" },
+  { label: "Safety Guide", to: "/safety-guide" },
+];
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.45 } }),
@@ -215,20 +234,20 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="border-b bg-background py-10">
+      <section className="border-b bg-background py-8 sm:py-10">
         <div className="container mx-auto px-4">
-          <div className="mb-4 flex flex-wrap gap-2">
+          <div className="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-1 sm:overflow-visible">
             {categoryChips.map((chip, index) => (
               <button
                 key={chip}
-                className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${index === 0 ? "bg-[#3A7AFE] text-white border-[#3A7AFE]" : "bg-card text-muted-foreground hover:text-foreground"}`}
+                className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-medium transition-colors sm:text-sm ${index === 0 ? "border-[#3A7AFE] bg-[#3A7AFE] text-white" : "bg-card text-muted-foreground hover:text-foreground"}`}
               >
                 {chip}
               </button>
             ))}
           </div>
           <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-            <aside className="rounded-xl border bg-card p-4">
+            <aside className="rounded-xl border bg-card p-4 lg:sticky lg:top-20 lg:h-fit">
               {filterGroups.map((group) => (
                 <div key={group.title} className="mb-5">
                   <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">{group.title}</h3>
@@ -244,23 +263,23 @@ export default function Index() {
               ))}
             </aside>
             <div>
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Flats for Rent in Salem</h2>
-                <Button variant="outline" size="sm">Sort by: Date Published</Button>
+              <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-xl font-bold sm:text-2xl">Flats for Rent in Salem</h2>
+                <Button variant="outline" size="sm" className="w-full sm:w-auto">Sort by: Date Published</Button>
               </div>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {listingPreview.map((item) => (
                   <Link key={item.id} to={`/property/${item.id}`}>
                     <Card className="overflow-hidden border transition-all hover:-translate-y-0.5 hover:shadow-md">
-                      <div className="relative h-44 overflow-hidden">
+                      <div className="relative h-40 overflow-hidden sm:h-44">
                         <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
                         <span className="absolute left-2 top-2 rounded bg-yellow-300 px-2 py-0.5 text-[10px] font-bold text-black">FEATURED</span>
                       </div>
-                      <CardContent className="space-y-1 p-4">
-                        <p className="text-2xl font-bold text-foreground">{item.price}</p>
-                        <p className="text-sm font-semibold">{item.meta}</p>
-                        <p className="line-clamp-1 text-sm text-muted-foreground">{item.title}</p>
-                        <div className="flex items-center justify-between pt-1 text-xs text-muted-foreground">
+                      <CardContent className="space-y-1.5 p-3.5 sm:p-4">
+                        <p className="text-xl font-bold leading-none text-foreground sm:text-2xl">{item.price}</p>
+                        <p className="text-xs font-semibold text-foreground/90 sm:text-sm">{item.meta}</p>
+                        <p className="line-clamp-1 text-xs text-muted-foreground sm:text-sm">{item.title}</p>
+                        <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground sm:text-xs">
                           <span>{item.location}</span>
                           <span>{item.time}</span>
                         </div>
@@ -476,7 +495,7 @@ export default function Index() {
         </div>
       </section>
 
-      <footer className="border-t bg-[#0a0f1a] py-14 text-white">
+      <footer className="border-t bg-[#0a0f1a] py-12 text-white sm:py-14">
         <div className="container mx-auto px-4">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
@@ -489,29 +508,16 @@ export default function Index() {
             <div>
               <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">RentVerify</h4>
               <ul className="space-y-2.5 text-sm text-white/60">
-                {[
-                  "About Us",
-                  "Our Services",
-                  "Price Trends",
-                  "Post Property Free",
-                  "Articles",
-                  "Sitemap",
-                ].map((item) => (
-                  <li key={item}><Link to="/register" className="hover:text-white">{item}</Link></li>
+                {rentverifyLinks.map((item) => (
+                  <li key={item.label}><Link to={item.to} className="hover:text-white">{item.label}</Link></li>
                 ))}
               </ul>
             </div>
             <div>
               <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">Company</h4>
               <ul className="space-y-2.5 text-sm text-white/60">
-                {[
-                  "About AJ STUDIOZ",
-                  "Contact Us",
-                  "Careers",
-                  "Terms and Conditions",
-                  "Privacy Policy",
-                ].map((item) => (
-                  <li key={item}><Link to="/register" className="hover:text-white">{item}</Link></li>
+                {companyLinks.map((item) => (
+                  <li key={item.label}><Link to={item.to} className="hover:text-white">{item.label}</Link></li>
                 ))}
               </ul>
             </div>

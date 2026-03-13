@@ -59,12 +59,12 @@ export default function PropertyDetail() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to listings
         </Link>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
           <div className="space-y-6 lg:col-span-2">
             <Card className="overflow-hidden border">
               <div className="relative aspect-[16/9] bg-muted">
@@ -74,22 +74,22 @@ export default function PropertyDetail() {
                   <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full"><Heart className="h-4 w-4" /></Button>
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-2 border-t p-3">
+              <div className="grid grid-cols-4 gap-2 border-t p-2.5 sm:p-3">
                 {property.images.map((image, index) => (
                   <button
                     key={image}
                     onClick={() => setActiveImage(index)}
                     className={`overflow-hidden rounded-md border-2 ${activeImage === index ? "border-primary" : "border-transparent"}`}
                   >
-                    <img src={image} alt={`Property ${index + 1}`} className="h-16 w-full object-cover" />
+                    <img src={image} alt={`Property ${index + 1}`} className="h-14 w-full object-cover sm:h-16" />
                   </button>
                 ))}
               </div>
             </Card>
 
-            <div className="rounded-xl border bg-card p-5">
+            <div className="rounded-xl border bg-card p-4 sm:p-5">
               <div className="mb-2 flex items-center gap-2">
-                <h1 className="text-2xl font-bold">{property.title}</h1>
+                <h1 className="text-xl font-bold sm:text-2xl">{property.title}</h1>
                 {property.verified && (
                   <Badge className="gap-1 bg-success text-success-foreground">
                     <ShieldCheck className="h-3 w-3" /> Verified
@@ -106,7 +106,7 @@ export default function PropertyDetail() {
             </div>
 
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <h2 className="mb-3 text-lg font-semibold">Details</h2>
                 <div className="grid gap-3 text-sm sm:grid-cols-2">
                   {property.details.map((item) => (
@@ -120,7 +120,7 @@ export default function PropertyDetail() {
             </Card>
 
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <h2 className="mb-3 text-lg font-semibold">Description</h2>
                 <p className="text-muted-foreground leading-relaxed">{property.description}</p>
                 <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
@@ -132,7 +132,7 @@ export default function PropertyDetail() {
             </Card>
 
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <h2 className="mb-4 text-lg font-semibold">Facilities</h2>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                   <div className="flex items-center gap-2">
@@ -154,10 +154,10 @@ export default function PropertyDetail() {
 
           {/* Sidebar */}
           <div className="space-y-4">
-            <Card className="sticky top-20">
-              <CardContent className="p-6 space-y-4">
+            <Card className="lg:sticky lg:top-20">
+              <CardContent className="space-y-4 p-4 sm:p-6">
                 <div>
-                  <p className="text-4xl font-bold text-foreground">Rs. {property.rent.toLocaleString("en-IN")}</p>
+                  <p className="text-3xl font-bold text-foreground sm:text-4xl">Rs. {property.rent.toLocaleString("en-IN")}</p>
                   <p className="text-sm text-muted-foreground">{property.houseType} · {property.bathrooms} Bathroom · {property.sqft} sqft</p>
                 </div>
 

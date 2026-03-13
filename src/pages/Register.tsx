@@ -48,22 +48,22 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Left - Form */}
-      <div className="flex w-full flex-col justify-between px-8 py-6 lg:w-1/2 lg:px-16">
+      <div className="flex w-full flex-col justify-between px-6 py-5 sm:px-8 lg:w-1/2 lg:px-14 lg:py-6">
         <Link to="/" className="inline-flex items-center gap-2 self-start">
           <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-9 w-9 rounded-lg object-contain" />
           <span className="font-bunderon text-lg text-foreground">RentVerify</span>
         </Link>
 
-        <div className="mx-auto w-full max-w-sm">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Create an account</h1>
-            <p className="mt-2 text-muted-foreground">Sign up and get started for free</p>
+        <div className="mx-auto w-full max-w-sm overflow-y-auto lg:overflow-hidden">
+          <div className="mb-4">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">Create an account</h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">Sign up and get started for free</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-1">
               <Label className="text-sm text-muted-foreground">I am a</Label>
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -91,7 +91,7 @@ export default function Register() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="name" className="text-sm text-muted-foreground">Full Name</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -100,7 +100,7 @@ export default function Register() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -109,7 +109,7 @@ export default function Register() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="password" className="text-sm text-muted-foreground">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -130,13 +130,13 @@ export default function Register() {
             </Button>
           </form>
 
-          <div className="mt-5 flex items-center gap-3">
+          <div className="mt-4 flex items-center gap-3">
             <div className="h-px flex-1 bg-border" />
             <span className="text-xs text-muted-foreground">or continue with</span>
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          <div className="mt-4">
+          <div className="mt-3.5">
             <Button variant="outline" className="h-11 w-full rounded-xl border-border" onClick={handleGoogleSignIn}>
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -156,7 +156,7 @@ export default function Register() {
       </div>
 
       {/* Right - Image */}
-      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden rounded-l-3xl">
+      <div className="relative hidden overflow-hidden rounded-l-3xl lg:block lg:w-1/2">
         <img src={loginHero} alt="Team collaborating" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>

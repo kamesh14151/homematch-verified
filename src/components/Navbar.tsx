@@ -30,8 +30,8 @@ export function Navbar() {
           <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Home</Link>
           <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
           <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
-          <Link to="/register" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">For Tenants</Link>
-          <Link to="/register" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">For Owners</Link>
+          <Link to="/for-tenants" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">For Tenants</Link>
+          <Link to="/for-owners" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">For Owners</Link>
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -76,8 +76,8 @@ export function Navbar() {
             <Link to="/" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>Home</Link>
             <a href="#features" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>Features</a>
             <a href="#how-it-works" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>How It Works</a>
-            <Link to="/register" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Tenants</Link>
-            <Link to="/register" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Owners</Link>
+            <Link to="/for-tenants" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Tenants</Link>
+            <Link to="/for-owners" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Owners</Link>
             {user ? (
               <>
                 <Link to={dashboardPath} className="text-sm font-medium" onClick={() => setMobileOpen(false)}>Dashboard</Link>

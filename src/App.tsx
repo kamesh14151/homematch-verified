@@ -12,6 +12,23 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "./pages/PropertyDetail";
+import {
+  AboutAJStudiozPage,
+  AboutUsPage,
+  ArticlesPage,
+  CareersPage,
+  CompanyPage,
+  ContactUsPage,
+  ForOwnersPage,
+  ForTenantsPage,
+  OurServicesPage,
+  PostPropertyFreePage,
+  PriceTrendsPage,
+  PrivacyPolicyPage,
+  SafetyGuidePage,
+  SitemapPage,
+  TermsAndConditionsPage,
+} from "./pages/InfoPages";
 
 import LandlordDashboard from "./pages/landlord/Dashboard";
 import AddProperty from "./pages/landlord/AddProperty";
@@ -41,6 +58,21 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/property/:id" element={<PropertyDetail />} />
+              <Route path="/for-tenants" element={<ForTenantsPage />} />
+              <Route path="/for-owners" element={<ForOwnersPage />} />
+              <Route path="/about-us" element={<AboutUsPage />} />
+              <Route path="/our-services" element={<OurServicesPage />} />
+              <Route path="/price-trends" element={<PriceTrendsPage />} />
+              <Route path="/post-property-free" element={<PostPropertyFreePage />} />
+              <Route path="/articles" element={<ArticlesPage />} />
+              <Route path="/sitemap" element={<SitemapPage />} />
+              <Route path="/company" element={<CompanyPage />} />
+              <Route path="/about-aj-studioz" element={<AboutAJStudiozPage />} />
+              <Route path="/contact-us" element={<ContactUsPage />} />
+              <Route path="/careers" element={<CareersPage />} />
+              <Route path="/terms-conditions" element={<TermsAndConditionsPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/safety-guide" element={<SafetyGuidePage />} />
 
               {/* Landlord Routes */}
               <Route path="/landlord/dashboard" element={<ProtectedRoute requiredRole="landlord"><LandlordDashboard /></ProtectedRoute>} />
