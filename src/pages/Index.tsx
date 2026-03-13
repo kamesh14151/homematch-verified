@@ -3,19 +3,25 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
+  BarChart3,
   BedDouble,
   Building2,
+  Calculator,
   CheckCircle2,
   ChevronRight,
   FileCheck,
+  FileText,
   Handshake,
+  Headphones,
   Home,
   Lock,
+  Newspaper,
   MapPin,
   PhoneCall,
   Search,
   ShieldCheck,
   Sofa,
+  Sparkles,
   Star,
   Trees,
   UserCheck,
@@ -51,8 +57,7 @@ const categoryChips = [
 ];
 
 const filterGroups = [
-  { title: "Locations", items: ["India", "Tamil Nadu", "Salem"] },
-  { title: "BHK", items: ["1 BHK (1,757)", "2 BHK (3,917)", "3 BHK (1,427)", "4 BHK (91)"] },
+  { title: "BHK", items: ["1", "2", "3", "4+"] },
   { title: "Furnishing", items: ["Unfurnished", "Semi-Furnished", "Fully Furnished"] },
 ];
 
@@ -67,7 +72,74 @@ type HomeListing = {
   address: string;
   rent: number;
   propertyType: string;
+  bedrooms: number | null;
+  furnishing: string | null;
+  createdAt: string;
 };
+
+const solutionCards = [
+  {
+    icon: Search,
+    title: "Discovery-first search",
+    description: "Free-text location search, verified inventory and fast shortlist-friendly browsing.",
+  },
+  {
+    icon: FileText,
+    title: "Compliance-ready leasing",
+    description: "Structured tenant profiles, document checks and cleaner approval workflows for landlords.",
+  },
+  {
+    icon: Headphones,
+    title: "Owner success tools",
+    description: "Post faster, respond sooner and manage leads from one focused landlord workspace.",
+  },
+];
+
+const researchTools = [
+  {
+    icon: BarChart3,
+    title: "Price Trends",
+    description: "See how rental demand and pricing move across major localities before you decide.",
+    link: "/price-trends",
+  },
+  {
+    icon: Calculator,
+    title: "Affordability Planning",
+    description: "Compare budget bands quickly and match them with furnishing and BHK expectations.",
+    link: "/for-tenants",
+  },
+  {
+    icon: Newspaper,
+    title: "Guides & Insights",
+    description: "Research-backed content for tenants, owners, compliance and smarter rental decisions.",
+    link: "/articles",
+  },
+];
+
+const trustSignals = [
+  "PAN-verified landlords",
+  "Direct landlord contact flow",
+  "Application and chat tracking",
+  "Document-safe verification model",
+];
+
+const testimonials = [
+  {
+    quote: "The platform feels more credible than generic classifieds because verification and applications are built into the flow.",
+    name: "Sanjay Raman",
+    role: "Property Owner, Chennai",
+  },
+  {
+    quote: "Shortlisting was easier because listings showed the right signals first: area, budget, furnishing and trust markers.",
+    name: "Nivetha K",
+    role: "Tenant, Bengaluru",
+  },
+  {
+    quote: "The landlord dashboard and request pipeline reduce follow-up chaos. It feels like an actual operating system for rentals.",
+    name: "Ashwin Joseph",
+    role: "Portfolio Manager, Hyderabad",
+  },
+];
 
 const propertyTypes = [
   { label: "Independent House / Villa", count: "120+", color: "bg-amber-50 dark:bg-amber-950/40" },
@@ -135,6 +207,9 @@ export default function Index() {
   const [loadingListings, setLoadingListings] = useState(true);
   const [allListings, setAllListings] = useState<HomeListing[]>([]);
   const [filteredListings, setFilteredListings] = useState<HomeListing[]>([]);
+  const [selectedBedrooms, setSelectedBedrooms] = useState<string[]>([]);
+  const [selectedFurnishing, setSelectedFurnishing] = useState<string[]>([]);
+  const [sortOption, setSortOption] = useState("newest");
 
   useEffect(() => {
     const loadListings = async () => {
@@ -142,7 +217,7 @@ export default function Index() {
 
       const { data: rows } = await supabase
         .from("properties")
-        .select("id, title, address, rent, house_type, property_type, bedrooms, bathrooms, super_builtup_area, created_at")
+        .select("id, title, address, rent, house_type, property_type, bedrooms, bathrooms, super_builtup_area, furnishing, created_at")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(60);
@@ -182,6 +257,9 @@ export default function Index() {
           address: item.address,
           rent: item.rent,
           propertyType: item.property_type || item.house_type || "",
+          bedrooms: item.bedrooms,
+          furnishing: item.furnishing,
+          createdAt: item.created_at,
         };
       });
 
@@ -215,15 +293,53 @@ export default function Index() {
       return true;
     };
 
+    const bedroomMatch = (bedrooms: number | null) => {
+      if (selectedBedrooms.length === 0) return true;
+      if (bedrooms === null) return false;
+
+      return selectedBedrooms.some((selected) => {
+        if (selected === "4+") return bedrooms >= 4;
+        return bedrooms === Number(selected);
+      });
+    };
+
+    const furnishingMatch = (furnishing: string | null) => {
+      if (selectedFurnishing.length === 0) return true;
+      const normalized = (furnishing || "").toLowerCase();
+      return selectedFurnishing.some((selected) => normalized === selected.toLowerCase());
+    };
+
     const next = allListings.filter((listing) => {
       const locationOk = !location || listing.address.toLowerCase().includes(location);
-      return locationOk && typeMatch(listing.propertyType) && budgetMatch(listing.rent);
+      return (
+        locationOk &&
+        typeMatch(listing.propertyType) &&
+        budgetMatch(listing.rent) &&
+        bedroomMatch(listing.bedrooms) &&
+        furnishingMatch(listing.furnishing)
+      );
     });
 
-    setFilteredListings(next);
+    const sorted = [...next].sort((left, right) => {
+      if (sortOption === "rent-low") return left.rent - right.rent;
+      if (sortOption === "rent-high") return right.rent - left.rent;
+      return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+    });
+
+    setFilteredListings(sorted);
     const listingSection = document.getElementById("home-listings");
     listingSection?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  const toggleSelection = (value: string, selected: string[], setSelected: (updater: (current: string[]) => string[]) => void) => {
+    setSelected((current) =>
+      current.includes(value) ? current.filter((item) => item !== value) : [...current, value],
+    );
+  };
+
+  useEffect(() => {
+    applySearch();
+  }, [selectedBedrooms, selectedFurnishing, sortOption]);
 
   const listingTitle = useMemo(() => {
     if (!searchLocation.trim()) return "Flats for Rent";
@@ -324,6 +440,35 @@ export default function Index() {
         </div>
       </section>
 
+      <section className="border-b bg-slate-50/70 py-10 dark:bg-slate-950/20">
+        <div className="container mx-auto px-4">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#3A7AFE]">Marketplace Standards</div>
+              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Built for trust, conversion and operational clarity</h2>
+            </div>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Leading platforms win with strong trust signals, decision-support content and simplified journeys. RentVerify is now aligned with those core patterns.
+            </p>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {solutionCards.map((card, index) => (
+              <motion.div key={card.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
+                <Card className="h-full border-0 bg-white shadow-[0_16px_48px_rgba(15,23,42,0.08)] dark:bg-card">
+                  <CardContent className="p-6">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#3A7AFE]/10">
+                      <card.icon className="h-6 w-6 text-[#3A7AFE]" />
+                    </div>
+                    <h3 className="text-lg font-semibold">{card.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="home-listings" className="border-b bg-background py-6 sm:py-10">
         <div className="container mx-auto px-4">
           <div className="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-1 sm:overflow-visible">
@@ -338,24 +483,73 @@ export default function Index() {
           </div>
           <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
             <aside className="rounded-xl border bg-card p-4 lg:sticky lg:top-20 lg:h-fit">
-              {filterGroups.map((group) => (
-                <div key={group.title} className="mb-5">
-                  <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">{group.title}</h3>
-                  <div className="space-y-2">
-                    {group.items.map((item) => (
-                      <label key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <input type="checkbox" className="h-4 w-4 rounded border-border" readOnly />
-                        {item}
-                      </label>
-                    ))}
-                  </div>
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">Filters</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">Refine results like leading marketplaces</p>
                 </div>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedBedrooms([]);
+                    setSelectedFurnishing([]);
+                    setSortOption("newest");
+                  }}
+                  className="text-xs font-semibold text-[#3A7AFE]"
+                >
+                  Reset
+                </button>
+              </div>
+
+              {filterGroups.map((group) => {
+                const selected = group.title === "BHK" ? selectedBedrooms : selectedFurnishing;
+                const setSelected = group.title === "BHK" ? setSelectedBedrooms : setSelectedFurnishing;
+
+                return (
+                  <div key={group.title} className="mb-5">
+                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">{group.title}</h3>
+                    <div className="space-y-2">
+                      {group.items.map((item) => (
+                        <label key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-border"
+                            checked={selected.includes(item)}
+                            onChange={() => toggleSelection(item, selected, setSelected)}
+                          />
+                          {item}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div>
+                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">Trust Signals</h3>
+                <div className="space-y-2">
+                  {trustSignals.map((item) => (
+                    <div key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </aside>
             <div>
               <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-xl font-bold sm:text-2xl">{listingTitle}</h2>
-                <Button variant="outline" size="sm" className="w-full sm:w-auto">Sort by: Date Published</Button>
+                <Select value={sortOption} onValueChange={setSortOption}>
+                  <SelectTrigger className="w-full sm:w-[220px]">
+                    <SelectValue placeholder="Sort listings" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest First</SelectItem>
+                    <SelectItem value="rent-low">Rent: Low to High</SelectItem>
+                    <SelectItem value="rent-high">Rent: High to Low</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {loadingListings ? (
                 <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">Loading listings...</div>
@@ -493,6 +687,40 @@ export default function Index() {
         </div>
       </section>
 
+      <section id="insights" className="border-y bg-gradient-to-b from-white to-slate-50 py-16 dark:from-background dark:to-slate-950/20">
+        <div className="container mx-auto px-4">
+          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#3A7AFE]">Research & Insights</div>
+              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Tools users expect before making a decision</h2>
+            </div>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Inspired by high-performing property portals, these sections reduce hesitation by combining search, insights and planning help in one experience.
+            </p>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-3">
+            {researchTools.map((tool, index) => (
+              <motion.div key={tool.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
+                <Link to={tool.link}>
+                  <Card className="h-full border bg-card transition-all hover:-translate-y-0.5 hover:border-[#3A7AFE]/40 hover:shadow-lg">
+                    <CardContent className="p-6">
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#3A7AFE]/10">
+                        <tool.icon className="h-6 w-6 text-[#3A7AFE]" />
+                      </div>
+                      <h3 className="text-lg font-semibold">{tool.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tool.description}</p>
+                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#3A7AFE]">
+                        Explore <ArrowRight className="h-4 w-4" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="how-it-works" className="py-20">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
@@ -575,6 +803,64 @@ export default function Index() {
                 <PhoneCall className="h-4 w-4" /> Post via call
               </a>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="trust-proof" className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="mb-8 text-center">
+            <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#3A7AFE]">Proof of Trust</div>
+            <h2 className="mt-2 text-2xl font-bold sm:text-3xl">What stronger marketplace design should feel like</h2>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-3">
+            {testimonials.map((testimonial, index) => (
+              <motion.div key={testimonial.name} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
+                <Card className="h-full border bg-card shadow-sm">
+                  <CardContent className="p-6">
+                    <div className="mb-4 flex items-center gap-1 text-amber-500">
+                      {Array.from({ length: 5 }).map((_, starIndex) => (
+                        <Star key={starIndex} className="h-4 w-4 fill-current" />
+                      ))}
+                    </div>
+                    <p className="text-sm leading-7 text-foreground/85">&ldquo;{testimonial.quote}&rdquo;</p>
+                    <div className="mt-5 border-t pt-4">
+                      <p className="font-semibold">{testimonial.name}</p>
+                      <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="services" className="bg-[#0b1220] py-16 text-white">
+        <div className="container mx-auto px-4">
+          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-[0.24em] text-blue-300">Owner & Tenant Services</div>
+              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">More than listings. A managed rental workflow.</h2>
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70">
+              <Sparkles className="h-4 w-4 text-yellow-400" /> Inspired by category leaders, adapted for verified rentals.
+            </div>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-4">
+            {[
+              "Verified lead handling",
+              "Application review workflows",
+              "Direct owner contact path",
+              "Safer document and KYC readiness",
+            ].map((item, index) => (
+              <motion.div key={item} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                  <CheckCircle2 className="mb-3 h-5 w-5 text-green-400" />
+                  <p className="font-medium text-white/90">{item}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
