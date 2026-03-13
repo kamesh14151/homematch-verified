@@ -149,6 +149,7 @@ export type Database = {
         Row: {
           address: string
           bathrooms: number | null
+          booking_hold_amount: number | null
           bedrooms: number | null
           created_at: string
           description: string | null
@@ -169,6 +170,7 @@ export type Database = {
           project_name: string | null
           property_type: string | null
           rent: number
+          security_deposit_amount: number | null
           separate_meter: boolean | null
           super_builtup_area: number | null
           title: string
@@ -180,6 +182,7 @@ export type Database = {
         Insert: {
           address: string
           bathrooms?: number | null
+          booking_hold_amount?: number | null
           bedrooms?: number | null
           created_at?: string
           description?: string | null
@@ -200,6 +203,7 @@ export type Database = {
           project_name?: string | null
           property_type?: string | null
           rent: number
+          security_deposit_amount?: number | null
           separate_meter?: boolean | null
           super_builtup_area?: number | null
           title: string
@@ -211,6 +215,7 @@ export type Database = {
         Update: {
           address?: string
           bathrooms?: number | null
+          booking_hold_amount?: number | null
           bedrooms?: number | null
           created_at?: string
           description?: string | null
@@ -231,6 +236,7 @@ export type Database = {
           project_name?: string | null
           property_type?: string | null
           rent?: number
+          security_deposit_amount?: number | null
           separate_meter?: boolean | null
           super_builtup_area?: number | null
           title?: string

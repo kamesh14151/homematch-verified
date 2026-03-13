@@ -33,6 +33,8 @@ type PropertyData = {
   title: string;
   address: string;
   rent: number;
+  securityDepositAmount: number | null;
+  bookingHoldAmount: number | null;
   houseType: string;
   images: string[];
   landlordId: string;
@@ -155,7 +157,7 @@ function PaymentSidebar({
   loading: boolean;
   onContinue: () => void;
 }) {
-  const deposit = Math.round(property.rent * 0.5);
+  const deposit = property.securityDepositAmount ?? Math.round(property.rent * 0.5);
   const total = property.rent + deposit;
   const balanceDue = useMemo(() => {
     const d = new Date();
@@ -174,7 +176,7 @@ function PaymentSidebar({
           <span className="font-semibold">Rs. {property.rent.toLocaleString("en-IN")}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Estimated deposit</span>
+          <span className="text-muted-foreground">Security deposit</span>
           <span className="font-semibold">Rs. {deposit.toLocaleString("en-IN")}</span>
         </div>
         <div className="flex justify-between border-t pt-3 text-sm">
@@ -183,7 +185,7 @@ function PaymentSidebar({
         </div>
 
         <div className="rounded-xl bg-[#3A7AFE]/8 border border-[#3A7AFE]/20 p-4 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Suggested booking hold</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Booking hold amount</p>
           <p className="mt-1 text-4xl font-extrabold text-[#3A7AFE]">Rs. {advance.toLocaleString("en-IN")}</p>
           <p className="mt-1 text-xs text-muted-foreground">Balance due by {balanceDue}</p>
         </div>
@@ -204,7 +206,7 @@ function PaymentSidebar({
         </Button>
 
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Rent is pulled live from the landlord&apos;s current listing. Deposit and booking-hold values are estimated until the owner confirms final terms.
+          All three values are shown from the landlord listing. Older listings without booking pricing fall back to default calculations.
         </p>
       </CardContent>
     </Card>
@@ -213,7 +215,7 @@ function PaymentSidebar({
 
 // ─── Step 1: Booking Info ─────────────────────────────────────────────────────
 function Step1({ property }: { property: PropertyData }) {
-  const advance = Math.round(property.rent * 0.25);
+  const advance = property.bookingHoldAmount ?? Math.round(property.rent * 0.25);
   const balanceDue = useMemo(() => {
     const d = new Date();
     d.setDate(d.getDate() + 10);
@@ -246,14 +248,14 @@ function Step1({ property }: { property: PropertyData }) {
         <CardContent className="p-0">
           <div className="border-b px-6 py-4">
             <h3 className="text-xl font-bold">Booking Policy</h3>
-            <p className="mt-0.5 text-sm text-muted-foreground">Live rent is shown from the landlord listing. Booking and deposit amounts are estimated until the landlord confirms.</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">Rent, security deposit, and booking hold are shown from the landlord listing for confirmed pricing.</p>
           </div>
           <div className="divide-y">
             <div className="px-6 py-5">
-              <h4 className="font-semibold">Suggested Booking Hold</h4>
+              <h4 className="font-semibold">Booking Hold</h4>
               <p className="mt-2 flex items-center gap-2 text-muted-foreground">
                 <span className="font-bold text-yellow-500">→</span>
-                Suggested booking hold :&nbsp;<span className="font-bold text-[#3A7AFE]">Rs. {advance.toLocaleString("en-IN")}</span>
+                Booking hold amount :&nbsp;<span className="font-bold text-[#3A7AFE]">Rs. {advance.toLocaleString("en-IN")}</span>
               </p>
             </div>
             <div className="px-6 py-5">
@@ -460,7 +462,8 @@ function Step4({
     { label: "Move-in Date", value: details.moveInDate || "—" },
     { label: "Payment Method", value: methodLabel },
     { label: "Monthly Rent", value: `Rs. ${property.rent.toLocaleString("en-IN")}` },
-    { label: "Suggested Booking Hold", value: `Rs. ${advance.toLocaleString("en-IN")}` },
+    { label: "Security Deposit", value: `Rs. ${(property.securityDepositAmount ?? Math.round(property.rent * 0.5)).toLocaleString("en-IN")}` },
+    { label: "Booking Hold", value: `Rs. ${advance.toLocaleString("en-IN")}` },
   ];
 
   return (
@@ -505,7 +508,7 @@ function Step4({
       <div className="flex items-start gap-3 rounded-2xl border border-green-200 bg-green-50 px-5 py-4 dark:border-green-900/40 dark:bg-green-950/20">
         <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
         <p className="text-sm text-muted-foreground">
-          By confirming, you agree to the <span className="cursor-pointer font-medium text-[#3A7AFE] underline underline-offset-2">Booking Terms</span>. Monthly rent is live from the landlord listing, while the booking hold is an estimated amount used to start the request securely.
+          By confirming, you agree to the <span className="cursor-pointer font-medium text-[#3A7AFE] underline underline-offset-2">Booking Terms</span>. The rent and booking amounts shown here come directly from the landlord listing.
         </p>
       </div>
     </div>
@@ -540,7 +543,7 @@ export default function PropertyBooking() {
     const load = async () => {
       const { data: row } = await supabase
         .from("properties")
-        .select("id, title, address, rent, house_type, landlord_id")
+        .select("id, title, address, rent, security_deposit_amount, booking_hold_amount, house_type, landlord_id")
         .eq("id", id)
         .maybeSingle();
 
@@ -557,6 +560,8 @@ export default function PropertyBooking() {
         title: row.title,
         address: row.address,
         rent: row.rent,
+        securityDepositAmount: row.security_deposit_amount,
+        bookingHoldAmount: row.booking_hold_amount,
         houseType: row.house_type,
         images: imageRows?.map((r) => r.image_url) ?? [],
         landlordId: row.landlord_id,
@@ -572,7 +577,7 @@ export default function PropertyBooking() {
     }
   }, [user, id, navigate]);
 
-  const advance = useMemo(() => Math.round((property?.rent ?? 0) * 0.25), [property]);
+  const advance = useMemo(() => property?.bookingHoldAmount ?? Math.round((property?.rent ?? 0) * 0.25), [property]);
 
   const validateStep = () => {
     if (currentStep === 2) {
@@ -616,7 +621,7 @@ export default function PropertyBooking() {
     }
 
     const bookingMsg = tenantDetails.message ||
-      `Hi, I would like to book this property. Monthly rent on listing: Rs. ${property.rent.toLocaleString("en-IN")}. Suggested booking hold: Rs. ${advance.toLocaleString("en-IN")}. Payment via ${PAYMENT_METHODS.find((m) => m.id === paymentMethod)?.label}.`;
+      `Hi, I would like to book this property. Monthly rent on listing: Rs. ${property.rent.toLocaleString("en-IN")}. Booking hold amount: Rs. ${advance.toLocaleString("en-IN")}. Payment via ${PAYMENT_METHODS.find((m) => m.id === paymentMethod)?.label}.`;
 
     const { data: created, error } = await supabase
       .from("applications")

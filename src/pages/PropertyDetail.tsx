@@ -14,6 +14,8 @@ type PropertyData = {
   title: string;
   address: string;
   rent: number;
+  securityDepositAmount: number | null;
+  bookingHoldAmount: number | null;
   houseType: string;
   postedAt: string;
   description: string;
@@ -35,6 +37,8 @@ const fallbackProperty: PropertyData = {
   title: "Rental for 2BHK Gated Community Apartment",
   address: "Kitchipalayam, Salem, Tamil Nadu",
   rent: 15000,
+  securityDepositAmount: 30000,
+  bookingHoldAmount: 5000,
   houseType: "2 BHK",
   postedAt: "Today",
   description: "Rental for 2BHK furnished house in a gated community, ready to occupy. Walkable distance from Salem bus stand with all daily convenience facilities nearby.",
@@ -173,6 +177,8 @@ export default function PropertyDetail() {
         title: propertyRow.title,
         address: propertyRow.address,
         rent: propertyRow.rent,
+        securityDepositAmount: propertyRow.security_deposit_amount,
+        bookingHoldAmount: propertyRow.booking_hold_amount,
         houseType: propertyRow.house_type,
         postedAt: new Date(propertyRow.created_at).toLocaleDateString("en-IN"),
         description: propertyRow.description ?? "No description provided.",
@@ -484,15 +490,15 @@ export default function PropertyDetail() {
                       <span className="font-semibold">Rs. {property.rent.toLocaleString("en-IN")}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Estimated deposit</span>
-                      <span className="font-semibold">Rs. {Math.round(property.rent * 0.5).toLocaleString("en-IN")}</span>
+                      <span className="text-muted-foreground">Security deposit</span>
+                      <span className="font-semibold">Rs. {(property.securityDepositAmount ?? Math.round(property.rent * 0.5)).toLocaleString("en-IN")}</span>
                     </div>
                     <div className="flex justify-between border-t pt-2 text-sm">
-                      <span className="font-bold">Suggested booking hold</span>
-                      <span className="text-base font-bold text-[#3A7AFE]">Rs. {Math.round(property.rent * 0.25).toLocaleString("en-IN")}</span>
+                      <span className="font-bold">Booking hold amount</span>
+                      <span className="text-base font-bold text-[#3A7AFE]">Rs. {(property.bookingHoldAmount ?? Math.round(property.rent * 0.25)).toLocaleString("en-IN")}</span>
                     </div>
                     <p className="text-xs leading-relaxed text-muted-foreground">
-                      Rent is live from the landlord listing. Deposit and booking-hold values are estimated until the landlord confirms final terms.
+                      Rent and booking amounts come from the landlord listing. Older listings still fall back to default calculations.
                     </p>
                   </div>
 

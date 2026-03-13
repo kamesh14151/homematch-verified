@@ -141,6 +141,8 @@ export default function AddProperty() {
     state: "",
     pincode: "",
     rent: "",
+    securityDepositAmount: "",
+    bookingHoldAmount: "",
     houseType: "",
     propertyType: "",
     bedrooms: "",
@@ -250,8 +252,8 @@ export default function AddProperty() {
       .filter(Boolean)
       .join(", ");
 
-    if (!form.title || !composedAddress || !form.rent || !form.houseType) {
-      toast({ title: "Missing required details", description: "Please fill title, location details, rent and house type.", variant: "destructive" });
+    if (!form.title || !composedAddress || !form.rent || !form.houseType || !form.securityDepositAmount || !form.bookingHoldAmount) {
+      toast({ title: "Missing required details", description: "Please fill title, location details, rent, booking prices and house type.", variant: "destructive" });
       return;
     }
 
@@ -264,6 +266,8 @@ export default function AddProperty() {
         address: composedAddress,
         pincode: form.pincode || null,
         rent: Number(form.rent),
+        security_deposit_amount: Number(form.securityDepositAmount),
+        booking_hold_amount: Number(form.bookingHoldAmount),
         house_type: form.houseType,
         eb_bill_number: form.ebBillNumber || null,
         description: form.description || null,
@@ -571,6 +575,27 @@ export default function AddProperty() {
                     onChange={(event) => updateField("rent", event.target.value)}
                     required
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>Security Deposit (₹)</Label>
+                  <Input
+                    type="number"
+                    placeholder="30000"
+                    value={form.securityDepositAmount}
+                    onChange={(event) => updateField("securityDepositAmount", event.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Booking Hold Amount (₹)</Label>
+                  <Input
+                    type="number"
+                    placeholder="5000"
+                    value={form.bookingHoldAmount}
+                    onChange={(event) => updateField("bookingHoldAmount", event.target.value)}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">This is the exact upfront amount tenants see on the booking page.</p>
                 </div>
                 <div className="space-y-2">
                   <Label>House Type</Label>
