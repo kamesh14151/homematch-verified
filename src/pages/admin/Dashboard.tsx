@@ -7,11 +7,13 @@ import {
   ListChecks,
   MapPinned,
   MessageSquare,
+  ShieldCheck,
   Shield,
   UserCheck,
   Users,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { DashboardHero, DashboardPanel, MiniInsight } from "@/components/dashboard-ui";
 import { StatCard } from "@/components/StatCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -164,10 +166,18 @@ export default function AdminDashboard() {
       }}
     >
       <div className="space-y-6">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Platform control panel with live operational insights.</p>
-        </div>
+        <DashboardHero
+          eyebrow="Admin command center"
+          title="Run verified rental operations with cleaner visibility across inventory, requests, and trust"
+          description="The best admin dashboards prioritize signal over noise: clear health indicators, moderated inventory, and direct action paths. This control center now follows that pattern."
+          accent="violet"
+        >
+          <div className="space-y-3 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/65">Platform health</p>
+            <MiniInsight icon={ShieldCheck} title="Verification" value={`${verifiedProperties} verified`} tone="green" />
+            <MiniInsight icon={BarChart3} title="Approval rate" value={approveRate} tone="blue" />
+          </div>
+        </DashboardHero>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard title="Total Properties" value={properties.length} icon={Building2} description="All listed records" />
@@ -183,7 +193,25 @@ export default function AdminDashboard() {
           <StatCard title="Platform Health" value={loading ? "..." : "Live"} icon={BarChart3} description="Realtime snapshot" />
         </div>
 
-        <Card id="properties">
+        <div className="grid gap-6 xl:grid-cols-[1.45fr_0.55fr]">
+          <DashboardPanel title="Operational Priorities" description="Live summary of inventory and platform posture.">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <MiniInsight icon={Building2} title="Inventory" value={`${properties.length} listed assets`} tone="blue" />
+              <MiniInsight icon={Users} title="Supply side" value={`${landlordsCount} landlords`} tone="amber" />
+              <MiniInsight icon={UserCheck} title="Demand side" value={`${tenantsCount} tenants`} tone="green" />
+              <MiniInsight icon={ListChecks} title="Queue" value={`${pendingApplications} pending`} tone="blue" />
+            </div>
+          </DashboardPanel>
+
+          <DashboardPanel title="Admin Notes" description="What needs attention right now.">
+            <div className="space-y-3 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 text-sm leading-7 text-muted-foreground dark:border-white/10 dark:bg-white/5">
+              <p>Prioritize unverified inventory and pending requests first. They are the highest-friction points in the funnel.</p>
+              <p>Use the map preview to inspect address quality quickly and keep listing metadata clean.</p>
+            </div>
+          </DashboardPanel>
+        </div>
+
+        <Card id="properties" className="border-slate-200/70 bg-white/90 shadow-[0_12px_34px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-card/90">
           <CardHeader>
             <CardTitle>Property Moderation</CardTitle>
           </CardHeader>
@@ -243,7 +271,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card id="applications">
+        <Card id="applications" className="border-slate-200/70 bg-white/90 shadow-[0_12px_34px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-card/90">
           <CardHeader>
             <CardTitle>Application Queue</CardTitle>
           </CardHeader>
@@ -297,7 +325,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card id="map">
+        <Card id="map" className="border-slate-200/70 bg-white/90 shadow-[0_12px_34px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-card/90">
           <CardHeader>
             <CardTitle>Location Map</CardTitle>
           </CardHeader>

@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', '"Inter"', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', 'sans-serif'],
+        sans: ['"Urbanist"', '"Urbanist Fallback"', '"Inter"', 'sans-serif'],
+        display: ['"Urbanist"', '"Urbanist Fallback"', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -60,6 +60,9 @@ export default {
         brand: {
           primary: "hsl(var(--brand-primary))",
           "primary-hover": "hsl(var(--brand-primary-hover))",
+          yellow: "hsl(var(--brand-yellow))",
+          "text-dark": "hsl(var(--brand-text-dark))",
+          "text-muted": "hsl(var(--brand-text-muted))",
           terracotta: "hsl(var(--brand-terracotta))",
           sand: "hsl(var(--brand-sand))",
           beige: "hsl(var(--brand-beige))",

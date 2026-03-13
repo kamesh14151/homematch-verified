@@ -38,7 +38,7 @@ export function PropertyCard({
           navigate(`/property/${id}`);
         }
       }}
-      className="group cursor-pointer overflow-hidden transition-all hover:bg-card-hover hover:shadow-lg"
+      className="group cursor-pointer overflow-hidden border-[#dfe5ef] bg-white shadow-[0_8px_20px_rgba(0,51,102,0.08)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(0,51,102,0.12)] dark:border-[#24476b] dark:bg-card"
     >
       <div className="relative aspect-video overflow-hidden bg-muted">
         {imageUrl ? (
@@ -53,7 +53,7 @@ export function PropertyCard({
           </div>
         )}
         {verified && (
-          <Badge className="absolute left-3 top-3 bg-success text-success-foreground">Verified</Badge>
+          <Badge className="absolute left-3 top-3 rounded-full bg-brand-yellow px-3 py-1 text-[12px] font-semibold text-[#171717] shadow-sm">Verified</Badge>
         )}
         {onSave && (
           <Button
@@ -70,19 +70,22 @@ export function PropertyCard({
           </Button>
         )}
       </div>
-      <CardContent className="p-4">
-        <h3 className="mb-1 font-semibold line-clamp-1">{title}</h3>
-        <div className="mb-2 flex items-center gap-1 text-sm text-muted-foreground">
+      <CardContent className="p-6">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <h3 className="line-clamp-2 text-[22px] font-semibold leading-tight tracking-tight text-brand-primary dark:text-primary sm:text-[26px]">{title}</h3>
+          <Badge variant="secondary" className="shrink-0 rounded-full bg-[#f4f6f8] text-brand-text-muted dark:bg-muted dark:text-muted-foreground">{houseType}</Badge>
+        </div>
+        <div className="mb-4 flex items-center gap-1 text-[15px] text-brand-text-muted dark:text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" />
           <span className="line-clamp-1">{address}</span>
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-lg font-bold text-primary">
+        <div className="flex items-center justify-between rounded-2xl bg-background-secondary px-3 py-2">
+          <div className="flex items-center gap-1 text-[28px] font-semibold leading-none text-brand-primary dark:text-brand-yellow sm:text-[34px]">
             <IndianRupee className="h-4 w-4" />
             <span>{rent.toLocaleString("en-IN")}</span>
-            <span className="text-xs font-normal text-muted-foreground">/month</span>
+            <span className="text-sm font-normal text-brand-text-muted dark:text-muted-foreground">/month</span>
           </div>
-          <Badge variant="secondary">{houseType}</Badge>
+          <span className="text-xs font-medium uppercase tracking-[0.16em] text-brand-text-muted dark:text-muted-foreground">Curated listing</span>
         </div>
       </CardContent>
     </Card>

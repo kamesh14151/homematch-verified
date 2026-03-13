@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Search, Bookmark, FileText, MessageSquare, UserCircle, Home } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { DashboardHero, DashboardPanel, MiniInsight } from "@/components/dashboard-ui";
 import { StatCard } from "@/components/StatCard";
 import { PropertyCard } from "@/components/PropertyCard";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,8 +19,12 @@ const navItems = [
 ];
 
 export default function TenantDashboard() {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [savedCount, setSavedCount] = useState(0);
+  const [applicationsCount, setApplicationsCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
   const [properties, setProperties] = useState<
     Array<{
       id: string;
@@ -31,11 +39,22 @@ export default function TenantDashboard() {
 
   useEffect(() => {
     const loadProperties = async () => {
-      const { data, error } = await supabase
-        .from("properties")
-        .select("id, title, address, rent, house_type, is_verified")
-        .order("created_at", { ascending: false })
-        .limit(12);
+      const [propertiesResult, savedResult, applicationsResult] = await Promise.all([
+        supabase
+          .from("properties")
+          .select("id, title, address, rent, house_type, is_verified")
+          .order("created_at", { ascending: false })
+          .limit(12),
+        user
+          ? supabase.from("saved_properties").select("id", { count: "exact", head: true }).eq("user_id", user.id)
+          : Promise.resolve({ count: 0, error: null } as const),
+        user
+          ? supabase.from("applications").select("id, message", { count: "exact" }).eq("tenant_id", user.id)
+          : Promise.resolve({ data: [], count: 0, error: null } as const),
+      ]);
+
+      const data = propertiesResult.data;
+      const error = propertiesResult.error;
 
       if (error) {
         toast({ title: "Unable to load properties", description: error.message, variant: "destructive" });
@@ -60,6 +79,10 @@ export default function TenantDashboard() {
         });
       }
 
+      setSavedCount(savedResult.count ?? 0);
+      setApplicationsCount(applicationsResult.count ?? 0);
+      setMessageCount((applicationsResult.data ?? []).filter((item) => !!item.message?.trim()).length);
+
       setProperties(
         (data ?? []).map((item) => ({
           id: item.id,
@@ -75,21 +98,39 @@ export default function TenantDashboard() {
     };
 
     void loadProperties();
-  }, [toast]);
+  }, [toast, user]);
 
   return (
     <DashboardLayout navItems={navItems} title="Tenant">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Find Your Perfect Home</h1>
-          <p className="text-muted-foreground">Browse verified rental properties</p>
-        </div>
+        <DashboardHero
+          eyebrow="Tenant experience center"
+          title="Discover, shortlist, and track rental decisions inside one premium search workspace"
+          description="Top rental products reduce friction by combining discovery, trust signals, and status tracking. Your tenant dashboard now follows that model."
+          accent="emerald"
+          actions={
+            <>
+              <Button asChild className="bg-white text-emerald-800 hover:bg-white/90">
+                <Link to="/">Browse Listings</Link>
+              </Button>
+              <Button asChild variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/15">
+                <Link to="/tenant/applications">Track Applications</Link>
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-3 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/65">Search momentum</p>
+            <MiniInsight icon={Home} title="Fresh supply" value={`${properties.length} live matches`} tone="green" />
+            <MiniInsight icon={Bookmark} title="Saved interest" value={`${savedCount} shortlisted`} tone="blue" />
+          </div>
+        </DashboardHero>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Properties Available" value={properties.length} icon={Home} />
-          <StatCard title="Saved Houses" value={0} icon={Bookmark} />
-          <StatCard title="Applications" value={0} icon={FileText} />
-          <StatCard title="Messages" value={0} icon={MessageSquare} />
+          <StatCard title="Saved Houses" value={savedCount} icon={Bookmark} description="Shortlisted homes" />
+          <StatCard title="Applications" value={applicationsCount} icon={FileText} description="Submitted requests" />
+          <StatCard title="Messages" value={messageCount} icon={MessageSquare} description="Active conversations" />
         </div>
 
         {loading ? (
@@ -101,19 +142,34 @@ export default function TenantDashboard() {
             <p className="mt-1 text-sm text-muted-foreground">Newly listed homes will appear here automatically</p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {properties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                id={property.id}
-                title={property.title}
-                address={property.address}
-                rent={property.rent}
-                houseType={property.houseType}
-                imageUrl={property.imageUrl}
-                verified={property.verified}
-              />
-            ))}
+          <div className="grid gap-6 xl:grid-cols-[1.45fr_0.55fr]">
+            <DashboardPanel title="Recommended Listings" description="Verified homes that fit active search behavior." actionLabel="Open search" actionTo="/">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {properties.slice(0, 4).map((property) => (
+                  <PropertyCard
+                    key={property.id}
+                    id={property.id}
+                    title={property.title}
+                    address={property.address}
+                    rent={property.rent}
+                    houseType={property.houseType}
+                    imageUrl={property.imageUrl}
+                    verified={property.verified}
+                  />
+                ))}
+              </div>
+            </DashboardPanel>
+
+            <DashboardPanel title="Tenant Insights" description="Signals that keep your housing search focused.">
+              <div className="space-y-3">
+                <MiniInsight icon={Bookmark} title="Shortlist" value={`${savedCount} saved homes`} tone="blue" />
+                <MiniInsight icon={FileText} title="Application status" value={`${applicationsCount} submissions`} tone="amber" />
+                <MiniInsight icon={MessageSquare} title="Owner replies" value={`${messageCount} live chats`} tone="green" />
+                <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-4 text-sm leading-7 text-muted-foreground dark:border-white/10 dark:bg-white/5">
+                  Strong rental decisions come from comparing budget, furnishing, commute fit, and owner credibility together. Keep your shortlist focused and active.
+                </div>
+              </div>
+            </DashboardPanel>
           </div>
         )}
       </div>

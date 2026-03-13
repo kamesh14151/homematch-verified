@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
-import { LucideIcon } from "lucide-react";
+import { Command, LogOut, LucideIcon, ShieldCheck } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -16,8 +16,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -60,21 +58,32 @@ function DashboardSidebar({
 
   return (
     <TooltipProvider delayDuration={120}>
-      <Sidebar collapsible="icon">
-        <SidebarContent>
+      <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+        <SidebarContent className="bg-transparent">
           <SidebarGroup>
-            <SidebarGroupLabel className="px-4 py-3">
-              <Link to="/" className="flex items-center gap-2">
-                <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-7 w-7 rounded-md object-contain" />
-                {!collapsed && <span className="font-bunderon font-bold">RentVerify</span>}
+            <SidebarGroupLabel className="px-4 py-4">
+              <Link to="/" className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
+                  <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-7 w-7 rounded-md object-contain" />
+                </div>
+                {!collapsed && (
+                  <div>
+                    <span className="block font-bunderon text-lg font-bold text-white">RentVerify</span>
+                  </div>
+                )}
               </Link>
             </SidebarGroupLabel>
 
             <SidebarGroupContent>
               <SidebarMenu>
                 {!collapsed && (
-                  <div className="px-4 py-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</span>
+                  <div className="px-4 py-3">
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                      <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#f1c40f]/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#f1c40f]">
+                        <ShieldCheck className="h-3 w-3" /> {title} workspace
+                      </div>
+                      <p className="text-sm leading-6 text-white/70">Unified operations, brand-safe workflows, and cleaner decision making.</p>
+                    </div>
                   </div>
                 )}
                 {navItems.map((item) => (
@@ -85,8 +94,8 @@ function DashboardSidebar({
                           <NavLink
                             to={item.url}
                             end
-                            className="hover:bg-sidebar-accent"
-                            activeClassName="bg-sidebar-accent text-primary font-medium"
+                            className="rounded-xl text-white/72 hover:bg-white/8 hover:text-white"
+                            activeClassName="bg-[#f1c40f] text-[#171717] shadow-sm font-medium"
                           >
                             <item.icon className="mr-2 h-4 w-4" />
                             {!collapsed && <span>{item.title}</span>}
@@ -109,7 +118,7 @@ function DashboardSidebar({
                     <TooltipTrigger asChild>
                       <SidebarMenuButton
                         onClick={handleLogout}
-                        className="text-muted-foreground hover:text-destructive"
+                        className="rounded-xl text-white/60 hover:bg-white/8 hover:text-white"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
                         {!collapsed && <span>Logout</span>}
@@ -128,16 +137,30 @@ function DashboardSidebar({
 }
 
 export function DashboardLayout({ children, navItems, title, onLogout }: DashboardLayoutProps) {
+  const location = useLocation();
+  const activeItem = navItems.find((item) => location.pathname === item.url || `${location.pathname}${location.hash}` === item.url);
+
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="flex min-h-screen w-full bg-[radial-gradient(circle_at_top,_rgba(0,51,102,0.08),_transparent_32%),linear-gradient(180deg,_rgba(255,255,255,1)_0%,_rgba(249,249,249,0.94)_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(241,196,15,0.08),_transparent_24%),linear-gradient(180deg,_rgba(11,23,38,1)_0%,_rgba(16,30,47,0.98)_100%)]">
         <DashboardSidebar navItems={navItems} title={title} onLogout={onLogout} />
         <div className="flex-1 flex flex-col">
-          <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-card/80 px-4 backdrop-blur-lg">
-            <SidebarTrigger />
-            <ThemeToggle />
+          <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/92 px-4 backdrop-blur-xl sm:px-6">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger />
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">{title}</div>
+                <div className="text-sm font-semibold text-foreground">{activeItem?.title ?? "Overview"}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm lg:flex">
+                <Command className="h-3.5 w-3.5" /> Dashboard system
+              </div>
+              <ThemeToggle />
+            </div>
           </header>
-          <main className="flex-1 p-6">{children}</main>
+          <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
         </div>
       </div>
     </SidebarProvider>

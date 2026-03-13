@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap');
+
 @font-face {
   font-family: 'Bunderon';
   src: url('/bunderon-font/Bunderan DEMO.ttf') format('truetype');
@@ -17,106 +19,109 @@
 
 @layer base {
   :root {
-    /* Brand Colors */
-    --brand-primary: 220 99% 61%;
-    --brand-primary-hover: 221 68% 52%;
+    /* Tripate Brand Colors */
+    --brand-primary: 210 100% 20%;         /* #003366 */
+    --brand-primary-hover: 210 100% 17%;   /* darker blue */
+    --brand-yellow: 48 89% 50%;            /* #F1C40F */
+    --brand-text-dark: 0 0% 9%;            /* #171717 */
+    --brand-text-muted: 210 16% 48%;       /* #66798B */
     --brand-terracotta: 16 52% 53%;
     --brand-sand: 29 53% 67%;
     --brand-beige: 37 50% 81%;
 
     /* Semantic Colors */
-    --success: 148 67% 47%;
+    --success: 155 54% 46%;                /* #36B37E */
     --success-foreground: 0 0% 100%;
-    --warning: 33 89% 60%;
+    --warning: 38 89% 60%;
     --warning-foreground: 0 0% 100%;
     --info: 219 86% 62%;
     --info-foreground: 0 0% 100%;
 
-    /* Light Mode — Manus-inspired warm neutrals */
-    --background: 30 20% 98%;
-    --background-secondary: 30 12% 95%;
-    --background-tertiary: 30 10% 92%;
-    --foreground: 20 15% 10%;
+    /* Light Mode (Tripate system) */
+    --background: 0 0% 100%;               /* #FFFFFF */
+    --background-secondary: 0 0% 98%;      /* #F9F9F9 */
+    --background-tertiary: 220 14% 96%;
+    --foreground: 0 0% 9%;                 /* #171717 */
 
-    --card: 30 25% 99%;
-    --card-foreground: 20 15% 10%;
-    --card-hover: 30 15% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --card-hover: 0 0% 98%;
 
-    --popover: 30 25% 99%;
-    --popover-foreground: 20 15% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 20 15% 10%;
-    --primary-foreground: 30 20% 98%;
+    --primary: 210 100% 20%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 10% 94%;
-    --secondary-foreground: 20 10% 30%;
+    --secondary: 0 0% 98%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 30 10% 93%;
-    --muted-foreground: 20 5% 45%;
+    --muted: 0 0% 98%;
+    --muted-foreground: 210 16% 48%;
 
-    --accent: 30 15% 91%;
-    --accent-foreground: 20 15% 10%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 10% 90%;
-    --input: 30 10% 87%;
-    --ring: 20 15% 10%;
+    --border: 220 14% 90%;
+    --input: 220 14% 90%;
+    --ring: 210 100% 20%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    --sidebar-background: 30 25% 99%;
-    --sidebar-foreground: 20 15% 10%;
-    --sidebar-primary: 20 15% 10%;
-    --sidebar-primary-foreground: 30 20% 98%;
-    --sidebar-accent: 30 10% 94%;
-    --sidebar-accent-foreground: 20 15% 10%;
-    --sidebar-border: 30 10% 90%;
-    --sidebar-ring: 20 15% 10%;
+    --sidebar-background: 210 100% 20%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 48 89% 50%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 210 78% 27%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 210 78% 27%;
+    --sidebar-ring: 48 89% 50%;
   }
 
   .dark {
-    /* Dark Mode — Manus-inspired deep warm darks */
-    --background: 20 14% 6%;
-    --background-secondary: 20 12% 9%;
-    --background-tertiary: 20 10% 12%;
-    --foreground: 30 20% 95%;
+    /* Dark Mode aligned to Tripate identity */
+    --background: 215 54% 10%;
+    --background-secondary: 214 44% 13%;
+    --background-tertiary: 214 35% 17%;
+    --foreground: 0 0% 96%;
 
-    --card: 20 12% 10%;
-    --card-foreground: 30 20% 95%;
-    --card-hover: 20 10% 14%;
+    --card: 214 40% 14%;
+    --card-foreground: 0 0% 96%;
+    --card-hover: 214 35% 18%;
 
-    --popover: 20 12% 10%;
-    --popover-foreground: 30 20% 95%;
+    --popover: 214 40% 14%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary: 30 20% 95%;
-    --primary-foreground: 20 14% 6%;
+    --primary: 48 89% 50%;
+    --primary-foreground: 0 0% 9%;
 
-    --secondary: 20 10% 14%;
-    --secondary-foreground: 30 10% 75%;
+    --secondary: 214 35% 18%;
+    --secondary-foreground: 0 0% 94%;
 
-    --muted: 20 10% 14%;
-    --muted-foreground: 20 5% 55%;
+    --muted: 214 30% 18%;
+    --muted-foreground: 210 14% 72%;
 
-    --accent: 20 10% 16%;
-    --accent-foreground: 30 20% 95%;
+    --accent: 214 30% 20%;
+    --accent-foreground: 0 0% 96%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 20 8% 18%;
-    --input: 20 8% 18%;
-    --ring: 30 20% 95%;
+    --border: 214 28% 24%;
+    --input: 214 28% 24%;
+    --ring: 48 89% 50%;
 
-    --sidebar-background: 20 12% 8%;
-    --sidebar-foreground: 30 20% 95%;
-    --sidebar-primary: 30 20% 95%;
-    --sidebar-primary-foreground: 20 14% 6%;
-    --sidebar-accent: 20 10% 14%;
-    --sidebar-accent-foreground: 30 20% 95%;
-    --sidebar-border: 20 8% 18%;
-    --sidebar-ring: 30 20% 95%;
+    --sidebar-background: 210 100% 20%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 48 89% 50%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 210 78% 27%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 210 78% 27%;
+    --sidebar-ring: 48 89% 50%;
   }
 }
 
@@ -127,10 +132,11 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-family: 'Urbanist', 'Urbanist Fallback', 'Inter', sans-serif;
+    line-height: 1.5;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Urbanist', 'Urbanist Fallback', sans-serif;
   }
 }
