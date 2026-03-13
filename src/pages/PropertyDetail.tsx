@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, IndianRupee, Home, Droplets, Zap, Car, ShieldCheck, Play } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowLeft, BedDouble, Car, Droplets, Heart, MapPin, Share2, ShieldCheck, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,21 +8,53 @@ import { Navbar } from "@/components/Navbar";
 
 export default function PropertyDetail() {
   const { id } = useParams();
+  const [activeImage, setActiveImage] = useState(0);
 
-  // Placeholder data - will be fetched from Supabase later
-  const property = {
+  const property = useMemo(() => ({
     id,
-    title: "Spacious 2BHK Apartment in Anna Nagar",
-    address: "15, 3rd Cross Street, Anna Nagar East, Chennai - 600102",
-    rent: 18000,
+    title: "Rental for 2BHK Gated Community Apartment",
+    address: "Kitchipalayam, Salem, Tamil Nadu",
+    rent: 15000,
     houseType: "2 BHK",
+    bathrooms: 2,
+    sqft: 900,
+    postedAt: "Today",
+    listingId: "1826811384",
     description:
-      "Well-maintained spacious 2BHK apartment with natural lighting, cross ventilation, and modern amenities. Located in a peaceful residential area with easy access to schools, hospitals, and public transport.",
+      "Rental for 2BHK furnished house in a gated community, ready to occupy. Walkable distance from Salem bus stand with all daily convenience facilities nearby.",
+    highlights: [
+      "24/7 Water Supply",
+      "Gym and Play Area",
+      "Children Park",
+      "Nearby Clinic and Super Market",
+      "CCTV Security",
+    ],
+    details: [
+      { key: "Type", value: "Flats / Apartments" },
+      { key: "Bedrooms", value: "2" },
+      { key: "Bathrooms", value: "2" },
+      { key: "Super Built-up Area", value: "900 sqft" },
+      { key: "Furnishing", value: "Semi-Furnished" },
+      { key: "Listed By", value: "Owner" },
+      { key: "Floor No", value: "1" },
+      { key: "Total Floors", value: "5" },
+      { key: "Parking", value: "2" },
+      { key: "Facing", value: "North" },
+      { key: "Project Name", value: "Mahaveer Palace" },
+      { key: "Maintenance", value: "Rs. 2,000 / month" },
+    ],
     facilities: { water: true, separateMeter: true, parking: true },
     verified: true,
-    landlordName: "Rajesh Kumar",
-    images: [] as string[],
-  };
+    landlordName: "Bseeni Vasan",
+    memberSince: "Nov 2016",
+    totalListings: 2,
+    images: [
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1200&q=80",
+    ],
+  }), [id]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -32,41 +65,69 @@ export default function PropertyDetail() {
         </Link>
 
         <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Image Gallery Placeholder */}
-            <div className="aspect-video overflow-hidden rounded-xl bg-muted">
-              <div className="flex h-full items-center justify-center">
-                <div className="text-center">
-                  <Home className="mx-auto h-16 w-16 text-muted-foreground/30" />
-                  <p className="mt-2 text-sm text-muted-foreground">Property images</p>
+          <div className="space-y-6 lg:col-span-2">
+            <Card className="overflow-hidden border">
+              <div className="relative aspect-[16/9] bg-muted">
+                <img src={property.images[activeImage]} alt={property.title} className="h-full w-full object-cover" />
+                <div className="absolute right-3 top-3 flex gap-2">
+                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full"><Share2 className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full"><Heart className="h-4 w-4" /></Button>
                 </div>
               </div>
-            </div>
+              <div className="grid grid-cols-4 gap-2 border-t p-3">
+                {property.images.map((image, index) => (
+                  <button
+                    key={image}
+                    onClick={() => setActiveImage(index)}
+                    className={`overflow-hidden rounded-md border-2 ${activeImage === index ? "border-primary" : "border-transparent"}`}
+                  >
+                    <img src={image} alt={`Property ${index + 1}`} className="h-16 w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </Card>
 
-            {/* Details */}
-            <div>
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-2xl font-bold">{property.title}</h1>
-                    {property.verified && (
-                      <Badge className="bg-success text-success-foreground gap-1">
-                        <ShieldCheck className="h-3 w-3" /> Verified
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="mt-1 flex items-center gap-1 text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    <span>{property.address}</span>
-                  </div>
-                </div>
+            <div className="rounded-xl border bg-card p-5">
+              <div className="mb-2 flex items-center gap-2">
+                <h1 className="text-2xl font-bold">{property.title}</h1>
+                {property.verified && (
+                  <Badge className="gap-1 bg-success text-success-foreground">
+                    <ShieldCheck className="h-3 w-3" /> Verified
+                  </Badge>
+                )}
+              </div>
+              <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {property.address}</span>
+                <span className="inline-flex items-center gap-1"><BedDouble className="h-4 w-4" /> {property.houseType}</span>
+                <span>{property.bathrooms} Bathrooms</span>
+                <span>{property.sqft} sqft</span>
+                <span>Posted: {property.postedAt}</span>
               </div>
             </div>
 
             <Card>
               <CardContent className="p-6">
+                <h2 className="mb-3 text-lg font-semibold">Details</h2>
+                <div className="grid gap-3 text-sm sm:grid-cols-2">
+                  {property.details.map((item) => (
+                    <div key={item.key} className="flex items-center justify-between rounded-md border px-3 py-2">
+                      <span className="text-muted-foreground">{item.key}</span>
+                      <span className="font-semibold">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
                 <h2 className="mb-3 text-lg font-semibold">Description</h2>
                 <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+                <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                  {property.highlights.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
 
@@ -95,21 +156,32 @@ export default function PropertyDetail() {
           <div className="space-y-4">
             <Card className="sticky top-20">
               <CardContent className="p-6 space-y-4">
-                <div className="flex items-center gap-1 text-3xl font-bold text-primary">
-                  <IndianRupee className="h-6 w-6" />
-                  <span>{property.rent.toLocaleString("en-IN")}</span>
-                  <span className="text-sm font-normal text-muted-foreground">/month</span>
+                <div>
+                  <p className="text-4xl font-bold text-foreground">Rs. {property.rent.toLocaleString("en-IN")}</p>
+                  <p className="text-sm text-muted-foreground">{property.houseType} · {property.bathrooms} Bathroom · {property.sqft} sqft</p>
                 </div>
 
                 <Badge variant="secondary" className="text-sm">{property.houseType}</Badge>
 
-                <div className="border-t pt-4">
-                  <p className="text-sm text-muted-foreground">Listed by</p>
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground">Posted by</p>
                   <p className="font-semibold">{property.landlordName}</p>
+                  <p className="text-xs text-muted-foreground">Member since {property.memberSince}</p>
+                  <p className="mt-2 text-xs font-medium text-primary">{property.totalListings} Items listed</p>
                 </div>
 
-                <Button className="w-full">Apply for This Property</Button>
+                <Button className="w-full">Chat with seller</Button>
                 <Button variant="outline" className="w-full">Contact Landlord</Button>
+
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm font-semibold">Posted in</p>
+                  <p className="text-sm text-muted-foreground">{property.address}</p>
+                </div>
+
+                <div className="rounded-lg border p-4 text-xs text-muted-foreground">
+                  <p>Ad ID {property.listingId}</p>
+                  <button className="mt-2 font-semibold text-primary">Report this ad</button>
+                </div>
               </CardContent>
             </Card>
           </div>

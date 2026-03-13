@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Building2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Building2, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -57,8 +56,6 @@ export function Navbar() {
               <Button size="sm" asChild className="bg-green-600 text-white hover:bg-green-700 font-semibold gap-1.5">
                 <Link to="/register"><Building2 className="h-3.5 w-3.5" /> Post Property FREE</Link>
               </Button>
-                        <Link to="/register" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Tenants</Link>
-                        <Link to="/register" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Owners</Link>
             </>
           )}
         </div>
@@ -79,6 +76,8 @@ export function Navbar() {
             <Link to="/" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>Home</Link>
             <a href="#features" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>Features</a>
             <a href="#how-it-works" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>How It Works</a>
+            <Link to="/register" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Tenants</Link>
+            <Link to="/register" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Owners</Link>
             {user ? (
               <>
                 <Link to={dashboardPath} className="text-sm font-medium" onClick={() => setMobileOpen(false)}>Dashboard</Link>
