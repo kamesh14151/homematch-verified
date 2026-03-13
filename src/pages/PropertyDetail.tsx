@@ -23,6 +23,7 @@ type PropertyData = {
   totalListings: number;
   listingId: string;
   images: string[];
+  videoUrl: string | null;
 };
 
 const fallbackProperty: PropertyData = {
@@ -59,6 +60,46 @@ const fallbackProperty: PropertyData = {
     "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
     "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1200&q=80",
   ],
+  videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+};
+
+const getYouTubeEmbedUrl = (url: string) => {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace("www.", "").toLowerCase();
+
+    if (host === "youtube.com" || host === "m.youtube.com") {
+      const videoId = parsed.searchParams.get("v");
+      if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    if (host === "youtu.be") {
+      const videoId = parsed.pathname.split("/").filter(Boolean)[0];
+      if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    if (host === "youtube.com" && parsed.pathname.startsWith("/shorts/")) {
+      const videoId = parsed.pathname.split("/")[2];
+      if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+};
+
+const getVideoSource = (videoUrl: string | null) => {
+  if (!videoUrl) {
+    return { type: "none" as const, embedUrl: null, directUrl: null };
+  }
+
+  const youtubeEmbed = getYouTubeEmbedUrl(videoUrl);
+  if (youtubeEmbed) {
+    return { type: "youtube" as const, embedUrl: youtubeEmbed, directUrl: null };
+  }
+
+  return { type: "direct" as const, embedUrl: null, directUrl: videoUrl };
 };
 
 export default function PropertyDetail() {
@@ -140,6 +181,7 @@ export default function PropertyDetail() {
           imageRows && imageRows.length > 0
             ? imageRows.map((item) => item.image_url)
             : fallbackProperty.images,
+        videoUrl: propertyRow.video_url ?? null,
       });
       setLoading(false);
     };
@@ -151,6 +193,7 @@ export default function PropertyDetail() {
     () => `https://www.google.com/maps?q=${encodeURIComponent(property.address)}&output=embed`,
     [property.address]
   );
+  const videoSource = useMemo(() => getVideoSource(property.videoUrl), [property.videoUrl]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -221,6 +264,52 @@ export default function PropertyDetail() {
                   <p className="leading-relaxed text-muted-foreground">{property.description}</p>
                 </CardContent>
               </Card>
+
+              {videoSource.type !== "none" && (
+                <Card className="overflow-hidden border">
+                  <CardContent className="p-0">
+                    <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
+                      <div>
+                        <h2 className="text-lg font-semibold">Property Video</h2>
+                        <p className="text-xs text-muted-foreground sm:text-sm">Virtual walkthrough</p>
+                      </div>
+                      <a
+                        href={property.videoUrl ?? "#"}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-md border px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-accent"
+                      >
+                        Open source
+                      </a>
+                    </div>
+
+                    <div className="bg-muted/30 p-3 sm:p-4">
+                      <div className="overflow-hidden rounded-xl border bg-black/90 shadow-sm">
+                        {videoSource.type === "youtube" ? (
+                          <iframe
+                            title="Property Video"
+                            src={videoSource.embedUrl ?? ""}
+                            className="aspect-video w-full border-0"
+                            loading="lazy"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <video
+                            className="aspect-video w-full"
+                            controls
+                            preload="metadata"
+                            src={videoSource.directUrl ?? undefined}
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               <Card>
                 <CardContent className="p-4 sm:p-6">
