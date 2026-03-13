@@ -420,7 +420,7 @@ export default function Index() {
                 </Select>
               </div>
               <div className="flex items-center p-3">
-                <Button onClick={applySearch} className="h-11 w-full gap-2 rounded-lg bg-[#3A7AFE] px-6 text-sm font-bold hover:bg-[#2F65D8] sm:h-12 sm:w-auto sm:rounded-xl sm:px-8">
+                <Button onClick={applySearch} className="h-11 w-full gap-2 rounded-lg bg-yellow-400 px-6 text-sm font-bold text-gray-900 hover:bg-yellow-500 sm:h-12 sm:w-auto sm:rounded-xl sm:px-8">
                   <Search className="h-4 w-4" /> Search
                 </Button>
               </div>

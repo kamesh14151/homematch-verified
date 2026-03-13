@@ -476,6 +476,30 @@ export default function PropertyDetail() {
                   </Button>
                   <Button variant="outline" className="h-11 w-full" onClick={handleContactLandlord}>Contact Landlord</Button>
 
+                  {/* Payment summary */}
+                  <div className="rounded-xl border bg-muted/30 p-4 space-y-2">
+                    <h3 className="font-bold text-sm">Payment Details</h3>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Base package cost</span>
+                      <span className="font-semibold">Rs. {property.rent.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Security deposit</span>
+                      <span className="font-semibold">Rs. {Math.round(property.rent * 0.5).toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="flex justify-between border-t pt-2 text-sm">
+                      <span className="font-bold">Payable today</span>
+                      <span className="text-base font-bold text-[#3A7AFE]">Rs. {Math.round(property.rent * 0.25).toLocaleString("en-IN")}</span>
+                    </div>
+                  </div>
+
+                  <Button
+                    className="h-11 w-full rounded-full bg-yellow-400 font-bold text-gray-900 hover:bg-yellow-500"
+                    onClick={() => navigate(`/property/${property.id}/book`)}
+                  >
+                    Book Now
+                  </Button>
+
                   <div className="rounded-lg border p-4">
                     <p className="text-sm font-semibold">Posted in</p>
                     <p className="text-sm text-muted-foreground">{property.address}</p>

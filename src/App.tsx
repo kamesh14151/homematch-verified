@@ -45,6 +45,7 @@ import TenantMessages from "./pages/tenant/Messages";
 import TenantProfile from "./pages/tenant/Profile";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
+import PropertyBooking from "./pages/PropertyBooking";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/property/:id" element={<PropertyDetail />} />
+              <Route path="/property/:id/book" element={<PropertyBooking />} />
               <Route path="/for-tenants" element={<ForTenantsPage />} />
               <Route path="/for-owners" element={<ForOwnersPage />} />
               <Route path="/about-us" element={<AboutUsPage />} />
