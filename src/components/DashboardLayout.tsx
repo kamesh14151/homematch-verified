@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { LogOut, Home } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -45,10 +45,8 @@ function DashboardSidebar({ navItems, title }: { navItems: NavItem[]; title: str
         <SidebarGroup>
           <SidebarGroupLabel className="px-4 py-3">
             <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-                <Home className="h-4 w-4 text-primary-foreground" />
-              </div>
-              {!collapsed && <span className="font-bold">RentVerify</span>}
+              <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-7 w-7 rounded-md object-contain" />
+              {!collapsed && <span className="font-bunderon font-bold">RentVerify</span>}
             </Link>
           </SidebarGroupLabel>
 

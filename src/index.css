@@ -1,4 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@font-face {
+  font-family: 'Bunderon';
+  src: url('/bunderon-font/Bunderan DEMO.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-bunderon {
+  font-family: 'Bunderon', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+}
 
 @tailwind base;
 @tailwind components;

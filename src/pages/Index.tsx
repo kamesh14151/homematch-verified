@@ -283,10 +283,8 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Home className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <span className="font-bold">RentVerify</span>
+              <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-8 w-8 rounded-lg object-contain" />
+              <span className="font-bunderon font-bold">RentVerify</span>
             </div>
             <p className="text-sm text-muted-foreground">
               © 2026 RentVerify. All rights reserved.

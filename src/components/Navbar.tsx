@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,10 +21,8 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-lg">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <Home className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="text-lg font-bold">RentVerify</span>
+          <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-9 w-9 rounded-lg object-contain" />
+          <span className="font-bunderon text-lg">RentVerify</span>
         </Link>
 
         {/* Desktop Nav */}
