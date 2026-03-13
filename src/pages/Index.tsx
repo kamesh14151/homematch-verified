@@ -150,42 +150,42 @@ export default function Index() {
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0e2a5c] via-[#1a3a7a] to-[#0e2a5c] pb-20 pt-14">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0e2a5c] via-[#1a3a7a] to-[#0e2a5c] pb-12 pt-10 sm:pb-20 sm:pt-14">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M0 38.5h40v1H0zM0 .5h40v1H0zM.5 0v40h1V0zM38.5 0v40h1V0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
         <div className="container relative mx-auto px-4">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0} className="mb-3 text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-sm sm:px-4 sm:py-1.5 sm:text-xs">
               <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" /> India&apos;s Most Trusted Rental Platform
             </span>
           </motion.div>
-          <motion.h1 initial="hidden" animate="visible" variants={fadeUp} custom={1} className="mx-auto mb-4 max-w-3xl text-center text-4xl font-extrabold leading-tight text-white sm:text-5xl lg:text-6xl">
+          <motion.h1 initial="hidden" animate="visible" variants={fadeUp} custom={1} className="mx-auto mb-3 max-w-3xl text-center text-3xl font-extrabold leading-tight text-white sm:mb-4 sm:text-5xl lg:text-6xl">
             Find Your Perfect <span className="text-yellow-400">Verified</span> Rental Home
           </motion.h1>
-          <motion.p initial="hidden" animate="visible" variants={fadeUp} custom={2} className="mx-auto mb-10 max-w-2xl text-center text-base text-blue-100/80 sm:text-lg">
+          <motion.p initial="hidden" animate="visible" variants={fadeUp} custom={2} className="mx-auto mb-7 max-w-2xl text-center text-sm text-blue-100/80 sm:mb-10 sm:text-lg">
             Connect with PAN-verified landlords. Secure documents. Smart matching. Zero fraud.
           </motion.p>
 
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="mx-auto max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-card">
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="mx-auto max-w-4xl overflow-hidden rounded-xl bg-white shadow-2xl sm:rounded-2xl dark:bg-card">
             <div className="flex border-b border-border">
               {(["rent", "buy", "pg"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`flex-1 py-3.5 text-sm font-semibold capitalize transition-colors sm:flex-none sm:px-8 ${activeTab === tab ? "border-b-2 border-[#3A7AFE] text-[#3A7AFE]" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`flex-1 py-3 text-xs font-semibold capitalize transition-colors sm:flex-none sm:px-8 sm:py-3.5 sm:text-sm ${activeTab === tab ? "border-b-2 border-[#3A7AFE] text-[#3A7AFE]" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   {tab === "pg" ? "PG / Hostel" : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
             </div>
             <div className="flex flex-col gap-0 sm:flex-row sm:divide-x sm:divide-border">
-              <div className="relative flex-1 px-4 py-3.5">
+              <div className="relative flex-1 px-4 py-3">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Location / Pincode</label>
                 <div className="mt-1 flex items-center gap-2">
                   <MapPin className="h-4 w-4 shrink-0 text-[#3A7AFE]" />
                   <Input placeholder="Enter city, area or PIN code" className="h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus-visible:ring-0" />
                 </div>
               </div>
-              <div className="relative px-4 py-3.5 sm:w-44">
+              <div className="relative px-4 py-3 sm:w-44">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Property Type</label>
                 <Select>
                   <SelectTrigger className="mt-1 h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
@@ -199,7 +199,7 @@ export default function Index() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="relative px-4 py-3.5 sm:w-44">
+              <div className="relative px-4 py-3 sm:w-44">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Budget / Month</label>
                 <Select>
                   <SelectTrigger className="mt-1 h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
@@ -214,7 +214,7 @@ export default function Index() {
                 </Select>
               </div>
               <div className="flex items-center p-3">
-                <Button asChild className="h-12 w-full gap-2 rounded-xl bg-[#3A7AFE] px-8 text-sm font-bold hover:bg-[#2F65D8] sm:w-auto">
+                <Button asChild className="h-11 w-full gap-2 rounded-lg bg-[#3A7AFE] px-6 text-sm font-bold hover:bg-[#2F65D8] sm:h-12 sm:w-auto sm:rounded-xl sm:px-8">
                   <Link to="/register"><Search className="h-4 w-4" /> Search</Link>
                 </Button>
               </div>
@@ -234,7 +234,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="border-b bg-background py-8 sm:py-10">
+      <section className="border-b bg-background py-6 sm:py-10">
         <div className="container mx-auto px-4">
           <div className="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-1 sm:overflow-visible">
             {categoryChips.map((chip, index) => (

@@ -64,7 +64,7 @@ export default function PropertyDetail() {
           <ArrowLeft className="h-4 w-4" /> Back to listings
         </Link>
 
-        <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+        <div className="grid gap-5 lg:grid-cols-3 lg:gap-8">
           <div className="space-y-6 lg:col-span-2">
             <Card className="overflow-hidden border">
               <div className="relative aspect-[16/9] bg-muted">
@@ -89,14 +89,14 @@ export default function PropertyDetail() {
 
             <div className="rounded-xl border bg-card p-4 sm:p-5">
               <div className="mb-2 flex items-center gap-2">
-                <h1 className="text-xl font-bold sm:text-2xl">{property.title}</h1>
+                <h1 className="text-lg font-bold sm:text-2xl">{property.title}</h1>
                 {property.verified && (
                   <Badge className="gap-1 bg-success text-success-foreground">
                     <ShieldCheck className="h-3 w-3" /> Verified
                   </Badge>
                 )}
               </div>
-              <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <div className="mb-2 flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground sm:mb-4 sm:gap-3 sm:text-sm">
                 <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {property.address}</span>
                 <span className="inline-flex items-center gap-1"><BedDouble className="h-4 w-4" /> {property.houseType}</span>
                 <span>{property.bathrooms} Bathrooms</span>
@@ -155,10 +155,10 @@ export default function PropertyDetail() {
           {/* Sidebar */}
           <div className="space-y-4">
             <Card className="lg:sticky lg:top-20">
-              <CardContent className="space-y-4 p-4 sm:p-6">
+              <CardContent className="space-y-3.5 p-4 sm:space-y-4 sm:p-6">
                 <div>
-                  <p className="text-3xl font-bold text-foreground sm:text-4xl">Rs. {property.rent.toLocaleString("en-IN")}</p>
-                  <p className="text-sm text-muted-foreground">{property.houseType} · {property.bathrooms} Bathroom · {property.sqft} sqft</p>
+                  <p className="text-3xl font-bold leading-none text-foreground sm:text-4xl">Rs. {property.rent.toLocaleString("en-IN")}</p>
+                  <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{property.houseType} · {property.bathrooms} Bathroom · {property.sqft} sqft</p>
                 </div>
 
                 <Badge variant="secondary" className="text-sm">{property.houseType}</Badge>
@@ -170,8 +170,8 @@ export default function PropertyDetail() {
                   <p className="mt-2 text-xs font-medium text-primary">{property.totalListings} Items listed</p>
                 </div>
 
-                <Button className="w-full">Chat with seller</Button>
-                <Button variant="outline" className="w-full">Contact Landlord</Button>
+                <Button className="h-11 w-full">Chat with seller</Button>
+                <Button variant="outline" className="h-11 w-full">Contact Landlord</Button>
 
                 <div className="rounded-lg border p-4">
                   <p className="text-sm font-semibold">Posted in</p>

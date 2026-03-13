@@ -58,9 +58,9 @@ export default function Login() {
           <span className="font-bunderon text-lg text-foreground">RentVerify</span>
         </Link>
 
-        <div className="mx-auto w-full max-w-sm overflow-y-auto lg:overflow-hidden">
+        <div className="mx-auto w-full max-w-sm overflow-y-auto pb-2 lg:max-w-[360px] lg:overflow-hidden lg:pb-0">
           <div className="mb-5 lg:mb-6">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">Welcome back</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-[30px]">Welcome back</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">Sign in to continue to your account</p>
           </div>
 

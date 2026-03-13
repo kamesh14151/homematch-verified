@@ -56,9 +56,9 @@ export default function Register() {
           <span className="font-bunderon text-lg text-foreground">RentVerify</span>
         </Link>
 
-        <div className="mx-auto w-full max-w-sm overflow-y-auto lg:overflow-hidden">
+        <div className="mx-auto w-full max-w-sm overflow-y-auto pb-2 lg:max-w-[360px] lg:overflow-hidden lg:pb-0">
           <div className="mb-4">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">Create an account</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-[30px]">Create an account</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">Sign up and get started for free</p>
           </div>
 
