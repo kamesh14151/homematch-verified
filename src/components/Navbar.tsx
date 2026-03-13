@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Building2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,8 @@ export function Navbar() {
           <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Home</Link>
           <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
           <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
+          <Link to="/register" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">For Tenants</Link>
+          <Link to="/register" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">For Owners</Link>
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -48,9 +51,14 @@ export function Navbar() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">Login</Link>
               </Button>
-              <Button size="sm" asChild>
+              <Button size="sm" asChild className="bg-[#3A7AFE] text-white hover:bg-[#2F65D8]">
                 <Link to="/register">Get Started</Link>
               </Button>
+              <Button size="sm" asChild className="bg-green-600 text-white hover:bg-green-700 font-semibold gap-1.5">
+                <Link to="/register"><Building2 className="h-3.5 w-3.5" /> Post Property FREE</Link>
+              </Button>
+                        <Link to="/register" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Tenants</Link>
+                        <Link to="/register" className="text-sm font-medium" onClick={() => setMobileOpen(false)}>For Owners</Link>
             </>
           )}
         </div>
@@ -79,7 +87,8 @@ export function Navbar() {
             ) : (
               <>
                 <Button variant="ghost" size="sm" asChild><Link to="/login">Login</Link></Button>
-                <Button size="sm" asChild><Link to="/register">Get Started</Link></Button>
+                <Button size="sm" asChild className="bg-[#3A7AFE] text-white hover:bg-[#2F65D8]"><Link to="/register">Get Started</Link></Button>
+                <Button size="sm" asChild className="bg-green-600 text-white hover:bg-green-700 font-semibold w-full"><Link to="/register"><Building2 className="mr-1.5 h-3.5 w-3.5" /> Post Property FREE</Link></Button>
               </>
             )}
           </div>
