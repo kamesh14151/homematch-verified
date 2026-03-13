@@ -304,36 +304,57 @@ export type Database = {
       }
       tenants: {
         Row: {
+          aadhaar_last4: string | null
+          aadhaar_name: string | null
+          aadhaar_verified: boolean | null
           company: string | null
           created_at: string
           expected_rent: number | null
           family_members: number | null
           id: string
+          kyc_verified_at: string | null
           occupation: string | null
+          pan_name: string | null
+          pan_number: string | null
+          pan_verified: boolean | null
           preferred_house_type: string | null
           preferred_location: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          aadhaar_last4?: string | null
+          aadhaar_name?: string | null
+          aadhaar_verified?: boolean | null
           company?: string | null
           created_at?: string
           expected_rent?: number | null
           family_members?: number | null
           id?: string
+          kyc_verified_at?: string | null
           occupation?: string | null
+          pan_name?: string | null
+          pan_number?: string | null
+          pan_verified?: boolean | null
           preferred_house_type?: string | null
           preferred_location?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          aadhaar_last4?: string | null
+          aadhaar_name?: string | null
+          aadhaar_verified?: boolean | null
           company?: string | null
           created_at?: string
           expected_rent?: number | null
           family_members?: number | null
           id?: string
+          kyc_verified_at?: string | null
           occupation?: string | null
+          pan_name?: string | null
+          pan_number?: string | null
+          pan_verified?: boolean | null
           preferred_house_type?: string | null
           preferred_location?: string | null
           updated_at?: string
