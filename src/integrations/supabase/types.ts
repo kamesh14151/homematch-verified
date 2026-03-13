@@ -148,57 +148,93 @@ export type Database = {
       properties: {
         Row: {
           address: string
+          bathrooms: number | null
+          bedrooms: number | null
           created_at: string
           description: string | null
           eb_bill_number: string | null
+          facing: string | null
+          floor_no: number | null
+          furnishing: string | null
           house_type: string
           id: string
           is_active: boolean | null
           is_verified: boolean | null
           landlord_id: string
+          listed_by: string | null
+          maintenance_amount: number | null
           parking: boolean | null
+          parking_slots: number | null
           pincode: string | null
+          project_name: string | null
+          property_type: string | null
           rent: number
           separate_meter: boolean | null
+          super_builtup_area: number | null
           title: string
+          total_floors: number | null
           updated_at: string
           video_url: string | null
           water_supply: boolean | null
         }
         Insert: {
           address: string
+          bathrooms?: number | null
+          bedrooms?: number | null
           created_at?: string
           description?: string | null
           eb_bill_number?: string | null
+          facing?: string | null
+          floor_no?: number | null
+          furnishing?: string | null
           house_type: string
           id?: string
           is_active?: boolean | null
           is_verified?: boolean | null
           landlord_id: string
+          listed_by?: string | null
+          maintenance_amount?: number | null
           parking?: boolean | null
+          parking_slots?: number | null
           pincode?: string | null
+          project_name?: string | null
+          property_type?: string | null
           rent: number
           separate_meter?: boolean | null
+          super_builtup_area?: number | null
           title: string
+          total_floors?: number | null
           updated_at?: string
           video_url?: string | null
           water_supply?: boolean | null
         }
         Update: {
           address?: string
+          bathrooms?: number | null
+          bedrooms?: number | null
           created_at?: string
           description?: string | null
           eb_bill_number?: string | null
+          facing?: string | null
+          floor_no?: number | null
+          furnishing?: string | null
           house_type?: string
           id?: string
           is_active?: boolean | null
           is_verified?: boolean | null
           landlord_id?: string
+          listed_by?: string | null
+          maintenance_amount?: number | null
           parking?: boolean | null
+          parking_slots?: number | null
           pincode?: string | null
+          project_name?: string | null
+          property_type?: string | null
           rent?: number
           separate_meter?: boolean | null
+          super_builtup_area?: number | null
           title?: string
+          total_floors?: number | null
           updated_at?: string
           video_url?: string | null
           water_supply?: boolean | null
