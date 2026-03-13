@@ -50,41 +50,41 @@ export default function Register() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Left - Form */}
-      <div className="flex w-full flex-col justify-between px-6 py-5 sm:px-8 lg:w-1/2 lg:px-14 lg:py-6">
+      <div className="flex w-full flex-col justify-between px-6 py-4 sm:px-8 lg:w-1/2 lg:px-12 lg:py-5">
         <Link to="/" className="inline-flex items-center gap-2 self-start">
           <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-9 w-9 rounded-lg object-contain" />
           <span className="font-bunderon text-lg text-foreground">RentVerify</span>
         </Link>
 
-        <div className="mx-auto w-full max-w-sm overflow-y-auto pb-2 lg:max-w-[360px] lg:overflow-hidden lg:pb-0">
-          <div className="mb-4">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-[30px]">Create an account</h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">Sign up and get started for free</p>
+        <div className="mx-auto w-full max-w-[350px]">
+          <div className="mb-3">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-[28px]">Create an account</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Sign up and get started for free</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-2.5">
             <div className="space-y-1">
               <Label className="text-sm text-muted-foreground">I am a</Label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setRole("landlord")}
-                  className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all ${
+                  className={`flex flex-col items-center gap-1 rounded-xl border-2 p-2 transition-all ${
                     role === "landlord" ? "border-foreground bg-accent" : "border-border hover:border-muted-foreground/50"
                   }`}
                 >
-                  <Building2 className={`h-6 w-6 ${role === "landlord" ? "text-foreground" : "text-muted-foreground"}`} />
+                  <Building2 className={`h-5 w-5 ${role === "landlord" ? "text-foreground" : "text-muted-foreground"}`} />
                   <span className={`text-sm font-medium ${role === "landlord" ? "text-foreground" : "text-foreground"}`}>Landlord</span>
                   <span className="text-xs text-muted-foreground">List properties</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setRole("tenant")}
-                  className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all ${
+                  className={`flex flex-col items-center gap-1 rounded-xl border-2 p-2 transition-all ${
                     role === "tenant" ? "border-foreground bg-accent" : "border-border hover:border-muted-foreground/50"
                   }`}
                 >
-                  <Users className={`h-6 w-6 ${role === "tenant" ? "text-foreground" : "text-muted-foreground"}`} />
+                  <Users className={`h-5 w-5 ${role === "tenant" ? "text-foreground" : "text-muted-foreground"}`} />
                   <span className={`text-sm font-medium ${role === "tenant" ? "text-foreground" : "text-foreground"}`}>Tenant</span>
                   <span className="text-xs text-muted-foreground">Find houses</span>
                 </button>
@@ -96,7 +96,7 @@ export default function Register() {
               <div className="relative">
                 <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input id="name" placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)}
-                  className="h-12 rounded-xl border-border bg-muted/50 pl-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring" required />
+                  className="h-10 rounded-xl border-border bg-muted/50 pl-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring" required />
               </div>
             </div>
 
@@ -105,7 +105,7 @@ export default function Register() {
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-xl border-border bg-muted/50 pl-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring" required />
+                  className="h-10 rounded-xl border-border bg-muted/50 pl-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring" required />
               </div>
             </div>
 
@@ -115,7 +115,7 @@ export default function Register() {
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-xl border-border bg-muted/50 pl-10 pr-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring"
+                  className="h-10 rounded-xl border-border bg-muted/50 pl-10 pr-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring"
                   required minLength={6} />
                 <Button type="button" variant="ghost" size="icon"
                   className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
@@ -125,19 +125,19 @@ export default function Register() {
               </div>
             </div>
 
-            <Button type="submit" className="h-12 w-full rounded-xl text-base font-semibold" disabled={loading || !role}>
+            <Button type="submit" className="h-10 w-full rounded-xl text-sm font-semibold" disabled={loading || !role}>
               {loading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
 
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-3 flex items-center gap-3">
             <div className="h-px flex-1 bg-border" />
             <span className="text-xs text-muted-foreground">or continue with</span>
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          <div className="mt-3.5">
-            <Button variant="outline" className="h-11 w-full rounded-xl border-border" onClick={handleGoogleSignIn}>
+          <div className="mt-2.5">
+            <Button variant="outline" className="h-10 w-full rounded-xl border-border" onClick={handleGoogleSignIn}>
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>

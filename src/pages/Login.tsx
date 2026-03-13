@@ -52,19 +52,19 @@ export default function Login() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Left - Form */}
-      <div className="flex w-full flex-col justify-between px-6 py-5 sm:px-8 lg:w-1/2 lg:px-14 lg:py-6">
+      <div className="flex w-full flex-col justify-between px-6 py-4 sm:px-8 lg:w-1/2 lg:px-12 lg:py-5">
         <Link to="/" className="inline-flex items-center gap-2 self-start">
           <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-9 w-9 rounded-lg object-contain" />
           <span className="font-bunderon text-lg text-foreground">RentVerify</span>
         </Link>
 
-        <div className="mx-auto w-full max-w-sm overflow-y-auto pb-2 lg:max-w-[360px] lg:overflow-hidden lg:pb-0">
-          <div className="mb-5 lg:mb-6">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-[30px]">Welcome back</h1>
+        <div className="mx-auto w-full max-w-[350px]">
+          <div className="mb-3">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-[28px]">Welcome back</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">Sign in to continue to your account</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-2.5">
             <div className="space-y-1">
               <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
               <div className="relative">
@@ -75,7 +75,7 @@ export default function Login() {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-xl border-border bg-muted/50 pl-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring"
+                  className="h-10 rounded-xl border-border bg-muted/50 pl-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring"
                   required
                 />
               </div>
@@ -91,7 +91,7 @@ export default function Login() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-xl border-border bg-muted/50 pl-10 pr-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring"
+                  className="h-10 rounded-xl border-border bg-muted/50 pl-10 pr-10 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-ring"
                   required
                 />
                 <Button
@@ -106,21 +106,21 @@ export default function Login() {
               </div>
             </div>
 
-            <Button type="submit" className="h-12 w-full rounded-xl text-base font-semibold" disabled={loading}>
+            <Button type="submit" className="h-10 w-full rounded-xl text-sm font-semibold" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
-          <div className="mt-5 flex items-center gap-3">
+          <div className="mt-3 flex items-center gap-3">
             <div className="h-px flex-1 bg-border" />
             <span className="text-xs text-muted-foreground">or continue with</span>
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          <div className="mt-3.5">
+          <div className="mt-2.5">
             <Button
               variant="outline"
-              className="h-11 w-full rounded-xl border-border"
+              className="h-10 w-full rounded-xl border-border"
               onClick={handleGoogleSignIn}
             >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
