@@ -837,7 +837,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="services" className="bg-[#0b1220] py-16 text-white">
+      <section id="services" className="bg-[#0f2a5c] py-16 text-white">
         <div className="container mx-auto px-4">
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -885,7 +885,7 @@ export default function Index() {
         </div>
       </section>
 
-      <footer className="border-t bg-[#0a0f1a] py-12 text-white sm:py-14">
+      <footer className="border-t bg-[#0f2a5c] py-12 text-white sm:py-14">
         <div className="container mx-auto px-4">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>

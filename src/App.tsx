@@ -41,6 +41,7 @@ import LandlordProfile from "./pages/landlord/Profile";
 import TenantDashboard from "./pages/tenant/Dashboard";
 import SavedHouses from "./pages/tenant/SavedHouses";
 import Applications from "./pages/tenant/Applications";
+import MyBookings from "./pages/tenant/MyBookings";
 import TenantMessages from "./pages/tenant/Messages";
 import TenantProfile from "./pages/tenant/Profile";
 import AdminLogin from "./pages/admin/Login";
@@ -91,6 +92,7 @@ const App = () => (
               <Route path="/tenant/dashboard" element={<ProtectedRoute requiredRole="tenant"><TenantDashboard /></ProtectedRoute>} />
               <Route path="/tenant/saved" element={<ProtectedRoute requiredRole="tenant"><SavedHouses /></ProtectedRoute>} />
               <Route path="/tenant/applications" element={<ProtectedRoute requiredRole="tenant"><Applications /></ProtectedRoute>} />
+              <Route path="/tenant/bookings" element={<ProtectedRoute requiredRole="tenant"><MyBookings /></ProtectedRoute>} />
               <Route path="/tenant/messages" element={<ProtectedRoute requiredRole="tenant"><TenantMessages /></ProtectedRoute>} />
               <Route path="/tenant/profile" element={<ProtectedRoute requiredRole="tenant"><TenantProfile /></ProtectedRoute>} />
 

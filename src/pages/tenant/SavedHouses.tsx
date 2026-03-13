@@ -1,10 +1,11 @@
-import { Search, Bookmark, FileText, MessageSquare, UserCircle } from "lucide-react";
+import { Search, Bookmark, FileText, MessageSquare, UserCircle, Home } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 
 const navItems = [
   { title: "Search Houses", url: "/tenant/dashboard", icon: Search },
   { title: "Saved Houses", url: "/tenant/saved", icon: Bookmark },
   { title: "Applications", url: "/tenant/applications", icon: FileText },
+  { title: "My Bookings", url: "/tenant/bookings", icon: Home },
   { title: "Messages", url: "/tenant/messages", icon: MessageSquare },
   { title: "Profile", url: "/tenant/profile", icon: UserCircle },
 ];
