@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building2, Home, PlusCircle, ListChecks, MessageSquare, UserCircle } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,12 +22,20 @@ const navItems = [
   { title: "Profile", url: "/landlord/profile", icon: UserCircle },
 ];
 
+type PincodeResult = {
+  state?: string;
+  district?: string;
+  office?: string;
+  pincode?: string;
+};
+
 export default function AddProperty() {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [pincodeOptions, setPincodeOptions] = useState<Array<{ pincode: string; label: string }>>([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -58,6 +66,61 @@ export default function AddProperty() {
   const updateField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
     setForm((previous) => ({ ...previous, [key]: value }));
   };
+
+  useEffect(() => {
+    const pincodeQuery = form.pincode.trim();
+    if (pincodeQuery.length < 2) {
+      setPincodeOptions([]);
+      return;
+    }
+
+    let isActive = true;
+
+    const loadPincodes = async () => {
+      try {
+        const module = await import("india-pincode-search");
+        const searchFn =
+          (module as unknown as { search?: (query: string) => PincodeResult[] }).search ??
+          (module as unknown as { default?: { search?: (query: string) => PincodeResult[] } }).default?.search ??
+          (module as unknown as { default?: (query: string) => PincodeResult[] }).default;
+
+        if (typeof searchFn !== "function") {
+          if (isActive) setPincodeOptions([]);
+          return;
+        }
+
+        const results = searchFn(pincodeQuery) ?? [];
+        const uniqueByPincode = new Map<string, string>();
+
+        results
+          .filter((item) => (item.pincode ?? "").startsWith(pincodeQuery))
+          .forEach((item) => {
+            const pincode = item.pincode ?? "";
+            if (!pincode || uniqueByPincode.has(pincode)) return;
+
+            const office = item.office ?? "Office";
+            const district = item.district ?? "Tamil Nadu";
+            uniqueByPincode.set(pincode, `${pincode} - ${office}, ${district}`);
+          });
+
+        if (isActive) {
+          setPincodeOptions(
+            Array.from(uniqueByPincode.entries())
+              .slice(0, 40)
+              .map(([pincode, label]) => ({ pincode, label }))
+          );
+        }
+      } catch {
+        if (isActive) setPincodeOptions([]);
+      }
+    };
+
+    void loadPincodes();
+
+    return () => {
+      isActive = false;
+    };
+  }, [form.pincode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,10 +251,19 @@ export default function AddProperty() {
                 <div className="space-y-2">
                   <Label>PIN Code</Label>
                   <Input
-                    placeholder="600001"
+                    placeholder="Type 63... and select"
                     value={form.pincode}
-                    onChange={(event) => updateField("pincode", event.target.value)}
+                    onChange={(event) => updateField("pincode", event.target.value.replace(/\D/g, "").slice(0, 6))}
+                    list="pincode-options"
+                    inputMode="numeric"
+                    pattern="[0-9]{6}"
                   />
+                  <datalist id="pincode-options">
+                    {pincodeOptions.map((option) => (
+                      <option key={option.pincode} value={option.pincode} label={option.label} />
+                    ))}
+                  </datalist>
+                  <p className="text-xs text-muted-foreground">Type any starting digits (e.g. 63) to see matching India PIN codes</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Monthly Rent (₹)</Label>
