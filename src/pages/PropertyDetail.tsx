@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Car, Droplets, Heart, MapPin, Share2, ShieldCheck, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Navbar } from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 type PropertyData = {
   id: string;
@@ -19,6 +21,7 @@ type PropertyData = {
   facilities: { water: boolean; separateMeter: boolean; parking: boolean };
   verified: boolean;
   landlordName: string;
+  landlordId: string;
   memberSince: string;
   totalListings: number;
   listingId: string;
@@ -51,6 +54,7 @@ const fallbackProperty: PropertyData = {
   facilities: { water: true, separateMeter: true, parking: true },
   verified: true,
   landlordName: "Owner",
+  landlordId: "",
   memberSince: "Recently",
   totalListings: 1,
   listingId: "1826811384",
@@ -104,8 +108,12 @@ const getVideoSource = (videoUrl: string | null) => {
 
 export default function PropertyDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user, userRole } = useAuth();
   const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [chatLoading, setChatLoading] = useState(false);
   const [property, setProperty] = useState<PropertyData>(fallbackProperty);
 
   useEffect(() => {
@@ -174,6 +182,7 @@ export default function PropertyDetail() {
         },
         verified: !!propertyRow.is_verified,
         landlordName: profileData?.full_name || "Landlord",
+        landlordId: propertyRow.landlord_id,
         memberSince: profileData?.created_at ? new Date(profileData.created_at).toLocaleDateString("en-IN") : "Recently",
         totalListings: listingsCount ?? 1,
         listingId: propertyRow.id.slice(0, 8),
@@ -194,6 +203,61 @@ export default function PropertyDetail() {
     [property.address]
   );
   const videoSource = useMemo(() => getVideoSource(property.videoUrl), [property.videoUrl]);
+
+  const handleStartChat = async () => {
+    if (!user) {
+      toast({ title: "Please login", description: "Login as tenant to chat with landlord.", variant: "destructive" });
+      navigate("/login");
+      return;
+    }
+
+    if (userRole !== "tenant") {
+      toast({ title: "Tenant account required", description: "Switch to a tenant account to contact landlord.", variant: "destructive" });
+      return;
+    }
+
+    if (property.landlordId && property.landlordId === user.id) {
+      toast({ title: "Not allowed", description: "You cannot create a request on your own property.", variant: "destructive" });
+      return;
+    }
+
+    setChatLoading(true);
+
+    const { data: existingApplication } = await supabase
+      .from("applications")
+      .select("id")
+      .eq("property_id", property.id)
+      .eq("tenant_id", user.id)
+      .maybeSingle();
+
+    if (existingApplication?.id) {
+      setChatLoading(false);
+      navigate(`/tenant/messages?app=${existingApplication.id}`);
+      return;
+    }
+
+    const initialMessage = "Tenant: Hi, I am interested in this property. Please share availability details.";
+    const { data: createdApplication, error } = await supabase
+      .from("applications")
+      .insert({
+        property_id: property.id,
+        tenant_id: user.id,
+        status: "pending",
+        message: initialMessage,
+      })
+      .select("id")
+      .single();
+
+    setChatLoading(false);
+
+    if (error) {
+      toast({ title: "Request failed", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Request sent", description: "You can continue chat in Messages." });
+    navigate(`/tenant/messages?app=${createdApplication.id}`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -375,7 +439,9 @@ export default function PropertyDetail() {
                     <p className="mt-2 text-xs font-medium text-primary">{property.totalListings} Items listed</p>
                   </div>
 
-                  <Button className="h-11 w-full">Chat with seller</Button>
+                  <Button className="h-11 w-full" onClick={handleStartChat} disabled={chatLoading || loading}>
+                    {chatLoading ? "Opening chat..." : "Chat with seller"}
+                  </Button>
                   <Button variant="outline" className="h-11 w-full">Contact Landlord</Button>
 
                   <div className="rounded-lg border p-4">

@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { Search, Bookmark, FileText, MessageSquare, UserCircle } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,8 +16,123 @@ const navItems = [
   { title: "Profile", url: "/tenant/profile", icon: UserCircle },
 ];
 
+type PincodeRecord = {
+  city: string;
+  area: string;
+  pincode: string;
+  district: string;
+  state: string;
+};
+
+const parseCsvLine = (line: string) => {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    if (char === '"') {
+      const nextChar = line[i + 1];
+      if (inQuotes && nextChar === '"') {
+        current += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+    if (char === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  result.push(current.trim());
+  return result;
+};
+
+const parsePincodeCsv = (csvText: string): PincodeRecord[] => {
+  const lines = csvText.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (lines.length <= 1) return [];
+
+  const headers = parseCsvLine(lines[0]).map((h) => h.toLowerCase());
+  const getIndex = (name: string) => headers.findIndex((h) => h === name.toLowerCase());
+  const cityIndex = getIndex("City");
+  const areaIndex = getIndex("Area");
+  const pincodeIndex = getIndex("Pincode");
+  const districtIndex = getIndex("District");
+  const stateIndex = getIndex("State");
+  if ([cityIndex, areaIndex, pincodeIndex, districtIndex, stateIndex].some((i) => i === -1)) return [];
+
+  return lines
+    .slice(1)
+    .map((line) => {
+      const cols = parseCsvLine(line);
+      return {
+        city: cols[cityIndex] ?? "",
+        area: cols[areaIndex] ?? "",
+        pincode: (cols[pincodeIndex] ?? "").replace(/\D/g, "").slice(0, 6),
+        district: cols[districtIndex] ?? "",
+        state: cols[stateIndex] ?? "",
+      };
+    })
+    .filter((record) => record.pincode.length > 0);
+};
+
+const organizationOptions: Record<string, string[]> = {
+  government: ["Central Government", "State Government", "PSU", "Municipal Office"],
+  bank: ["SBI", "Indian Bank", "Canara Bank", "HDFC Bank", "ICICI Bank"],
+  corporate: ["TCS", "Infosys", "Wipro", "HCL", "Accenture", "Other Company"],
+  "self-employed": ["Business", "Consulting", "Freelance", "Shop Owner"],
+  student: ["School", "College", "University", "Coaching Institute"],
+  other: ["Other"],
+};
+
 export default function TenantProfile() {
   const { user } = useAuth();
+  const [occupation, setOccupation] = useState("");
+  const [organization, setOrganization] = useState("");
+  const [locationQuery, setLocationQuery] = useState("");
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [dataset, setDataset] = useState<PincodeRecord[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await fetch("/data/India_pincode.csv");
+        const text = await response.text();
+        setDataset(parsePincodeCsv(text));
+      } catch {
+        setDataset([]);
+      }
+    };
+    void loadData();
+  }, []);
+
+  const locationOptions = useMemo(() => {
+    const q = locationQuery.trim().toLowerCase();
+    if (q.length < 2) return [] as Array<{ label: string; value: string }>;
+
+    const results = dataset
+      .filter((record) =>
+        record.pincode.startsWith(q) ||
+        record.area.toLowerCase().includes(q) ||
+        record.city.toLowerCase().includes(q) ||
+        record.district.toLowerCase().includes(q) ||
+        record.state.toLowerCase().includes(q)
+      )
+      .slice(0, 50)
+      .map((record) => {
+        const value = `${record.area}, ${record.city}, ${record.district}, ${record.state} - ${record.pincode}`;
+        return { label: value, value };
+      });
+
+    return Array.from(new Map(results.map((item) => [item.value, item])).values());
+  }, [dataset, locationQuery]);
+
+  const currentOrganizationOptions = organizationOptions[occupation] ?? [];
+  const organizationLabel = occupation === "student" ? "College / Institution" : "Company / Organization";
 
   return (
     <DashboardLayout navItems={navItems} title="Tenant">
@@ -45,7 +161,7 @@ export default function TenantProfile() {
             </div>
             <div className="space-y-2">
               <Label>Occupation</Label>
-              <Select>
+              <Select value={occupation} onValueChange={(value) => { setOccupation(value); setOrganization(""); }}>
                 <SelectTrigger><SelectValue placeholder="Select occupation" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="government">Government Employee</SelectItem>
@@ -58,8 +174,19 @@ export default function TenantProfile() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Company / Organization</Label>
-              <Input placeholder="TCS, Wipro, SBI..." />
+              <Label>{organizationLabel}</Label>
+              <Select value={organization} onValueChange={setOrganization}>
+                <SelectTrigger><SelectValue placeholder={`Select ${organizationLabel.toLowerCase()}`} /></SelectTrigger>
+                <SelectContent>
+                  {currentOrganizationOptions.length > 0 ? (
+                    currentOrganizationOptions.map((option) => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="Not Specified">Not Specified</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Family Members</Label>
@@ -91,7 +218,40 @@ export default function TenantProfile() {
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label>Preferred Location / PIN Code</Label>
-              <Input placeholder="Location or PIN code" />
+              <div className="relative">
+                <Input
+                  placeholder="Type area, city, district, state or PIN"
+                  value={locationQuery}
+                  onChange={(event) => {
+                    setLocationQuery(event.target.value);
+                    setShowLocationDropdown(true);
+                  }}
+                  onFocus={() => setShowLocationDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowLocationDropdown(false), 120)}
+                />
+                {showLocationDropdown && locationQuery.trim().length >= 2 && (
+                  <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
+                    {locationOptions.length > 0 ? (
+                      locationOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          className="block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent last:border-b-0"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => {
+                            setLocationQuery(option.value);
+                            setShowLocationDropdown(false);
+                          }}
+                        >
+                          {option.label}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-3 py-2 text-sm text-muted-foreground">No matching locations found</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
