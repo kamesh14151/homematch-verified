@@ -477,20 +477,23 @@ export default function PropertyDetail() {
                   <Button variant="outline" className="h-11 w-full" onClick={handleContactLandlord}>Contact Landlord</Button>
 
                   {/* Payment summary */}
-                  <div className="rounded-xl border bg-muted/30 p-4 space-y-2">
+                  <div className="space-y-2 rounded-xl border bg-muted/30 p-4">
                     <h3 className="font-bold text-sm">Payment Details</h3>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Base package cost</span>
+                      <span className="text-muted-foreground">Monthly rent from landlord</span>
                       <span className="font-semibold">Rs. {property.rent.toLocaleString("en-IN")}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Security deposit</span>
+                      <span className="text-muted-foreground">Estimated deposit</span>
                       <span className="font-semibold">Rs. {Math.round(property.rent * 0.5).toLocaleString("en-IN")}</span>
                     </div>
                     <div className="flex justify-between border-t pt-2 text-sm">
-                      <span className="font-bold">Payable today</span>
+                      <span className="font-bold">Suggested booking hold</span>
                       <span className="text-base font-bold text-[#3A7AFE]">Rs. {Math.round(property.rent * 0.25).toLocaleString("en-IN")}</span>
                     </div>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      Rent is live from the landlord listing. Deposit and booking-hold values are estimated until the landlord confirms final terms.
+                    </p>
                   </div>
 
                   <Button

@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { Command, LogOut, LucideIcon, ShieldCheck } from "lucide-react";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -63,14 +64,10 @@ function DashboardSidebar({
           <SidebarGroup>
             <SidebarGroupLabel className="px-4 py-4">
               <Link to="/" className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10">
-                  <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-7 w-7 rounded-md object-contain" />
-                </div>
                 {!collapsed && (
-                  <div>
-                    <span className="block font-bunderon text-lg font-bold text-white">RentVerify</span>
-                  </div>
+                  <BrandWordmark theme="dark" compact />
                 )}
+                {collapsed && <BrandWordmark theme="dark" compact className="[&>div:last-child]:hidden" />}
               </Link>
             </SidebarGroupLabel>
 

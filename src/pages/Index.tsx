@@ -28,6 +28,7 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -889,8 +890,7 @@ export default function Index() {
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <div className="mb-4 flex items-center gap-2">
-                <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-9 w-9 rounded-lg object-contain" />
-                <span className="font-bunderon text-xl text-white">RentVerify</span>
+                <BrandWordmark theme="dark" compact />
               </div>
               <p className="text-sm leading-relaxed text-white/50">India&apos;s trusted rental verification platform for secure, transparent rentals.</p>
             </div>

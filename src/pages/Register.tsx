@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Eye, EyeOff, Building2, Users } from "lucide-react";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,8 +53,7 @@ export default function Register() {
       {/* Left - Form */}
       <div className="flex w-full flex-col justify-between px-6 py-4 sm:px-8 lg:w-1/2 lg:px-12 lg:py-5">
         <Link to="/" className="inline-flex items-center gap-2 self-start">
-          <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-9 w-9 rounded-lg object-contain" />
-          <span className="font-bunderon text-lg text-foreground">RentVerify</span>
+          <BrandWordmark compact />
         </Link>
 
         <div className="mx-auto w-full max-w-[350px]">

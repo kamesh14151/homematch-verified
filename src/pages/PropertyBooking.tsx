@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
+  CalendarDays,
   Check,
   ChevronRight,
   ClipboardList,
@@ -15,10 +16,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
 import { Navbar } from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type PropertyData = {
@@ -56,6 +63,41 @@ const PAYMENT_METHODS = [
   { id: "card", label: "Credit / Debit Card", sub: "Visa, Mastercard, RuPay", icon: "💳" },
   { id: "emi", label: "EMI", sub: "No-cost EMI on select cards", icon: "📆" },
 ];
+
+const OCCUPATION_OPTIONS = [
+  "Software Engineer",
+  "Business Owner",
+  "Government Employee",
+  "Teacher",
+  "Doctor",
+  "Student",
+  "Other",
+];
+
+const FAMILY_SIZE_OPTIONS = ["1 (Single)", "2 (Couple)", "3", "4", "5+"];
+
+const inputShellClass = "h-12 rounded-2xl border-slate-200 bg-slate-50/70 px-4 text-sm shadow-none transition-colors focus-visible:border-[#3A7AFE]/40 focus-visible:ring-[#3A7AFE]/20";
+const selectShellClass = "h-12 rounded-2xl border-slate-200 bg-slate-50/70 px-4 text-sm shadow-none focus:ring-[#3A7AFE]/20 focus:ring-offset-0";
+
+const formatPrettyDate = (date: Date) => new Intl.DateTimeFormat("en-IN", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+}).format(date);
+
+const toDateInputValue = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const fromDateInputValue = (value: string) => {
+  if (!value) return undefined;
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return undefined;
+  return new Date(year, month - 1, day);
+};
 
 // ─── Step Indicator ───────────────────────────────────────────────────────────
 function StepIndicator({ current }: { current: number }) {
@@ -128,20 +170,20 @@ function PaymentSidebar({
       </div>
       <CardContent className="space-y-4 p-5">
         <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Base package cost</span>
+          <span className="text-muted-foreground">Monthly rent from landlord</span>
           <span className="font-semibold">Rs. {property.rent.toLocaleString("en-IN")}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Security deposit</span>
+          <span className="text-muted-foreground">Estimated deposit</span>
           <span className="font-semibold">Rs. {deposit.toLocaleString("en-IN")}</span>
         </div>
         <div className="flex justify-between border-t pt-3 text-sm">
-          <span className="text-muted-foreground">Est. Total</span>
+          <span className="text-muted-foreground">Estimated move-in total</span>
           <span className="font-semibold">Rs. {total.toLocaleString("en-IN")}</span>
         </div>
 
         <div className="rounded-xl bg-[#3A7AFE]/8 border border-[#3A7AFE]/20 p-4 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payable Total</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Suggested booking hold</p>
           <p className="mt-1 text-4xl font-extrabold text-[#3A7AFE]">Rs. {advance.toLocaleString("en-IN")}</p>
           <p className="mt-1 text-xs text-muted-foreground">Balance due by {balanceDue}</p>
         </div>
@@ -160,6 +202,10 @@ function PaymentSidebar({
             </>
           )}
         </Button>
+
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          Rent is pulled live from the landlord&apos;s current listing. Deposit and booking-hold values are estimated until the owner confirms final terms.
+        </p>
       </CardContent>
     </Card>
   );
@@ -200,21 +246,21 @@ function Step1({ property }: { property: PropertyData }) {
         <CardContent className="p-0">
           <div className="border-b px-6 py-4">
             <h3 className="text-xl font-bold">Booking Policy</h3>
-            <p className="mt-0.5 text-sm text-muted-foreground">Clear payment milestones for a stress-free experience.</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">Live rent is shown from the landlord listing. Booking and deposit amounts are estimated until the landlord confirms.</p>
           </div>
           <div className="divide-y">
             <div className="px-6 py-5">
-              <h4 className="font-semibold">Advance Payment</h4>
+              <h4 className="font-semibold">Suggested Booking Hold</h4>
               <p className="mt-2 flex items-center gap-2 text-muted-foreground">
                 <span className="font-bold text-yellow-500">→</span>
-                Advance Payment :&nbsp;<span className="font-bold text-[#3A7AFE]">Rs. {advance.toLocaleString("en-IN")}</span>
+                Suggested booking hold :&nbsp;<span className="font-bold text-[#3A7AFE]">Rs. {advance.toLocaleString("en-IN")}</span>
               </p>
             </div>
             <div className="px-6 py-5">
               <h4 className="font-semibold">Refund Policy</h4>
               <p className="mt-2 flex items-center gap-2 text-muted-foreground">
                 <span className="font-bold text-yellow-500">→</span>
-                Advance refundable as per&nbsp;
+                Booking hold refundable as per&nbsp;
                 <span className="cursor-pointer font-medium text-[#3A7AFE] underline underline-offset-2">Cancellation Policy</span>
               </p>
             </div>
@@ -234,61 +280,107 @@ function Step1({ property }: { property: PropertyData }) {
 
 // ─── Step 2: Tenant Details ───────────────────────────────────────────────────
 function Step2({ details, onChange }: { details: TenantDetails; onChange: (d: TenantDetails) => void }) {
-  const set = (k: keyof TenantDetails) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-      onChange({ ...details, [k]: e.target.value });
+  const selectedMoveInDate = fromDateInputValue(details.moveInDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const labelClass = "block text-sm font-medium text-muted-foreground mb-1";
+  const setText = (key: keyof TenantDetails) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    onChange({ ...details, [key]: event.target.value });
+
+  const setValue = (key: keyof TenantDetails) => (value: string) =>
+    onChange({ ...details, [key]: value });
 
   return (
-    <Card>
-      <CardContent className="p-5 sm:p-6">
-        <h3 className="mb-5 text-xl font-bold">Tenant Details</h3>
+    <Card className="overflow-hidden border-slate-200/80 shadow-[0_24px_80px_-48px_rgba(15,42,92,0.45)]">
+      <div className="border-b bg-[linear-gradient(135deg,#0f2a5c_0%,#183b78_60%,#214892_100%)] px-5 py-5 text-white sm:px-6">
+        <h3 className="text-xl font-bold">Tenant Details</h3>
+        <p className="mt-1 text-sm text-white/75">A cleaner application helps the landlord review your request faster.</p>
+      </div>
+      <CardContent className="space-y-6 p-5 sm:p-6">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div>
-            <label className={labelClass}>Full Name *</label>
-            <Input placeholder="Your full name" value={details.name} onChange={set("name")} required />
+          <div className="space-y-2">
+            <Label className="text-sm text-slate-600">Full Name *</Label>
+            <Input className={inputShellClass} placeholder="Your full name" value={details.name} onChange={setText("name")} required />
           </div>
-          <div>
-            <label className={labelClass}>Email Address *</label>
-            <Input type="email" placeholder="your@email.com" value={details.email} onChange={set("email")} required />
+          <div className="space-y-2">
+            <Label className="text-sm text-slate-600">Email Address *</Label>
+            <Input className={inputShellClass} type="email" placeholder="your@email.com" value={details.email} onChange={setText("email")} required />
           </div>
-          <div>
-            <label className={labelClass}>Phone Number *</label>
-            <Input type="tel" placeholder="+91 98765 43210" value={details.phone} onChange={set("phone")} required />
+          <div className="space-y-2">
+            <Label className="text-sm text-slate-600">Phone Number *</Label>
+            <Input className={inputShellClass} type="tel" placeholder="+91 98765 43210" value={details.phone} onChange={setText("phone")} required />
           </div>
-          <div>
-            <label className={labelClass}>Current City *</label>
-            <Input placeholder="e.g. Chennai" value={details.city} onChange={set("city")} required />
+          <div className="space-y-2">
+            <Label className="text-sm text-slate-600">Current City *</Label>
+            <Input className={inputShellClass} placeholder="e.g. Chennai" value={details.city} onChange={setText("city")} required />
           </div>
-          <div>
-            <label className={labelClass}>Occupation</label>
-            <Input placeholder="e.g. Software Engineer" value={details.occupation} onChange={set("occupation")} />
+          <div className="space-y-2">
+            <Label className="text-sm text-slate-600">Occupation</Label>
+            <Select value={details.occupation} onValueChange={setValue("occupation")}>
+              <SelectTrigger className={selectShellClass}>
+                <SelectValue placeholder="Select occupation" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-slate-200 shadow-2xl">
+                {OCCUPATION_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>{option}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div>
-            <label className={labelClass}>Family Size</label>
-            <select
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              value={details.familySize}
-              onChange={set("familySize")}
-            >
-              <option value="">Select family size</option>
-              {["1 (Single)", "2 (Couple)", "3", "4", "5+"].map((v) => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
+          <div className="space-y-2">
+            <Label className="text-sm text-slate-600">Family Size</Label>
+            <Select value={details.familySize} onValueChange={setValue("familySize")}>
+              <SelectTrigger className={selectShellClass}>
+                <SelectValue placeholder="Select family size" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-slate-200 shadow-2xl">
+                {FAMILY_SIZE_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>{option}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div>
-            <label className={labelClass}>Preferred Move-in Date</label>
-            <Input type="date" value={details.moveInDate} onChange={set("moveInDate")} />
+          <div className="space-y-2 sm:col-span-2">
+            <Label className="text-sm text-slate-600">Preferred Move-in Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn(
+                    "h-12 w-full justify-between rounded-2xl border-slate-200 bg-slate-50/70 px-4 text-left text-sm font-medium text-foreground hover:bg-slate-100",
+                    !selectedMoveInDate && "text-muted-foreground",
+                  )}
+                >
+                  {selectedMoveInDate ? formatPrettyDate(selectedMoveInDate) : "Select move-in date"}
+                  <CalendarDays className="h-4 w-4 text-[#3A7AFE]" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto rounded-[24px] border-slate-200 p-3 shadow-2xl">
+                <Calendar
+                  mode="single"
+                  selected={selectedMoveInDate}
+                  onSelect={(date) => onChange({ ...details, moveInDate: date ? toDateInputValue(date) : "" })}
+                  disabled={(date) => date < today}
+                  initialFocus
+                  className="rounded-[20px] bg-white"
+                  classNames={{
+                    caption_label: "text-sm font-semibold text-[#0f2a5c]",
+                    day_selected: "bg-[#0f2a5c] text-white hover:bg-[#0f2a5c] focus:bg-[#0f2a5c]",
+                    day_today: "bg-yellow-100 text-[#0f2a5c]",
+                    nav_button: "h-8 w-8 rounded-full border border-slate-200 bg-white p-0 opacity-100 hover:bg-slate-100",
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
-          <div className="sm:col-span-2">
-            <label className={labelClass}>Message to Landlord</label>
-            <textarea
-              className="flex min-h-[96px] w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              placeholder="Introduce yourself and share any special requirements..."
+          <div className="space-y-2 sm:col-span-2">
+            <Label className="text-sm text-slate-600">Message to Landlord</Label>
+            <Textarea
+              className="min-h-[132px] rounded-[24px] border-slate-200 bg-slate-50/70 px-4 py-3 text-sm shadow-none focus-visible:border-[#3A7AFE]/40 focus-visible:ring-[#3A7AFE]/20"
+              placeholder="Introduce yourself, your timeline, and any requirements the landlord should know."
               value={details.message}
-              onChange={set("message")}
+              onChange={setText("message")}
             />
           </div>
         </div>
@@ -367,7 +459,8 @@ function Step4({
     { label: "Family Size", value: details.familySize || "—" },
     { label: "Move-in Date", value: details.moveInDate || "—" },
     { label: "Payment Method", value: methodLabel },
-    { label: "Advance Payable", value: `Rs. ${advance.toLocaleString("en-IN")}` },
+    { label: "Monthly Rent", value: `Rs. ${property.rent.toLocaleString("en-IN")}` },
+    { label: "Suggested Booking Hold", value: `Rs. ${advance.toLocaleString("en-IN")}` },
   ];
 
   return (
@@ -412,7 +505,7 @@ function Step4({
       <div className="flex items-start gap-3 rounded-2xl border border-green-200 bg-green-50 px-5 py-4 dark:border-green-900/40 dark:bg-green-950/20">
         <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
         <p className="text-sm text-muted-foreground">
-          By confirming, you agree to the <span className="cursor-pointer font-medium text-[#3A7AFE] underline underline-offset-2">Booking Terms</span> and the advance payment will be processed securely.
+          By confirming, you agree to the <span className="cursor-pointer font-medium text-[#3A7AFE] underline underline-offset-2">Booking Terms</span>. Monthly rent is live from the landlord listing, while the booking hold is an estimated amount used to start the request securely.
         </p>
       </div>
     </div>
@@ -523,7 +616,7 @@ export default function PropertyBooking() {
     }
 
     const bookingMsg = tenantDetails.message ||
-      `Hi, I would like to book this property. Advance payable: Rs. ${advance.toLocaleString("en-IN")}. Payment via ${PAYMENT_METHODS.find((m) => m.id === paymentMethod)?.label}.`;
+      `Hi, I would like to book this property. Monthly rent on listing: Rs. ${property.rent.toLocaleString("en-IN")}. Suggested booking hold: Rs. ${advance.toLocaleString("en-IN")}. Payment via ${PAYMENT_METHODS.find((m) => m.id === paymentMethod)?.label}.`;
 
     const { data: created, error } = await supabase
       .from("applications")

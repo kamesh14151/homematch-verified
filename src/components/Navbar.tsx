@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Building2, LogOut, Menu, X } from "lucide-react";
+import { BrandWordmark } from "@/components/BrandWordmark";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -25,13 +26,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 bg-[#0f2a5c] shadow-lg">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         <Link to="/" className="flex items-center gap-3">
-          <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-9 w-9 rounded-lg object-contain" />
-          <div>
-            <span className="block font-bunderon text-lg leading-none text-white">RentVerify</span>
-            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.22em] text-white/60 lg:block">
-              Verified Rental Network
-            </span>
-          </div>
+          <BrandWordmark theme="dark" showTagline className="gap-2.5" />
         </Link>
 
         {/* Desktop Nav */}
@@ -61,7 +56,7 @@ export function Navbar() {
                 <Link to="/login">Login</Link>
               </Button>
               <Button size="sm" asChild className="rounded-full bg-yellow-400 px-5 font-bold text-gray-900 hover:bg-yellow-500">
-                <Link to="/register">Sign Up Free</Link>
+                <Link to="/register">Login/Signup</Link>
               </Button>
             </>
           )}
@@ -95,7 +90,7 @@ export function Navbar() {
                   <Link to="/login">Login</Link>
                 </Button>
                 <Button size="sm" asChild className="w-full rounded-full bg-yellow-400 font-bold text-gray-900 hover:bg-yellow-500">
-                  <Link to="/register">Sign Up Free</Link>
+                  <Link to="/register">Login/Signup</Link>
                 </Button>
               </>
             )}
