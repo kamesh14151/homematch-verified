@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -26,6 +26,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Navbar } from "@/components/Navbar";
+import { supabase } from "@/integrations/supabase/client";
 
 const features = [
   { icon: ShieldCheck, title: "Verified Landlords", description: "Every landlord is PAN-verified before listing." },
@@ -55,35 +56,18 @@ const filterGroups = [
   { title: "Furnishing", items: ["Unfurnished", "Semi-Furnished", "Fully Furnished"] },
 ];
 
-const listingPreview = [
-  {
-    id: "1",
-    title: "2 BHK apartment near bus stand",
-    price: "Rs. 20,000",
-    meta: "2 BHK · 2 Bathroom · 1300 sqft",
-    location: "Periya Pudur, Salem",
-    time: "2 days ago",
-    image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: "2",
-    title: "2 BHK flat near college",
-    price: "Rs. 11,000",
-    meta: "2 BHK · 2 Bathroom · 950 sqft",
-    location: "Chinnatirupathi, Salem",
-    time: "5 days ago",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: "3",
-    title: "3 BHK independent home",
-    price: "Rs. 20,000",
-    meta: "3 BHK · 2 Bathroom · 1800 sqft",
-    location: "Gugai, Salem",
-    time: "Jan 31",
-    image: "https://images.unsplash.com/photo-1576941089067-2de3c901e126?auto=format&fit=crop&w=900&q=80",
-  },
-];
+type HomeListing = {
+  id: string;
+  title: string;
+  price: string;
+  meta: string;
+  location: string;
+  time: string;
+  image?: string;
+  address: string;
+  rent: number;
+  propertyType: string;
+};
 
 const propertyTypes = [
   { label: "Independent House / Villa", count: "120+", color: "bg-amber-50 dark:bg-amber-950/40" },
@@ -145,6 +129,106 @@ const fadeUp = {
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState<"rent" | "buy" | "pg">("rent");
+  const [searchLocation, setSearchLocation] = useState("");
+  const [searchType, setSearchType] = useState("any");
+  const [searchBudget, setSearchBudget] = useState("any");
+  const [loadingListings, setLoadingListings] = useState(true);
+  const [allListings, setAllListings] = useState<HomeListing[]>([]);
+  const [filteredListings, setFilteredListings] = useState<HomeListing[]>([]);
+
+  useEffect(() => {
+    const loadListings = async () => {
+      setLoadingListings(true);
+
+      const { data: rows } = await supabase
+        .from("properties")
+        .select("id, title, address, rent, house_type, property_type, bedrooms, bathrooms, super_builtup_area, created_at")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(60);
+
+      const propertyIds = (rows ?? []).map((item) => item.id);
+      const imageMap = new Map<string, string>();
+
+      if (propertyIds.length > 0) {
+        const { data: imageRows } = await supabase
+          .from("property_images")
+          .select("property_id, image_url, display_order")
+          .in("property_id", propertyIds)
+          .order("display_order", { ascending: true });
+
+        (imageRows ?? []).forEach((image) => {
+          if (!imageMap.has(image.property_id)) {
+            imageMap.set(image.property_id, image.image_url);
+          }
+        });
+      }
+
+      const mapped: HomeListing[] = (rows ?? []).map((item) => {
+        const metaParts = [
+          item.house_type,
+          item.bathrooms ? `${item.bathrooms} Bathroom` : null,
+          item.super_builtup_area ? `${item.super_builtup_area} sqft` : null,
+        ].filter(Boolean);
+
+        return {
+          id: item.id,
+          title: item.title,
+          price: `Rs. ${item.rent.toLocaleString("en-IN")}`,
+          meta: metaParts.join(" · "),
+          location: item.address,
+          time: new Date(item.created_at).toLocaleDateString("en-IN"),
+          image: imageMap.get(item.id),
+          address: item.address,
+          rent: item.rent,
+          propertyType: item.property_type || item.house_type || "",
+        };
+      });
+
+      setAllListings(mapped);
+      setFilteredListings(mapped);
+      setLoadingListings(false);
+    };
+
+    void loadListings();
+  }, []);
+
+  const applySearch = () => {
+    const location = searchLocation.trim().toLowerCase();
+
+    const budgetMatch = (rent: number) => {
+      if (searchBudget === "any") return true;
+      if (searchBudget === "0-10000") return rent < 10000;
+      if (searchBudget === "10000-20000") return rent >= 10000 && rent <= 20000;
+      if (searchBudget === "20000-30000") return rent >= 20000 && rent <= 30000;
+      if (searchBudget === "30000+") return rent > 30000;
+      return true;
+    };
+
+    const typeMatch = (type: string) => {
+      if (searchType === "any") return true;
+      const normalized = type.toLowerCase();
+      if (searchType === "apartment") return normalized.includes("apartment") || normalized.includes("flat");
+      if (searchType === "villa") return normalized.includes("villa") || normalized.includes("house");
+      if (searchType === "studio") return normalized.includes("studio");
+      if (searchType === "floor") return normalized.includes("floor");
+      return true;
+    };
+
+    const next = allListings.filter((listing) => {
+      const locationOk = !location || listing.address.toLowerCase().includes(location);
+      return locationOk && typeMatch(listing.propertyType) && budgetMatch(listing.rent);
+    });
+
+    setFilteredListings(next);
+    const listingSection = document.getElementById("home-listings");
+    listingSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const listingTitle = useMemo(() => {
+    if (!searchLocation.trim()) return "Flats for Rent";
+    return `Flats for Rent in ${searchLocation.trim()}`;
+  }, [searchLocation]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -182,12 +266,17 @@ export default function Index() {
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Location / Pincode</label>
                 <div className="mt-1 flex items-center gap-2">
                   <MapPin className="h-4 w-4 shrink-0 text-[#3A7AFE]" />
-                  <Input placeholder="Enter city, area or PIN code" className="h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus-visible:ring-0" />
+                  <Input
+                    placeholder="Enter city, area or PIN code"
+                    value={searchLocation}
+                    onChange={(event) => setSearchLocation(event.target.value)}
+                    className="h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus-visible:ring-0"
+                  />
                 </div>
               </div>
               <div className="relative px-4 py-3 sm:w-44">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Property Type</label>
-                <Select>
+                <Select value={searchType} onValueChange={setSearchType}>
                   <SelectTrigger className="mt-1 h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
                     <SelectValue placeholder="Any Type" />
                   </SelectTrigger>
@@ -201,11 +290,12 @@ export default function Index() {
               </div>
               <div className="relative px-4 py-3 sm:w-44">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Budget / Month</label>
-                <Select>
+                <Select value={searchBudget} onValueChange={setSearchBudget}>
                   <SelectTrigger className="mt-1 h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
                     <SelectValue placeholder="Any Budget" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="any">Any Budget</SelectItem>
                     <SelectItem value="0-10000">Under Rs. 10,000</SelectItem>
                     <SelectItem value="10000-20000">Rs. 10k - Rs. 20k</SelectItem>
                     <SelectItem value="20000-30000">Rs. 20k - Rs. 30k</SelectItem>
@@ -214,8 +304,8 @@ export default function Index() {
                 </Select>
               </div>
               <div className="flex items-center p-3">
-                <Button asChild className="h-11 w-full gap-2 rounded-lg bg-[#3A7AFE] px-6 text-sm font-bold hover:bg-[#2F65D8] sm:h-12 sm:w-auto sm:rounded-xl sm:px-8">
-                  <Link to="/register"><Search className="h-4 w-4" /> Search</Link>
+                <Button onClick={applySearch} className="h-11 w-full gap-2 rounded-lg bg-[#3A7AFE] px-6 text-sm font-bold hover:bg-[#2F65D8] sm:h-12 sm:w-auto sm:rounded-xl sm:px-8">
+                  <Search className="h-4 w-4" /> Search
                 </Button>
               </div>
             </div>
@@ -234,7 +324,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="border-b bg-background py-6 sm:py-10">
+      <section id="home-listings" className="border-b bg-background py-6 sm:py-10">
         <div className="container mx-auto px-4">
           <div className="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-1 sm:overflow-visible">
             {categoryChips.map((chip, index) => (
@@ -264,30 +354,43 @@ export default function Index() {
             </aside>
             <div>
               <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-xl font-bold sm:text-2xl">Flats for Rent in Salem</h2>
+                <h2 className="text-xl font-bold sm:text-2xl">{listingTitle}</h2>
                 <Button variant="outline" size="sm" className="w-full sm:w-auto">Sort by: Date Published</Button>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {listingPreview.map((item) => (
-                  <Link key={item.id} to={`/property/${item.id}`}>
-                    <Card className="overflow-hidden border transition-all hover:-translate-y-0.5 hover:shadow-md">
-                      <div className="relative h-40 overflow-hidden sm:h-44">
-                        <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                        <span className="absolute left-2 top-2 rounded bg-yellow-300 px-2 py-0.5 text-[10px] font-bold text-black">FEATURED</span>
-                      </div>
-                      <CardContent className="space-y-1.5 p-3.5 sm:p-4">
-                        <p className="text-xl font-bold leading-none text-foreground sm:text-2xl">{item.price}</p>
-                        <p className="text-xs font-semibold text-foreground/90 sm:text-sm">{item.meta}</p>
-                        <p className="line-clamp-1 text-xs text-muted-foreground sm:text-sm">{item.title}</p>
-                        <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground sm:text-xs">
-                          <span>{item.location}</span>
-                          <span>{item.time}</span>
+              {loadingListings ? (
+                <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">Loading listings...</div>
+              ) : filteredListings.length === 0 ? (
+                <div className="rounded-xl border bg-card p-8 text-center">
+                  <p className="font-semibold">No listings found</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Try changing area, type, or budget filters.</p>
+                </div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {filteredListings.map((item) => (
+                    <Link key={item.id} to={`/property/${item.id}`}>
+                      <Card className="overflow-hidden border transition-all hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="relative h-40 overflow-hidden bg-muted sm:h-44">
+                          {item.image ? (
+                            <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-muted-foreground">No image</div>
+                          )}
+                          <span className="absolute left-2 top-2 rounded bg-yellow-300 px-2 py-0.5 text-[10px] font-bold text-black">FEATURED</span>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+                        <CardContent className="space-y-1.5 p-3.5 sm:p-4">
+                          <p className="text-xl font-bold leading-none text-foreground sm:text-2xl">{item.price}</p>
+                          <p className="text-xs font-semibold text-foreground/90 sm:text-sm">{item.meta}</p>
+                          <p className="line-clamp-1 text-xs text-muted-foreground sm:text-sm">{item.title}</p>
+                          <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground sm:text-xs">
+                            <span className="line-clamp-1">{item.location}</span>
+                            <span>{item.time}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
