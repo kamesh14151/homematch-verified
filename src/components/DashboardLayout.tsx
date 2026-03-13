@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface NavItem {
   title: string;
@@ -40,59 +41,71 @@ function DashboardSidebar({ navItems, title }: { navItems: NavItem[]; title: str
   const navigate = useNavigate();
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-4 py-3">
-            <Link to="/" className="flex items-center gap-2">
-              <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-7 w-7 rounded-md object-contain" />
-              {!collapsed && <span className="font-bunderon font-bold">RentVerify</span>}
-            </Link>
-          </SidebarGroupLabel>
+    <TooltipProvider delayDuration={120}>
+      <Sidebar collapsible="icon">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel className="px-4 py-3">
+              <Link to="/" className="flex items-center gap-2">
+                <img src="/1000130925-Photoroom.png" alt="RentVerify" className="h-7 w-7 rounded-md object-contain" />
+                {!collapsed && <span className="font-bunderon font-bold">RentVerify</span>}
+              </Link>
+            </SidebarGroupLabel>
 
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {!collapsed && (
-                <div className="px-4 py-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</span>
-                </div>
-              )}
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end
-                      className="hover:bg-sidebar-accent"
-                      activeClassName="bg-sidebar-accent text-primary font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {!collapsed && (
+                  <div className="px-4 py-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</span>
+                  </div>
+                )}
+                {navItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <SidebarMenuButton asChild>
+                          <NavLink
+                            to={item.url}
+                            end
+                            className="hover:bg-sidebar-accent"
+                            activeClassName="bg-sidebar-accent text-primary font-medium"
+                          >
+                            <item.icon className="mr-2 h-4 w-4" />
+                            {!collapsed && <span>{item.title}</span>}
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </TooltipTrigger>
+                      {collapsed && <TooltipContent side="right">{item.title}</TooltipContent>}
+                    </Tooltip>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarGroup className="mt-auto">
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <SidebarMenuButton
+                        onClick={async () => { await signOut(); navigate("/"); }}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>Logout</span>}
+                      </SidebarMenuButton>
+                    </TooltipTrigger>
+                    {collapsed && <TooltipContent side="right">Logout</TooltipContent>}
+                  </Tooltip>
                 </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={async () => { await signOut(); navigate("/"); }}
-                  className="text-muted-foreground hover:text-destructive"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  {!collapsed && <span>Logout</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+    </TooltipProvider>
   );
 }
 
