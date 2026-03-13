@@ -27,6 +27,7 @@ export default function AddProperty() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -106,6 +107,44 @@ export default function AddProperty() {
       toast({ title: "Publish failed", description: error.message, variant: "destructive" });
       setLoading(false);
       return;
+    }
+
+    if (imageFiles.length > 0) {
+      const uploadResults = await Promise.all(
+        imageFiles.map(async (file, index) => {
+          const cleanFileName = file.name.replace(/\s+/g, "-").toLowerCase();
+          const filePath = `${user.id}/${data.id}/${Date.now()}-${index}-${cleanFileName}`;
+          const { error: uploadError } = await supabase.storage
+            .from("property-images")
+            .upload(filePath, file, { upsert: false });
+
+          if (uploadError) {
+            return { success: false as const, error: uploadError.message };
+          }
+
+          const { data: publicUrlData } = supabase.storage.from("property-images").getPublicUrl(filePath);
+          return {
+            success: true as const,
+            imageUrl: publicUrlData.publicUrl,
+            displayOrder: index,
+          };
+        })
+      );
+
+      const successfulUploads = uploadResults.filter((item) => item.success);
+      if (successfulUploads.length > 0) {
+        const { error: imagesInsertError } = await supabase.from("property_images").insert(
+          successfulUploads.map((item) => ({
+            property_id: data.id,
+            image_url: item.imageUrl,
+            display_order: item.displayOrder,
+          }))
+        );
+
+        if (imagesInsertError) {
+          toast({ title: "Image save warning", description: imagesInsertError.message, variant: "destructive" });
+        }
+      }
     }
 
     toast({ title: "Property published", description: "Your listing is now live." });
@@ -354,8 +393,15 @@ export default function AddProperty() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Property Images</Label>
-                  <Input type="file" accept="image/*" multiple />
-                  <p className="text-xs text-muted-foreground">Upload up to 10 images (JPG, PNG)</p>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(event) => setImageFiles(Array.from(event.target.files ?? []))}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Upload up to 10 images (JPG, PNG). Selected: {imageFiles.length}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label>Video URL</Label>

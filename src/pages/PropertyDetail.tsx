@@ -96,6 +96,12 @@ export default function PropertyDetail() {
         .select("id", { count: "exact", head: true })
         .eq("landlord_id", propertyRow.landlord_id);
 
+      const { data: imageRows } = await supabase
+        .from("property_images")
+        .select("image_url, display_order")
+        .eq("property_id", propertyRow.id)
+        .order("display_order", { ascending: true });
+
       const details = [
         { key: "Type", value: propertyRow.property_type ?? "Flats / Apartments" },
         { key: "Bedrooms", value: propertyRow.bedrooms?.toString() ?? "-" },
@@ -130,7 +136,10 @@ export default function PropertyDetail() {
         memberSince: profileData?.created_at ? new Date(profileData.created_at).toLocaleDateString("en-IN") : "Recently",
         totalListings: listingsCount ?? 1,
         listingId: propertyRow.id.slice(0, 8),
-        images: fallbackProperty.images,
+        images:
+          imageRows && imageRows.length > 0
+            ? imageRows.map((item) => item.image_url)
+            : fallbackProperty.images,
       });
       setLoading(false);
     };
@@ -233,16 +242,26 @@ export default function PropertyDetail() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="overflow-hidden border">
                 <CardContent className="p-0">
-                  <div className="border-b px-4 py-3 sm:px-6">
-                    <h2 className="text-lg font-semibold">Location</h2>
-                    <p className="text-sm text-muted-foreground">{property.address}</p>
+                  <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
+                    <div>
+                      <h2 className="text-lg font-semibold">Location</h2>
+                      <p className="text-xs text-muted-foreground sm:text-sm">{property.address}</p>
+                    </div>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(property.address)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-md border px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-accent"
+                    >
+                      Open in Maps
+                    </a>
                   </div>
                   <iframe
                     title="Property Location"
                     src={mapEmbedUrl}
-                    className="h-72 w-full border-0 sm:h-80"
+                    className="h-56 w-full border-0 sm:h-64"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                   />
