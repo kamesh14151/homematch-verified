@@ -239,7 +239,6 @@ export default function PropertyDetail() {
         setLoading(false);
         return;
       }
-      }
 
       const { data: propertyRow } = await supabase
         .from("properties")
