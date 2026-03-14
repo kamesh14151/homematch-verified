@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Car, Droplets, Heart, MapPin, Share2, ShieldCheck, Zap } from "lucide-react";
+import { ArrowLeft, BedDouble, Building2, CalendarDays, Car, Droplets, Heart, MapPin, Share2, ShieldCheck, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -224,6 +224,10 @@ export default function PropertyDetail() {
     [property.address]
   );
   const videoSource = useMemo(() => getVideoSource(property.videoUrl), [property.videoUrl]);
+  const galleryImages = useMemo(() => property.images.slice(0, 5), [property.images]);
+  const bedroomsLabel = useMemo(() => property.details.find((item) => item.key === "Bedrooms")?.value ?? "-", [property.details]);
+  const bathroomsLabel = useMemo(() => property.details.find((item) => item.key === "Bathrooms")?.value ?? "-", [property.details]);
+  const areaLabel = useMemo(() => property.details.find((item) => item.key === "Super Built-up Area")?.value ?? "-", [property.details]);
 
   const handleContactLandlord = () => {
     const rawPhone = (property.landlordPhone || "").trim();
@@ -331,26 +335,40 @@ export default function PropertyDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white text-foreground dark:bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="container mx-auto max-w-7xl px-4 py-5 sm:py-7">
         <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to listings
         </Link>
 
         {loading ? (
-          <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">Loading property details...</div>
+          <div className="rounded-3xl border bg-card p-8 text-center text-muted-foreground shadow-sm">Loading property details...</div>
         ) : (
-          <div className="grid gap-5 lg:grid-cols-3 lg:gap-8">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8">
             <div className="space-y-6 lg:col-span-2">
-              <Card className="overflow-hidden border">
-                <div className="relative aspect-[16/9] bg-muted">
-                  <img src={property.images[activeImage]} alt={property.title} className="h-full w-full object-cover" />
-                   <div className="absolute right-3 top-3 flex gap-2">
+              <div className="space-y-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      {property.verified && (
+                        <Badge className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-200">
+                          <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Verified home
+                        </Badge>
+                      )}
+                      <Badge variant="secondary" className="rounded-full px-3 py-1">{property.houseType}</Badge>
+                    </div>
+                    <h1 className="max-w-4xl text-2xl font-semibold tracking-tight sm:text-[2rem]">{property.title}</h1>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                      <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {property.address}</span>
+                      <span className="inline-flex items-center gap-1"><CalendarDays className="h-4 w-4" /> Posted {property.postedAt}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
                     <Button
                       size="icon"
                       variant="secondary"
-                      className="h-9 w-9 rounded-full"
+                      className="h-10 w-10 rounded-full border bg-white shadow-sm dark:bg-card"
                       onClick={async () => {
                         const url = `${window.location.origin}/property/${property.id}`;
                         if (navigator.share) {
@@ -366,7 +384,7 @@ export default function PropertyDetail() {
                     <Button
                       size="icon"
                       variant="secondary"
-                      className="h-9 w-9 rounded-full"
+                      className="h-10 w-10 rounded-full border bg-white shadow-sm dark:bg-card"
                       onClick={async () => {
                         if (!user) { toast({ title: "Please login to save", variant: "destructive" }); return; }
                         if (isSaved) {
@@ -384,57 +402,79 @@ export default function PropertyDetail() {
                     </Button>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-2 border-t p-2.5 sm:p-3">
-                  {property.images.map((image, index) => (
-                    <button
-                      key={image}
-                      onClick={() => setActiveImage(index)}
-                      className={`overflow-hidden rounded-md border-2 ${activeImage === index ? "border-primary" : "border-transparent"}`}
-                    >
-                      <img src={image} alt={`Property ${index + 1}`} className="h-14 w-full object-cover sm:h-16" />
-                    </button>
-                  ))}
-                </div>
-              </Card>
 
-              <div className="rounded-xl border bg-card p-4 sm:p-5">
-                <div className="mb-2 flex items-center gap-2">
-                  <h1 className="text-lg font-bold sm:text-2xl">{property.title}</h1>
-                  {property.verified && (
-                    <Badge className="gap-1 bg-success text-success-foreground">
-                      <ShieldCheck className="h-3 w-3" /> Verified
-                    </Badge>
-                  )}
-                </div>
-                <div className="mb-2 flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground sm:mb-4 sm:gap-3 sm:text-sm">
-                  <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {property.address}</span>
-                  <span>Posted: {property.postedAt}</span>
+                <div className="grid gap-2 sm:grid-cols-[2fr_1fr_1fr] sm:grid-rows-2">
+                  <button className="relative overflow-hidden rounded-[24px] bg-muted sm:row-span-2" onClick={() => setActiveImage(0)}>
+                    <img src={property.images[activeImage] ?? property.images[0]} alt={property.title} className="aspect-[16/12] h-full w-full object-cover sm:aspect-auto sm:min-h-[26rem]" />
+                  </button>
+                  {galleryImages.slice(1, 5).map((image, index) => {
+                    const actualIndex = index + 1;
+                    return (
+                      <button
+                        key={image}
+                        onClick={() => setActiveImage(actualIndex)}
+                        className={`relative overflow-hidden rounded-[20px] bg-muted ${activeImage === actualIndex ? "ring-2 ring-[#3A7AFE] ring-offset-2" : ""}`}
+                      >
+                        <img src={image} alt={`Property ${actualIndex + 1}`} className="aspect-[4/3] h-full w-full object-cover" />
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              <Card>
-                <CardContent className="p-4 sm:p-6">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-border/70 bg-white p-4 shadow-sm dark:bg-card">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#3A7AFE]/10 text-[#3A7AFE]"><BedDouble className="h-5 w-5" /></div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Bedrooms</p>
+                      <p className="text-lg font-semibold">{bedroomsLabel}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-white p-4 shadow-sm dark:bg-card">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#3A7AFE]/10 text-[#3A7AFE]"><Droplets className="h-5 w-5" /></div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Bathrooms</p>
+                      <p className="text-lg font-semibold">{bathroomsLabel}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-white p-4 shadow-sm dark:bg-card">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#3A7AFE]/10 text-[#3A7AFE]"><Building2 className="h-5 w-5" /></div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Built-up area</p>
+                      <p className="text-lg font-semibold">{areaLabel}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Card className="rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
+                <CardContent className="p-5 sm:p-6">
                   <h2 className="mb-3 text-lg font-semibold">Details</h2>
                   <div className="grid gap-3 text-sm sm:grid-cols-2">
                     {property.details.map((item) => (
-                      <div key={item.key} className="flex items-center justify-between rounded-md border px-3 py-2">
+                      <div key={item.key} className="flex items-center justify-between rounded-xl border border-border/70 bg-slate-50 px-4 py-3 dark:bg-slate-950/20">
                         <span className="text-muted-foreground">{item.key}</span>
-                        <span className="font-semibold">{item.value}</span>
+                        <span className="font-semibold text-right">{item.value}</span>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4 sm:p-6">
+              <Card className="rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
+                <CardContent className="p-5 sm:p-6">
                   <h2 className="mb-3 text-lg font-semibold">Description</h2>
-                  <p className="leading-relaxed text-muted-foreground">{property.description}</p>
+                  <p className="leading-7 text-muted-foreground">{property.description}</p>
                 </CardContent>
               </Card>
 
               {videoSource.type !== "none" && (
-                <Card className="overflow-hidden border">
+                <Card className="overflow-hidden rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
                   <CardContent className="p-0">
                     <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
                       <div>
@@ -452,7 +492,7 @@ export default function PropertyDetail() {
                     </div>
 
                     <div className="bg-muted/30 p-3 sm:p-4">
-                      <div className="overflow-hidden rounded-xl border bg-black/90 shadow-sm">
+                      <div className="overflow-hidden rounded-2xl border bg-black/90 shadow-sm">
                         {videoSource.type === "youtube" ? (
                           <iframe
                             title="Property Video"
@@ -479,19 +519,19 @@ export default function PropertyDetail() {
                 </Card>
               )}
 
-              <Card>
-                <CardContent className="p-4 sm:p-6">
+              <Card className="rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
+                <CardContent className="p-5 sm:p-6">
                   <h2 className="mb-4 text-lg font-semibold">Facilities</h2>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-slate-50 px-4 py-3 dark:bg-slate-950/20">
                       <Droplets className={`h-5 w-5 ${property.facilities.water ? "text-success" : "text-muted-foreground"}`} />
                       <span className="text-sm">Water Supply</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-slate-50 px-4 py-3 dark:bg-slate-950/20">
                       <Zap className={`h-5 w-5 ${property.facilities.separateMeter ? "text-success" : "text-muted-foreground"}`} />
                       <span className="text-sm">Separate Meter</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-slate-50 px-4 py-3 dark:bg-slate-950/20">
                       <Car className={`h-5 w-5 ${property.facilities.parking ? "text-success" : "text-muted-foreground"}`} />
                       <span className="text-sm">Parking</span>
                     </div>
@@ -499,7 +539,7 @@ export default function PropertyDetail() {
                 </CardContent>
               </Card>
 
-              <Card className="overflow-hidden border">
+              <Card className="overflow-hidden rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
                 <CardContent className="p-0">
                   <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
                     <div>
@@ -527,29 +567,37 @@ export default function PropertyDetail() {
             </div>
 
             <div className="space-y-4">
-              <Card className="lg:sticky lg:top-20">
-                <CardContent className="space-y-3.5 p-4 sm:space-y-4 sm:p-6">
+              <Card className="rounded-[28px] border border-border/70 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.07)] lg:sticky lg:top-20 dark:bg-card">
+                <CardContent className="space-y-4 p-5">
                   <div>
-                    <p className="text-3xl font-bold leading-none text-foreground sm:text-4xl">Rs. {property.rent.toLocaleString("en-IN")}</p>
-                    <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{property.houseType}</p>
+                    <p className="text-3xl font-bold leading-none text-foreground">Rs. {property.rent.toLocaleString("en-IN")} <span className="text-sm font-medium text-muted-foreground">/ month</span></p>
+                    <p className="mt-1.5 text-sm text-muted-foreground">{property.houseType} with clear move-in pricing and verified host details.</p>
                   </div>
 
-                  <Badge variant="secondary" className="text-sm">{property.houseType}</Badge>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-border/70 bg-slate-50 p-3 dark:bg-slate-950/20">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Stay type</p>
+                      <p className="mt-1 text-sm font-semibold">{property.houseType}</p>
+                    </div>
+                    <div className="rounded-xl border border-border/70 bg-slate-50 p-3 dark:bg-slate-950/20">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Listing ID</p>
+                      <p className="mt-1 text-sm font-semibold">{property.listingId}</p>
+                    </div>
+                  </div>
 
-                  <div className="rounded-lg border p-4">
-                    <p className="text-sm text-muted-foreground">Posted by</p>
-                    <p className="font-semibold">{property.landlordName}</p>
+                  <div className="rounded-2xl border border-border/70 p-4">
+                    <p className="text-sm text-muted-foreground">Hosted by</p>
+                    <p className="mt-1 text-lg font-semibold">{property.landlordName}</p>
                     <p className="text-xs text-muted-foreground">Member since {property.memberSince}</p>
-                    <p className="mt-2 text-xs font-medium text-primary">{property.totalListings} Items listed</p>
+                    <p className="mt-2 text-xs font-medium text-primary">{property.totalListings} active listings</p>
                   </div>
 
-                  <Button className="h-11 w-full" onClick={handleStartChat} disabled={chatLoading || loading}>
+                  <Button className="h-11 w-full rounded-full bg-[#3A7AFE] font-semibold text-white hover:bg-[#2f68d7]" onClick={handleStartChat} disabled={chatLoading || loading}>
                     {chatLoading ? "Opening chat..." : "Chat with seller"}
                   </Button>
-                  <Button variant="outline" className="h-11 w-full" onClick={handleContactLandlord}>Contact Landlord</Button>
+                  <Button variant="outline" className="h-11 w-full rounded-full" onClick={handleContactLandlord}>Contact Landlord</Button>
 
-                  {/* Payment summary */}
-                  <div className="space-y-2 rounded-xl border bg-muted/30 p-4">
+                  <div className="space-y-2 rounded-2xl border border-[#3A7AFE]/15 bg-[#3A7AFE]/5 p-4">
                     <h3 className="font-bold text-sm">Payment Details</h3>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Monthly rent from landlord</span>
@@ -569,18 +617,18 @@ export default function PropertyDetail() {
                   </div>
 
                   <Button
-                    className="h-11 w-full rounded-full bg-yellow-400 font-bold text-gray-900 hover:bg-yellow-500"
+                    className="h-11 w-full rounded-full bg-[#ff385c] font-bold text-white hover:bg-[#e13153]"
                     onClick={() => navigate(`/property/${property.id}/book`)}
                   >
                     Book Now
                   </Button>
 
-                  <div className="rounded-lg border p-4">
+                  <div className="rounded-2xl border border-border/70 p-4">
                     <p className="text-sm font-semibold">Posted in</p>
                     <p className="text-sm text-muted-foreground">{property.address}</p>
                   </div>
 
-                  <div className="rounded-lg border p-4 text-xs text-muted-foreground">
+                  <div className="rounded-2xl border border-border/70 p-4 text-xs text-muted-foreground">
                     <p>Ad ID {property.listingId}</p>
                     <button className="mt-2 font-semibold text-primary">Report this ad</button>
                   </div>

@@ -13,6 +13,7 @@ import {
   FileText,
   Handshake,
   Headphones,
+  Heart,
   Home,
   Lock,
   Newspaper,
@@ -30,6 +31,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Navbar } from "@/components/Navbar";
@@ -47,19 +49,6 @@ const stats = [
   { value: "50,000+", label: "Happy Tenants" },
   { value: "8,000+", label: "Verified Landlords" },
   { value: "99%", label: "Fraud-Free Rate" },
-];
-
-const categoryChips = [
-  "All Categories",
-  "For Sale: Houses & Apartments",
-  "For Rent: Houses & Apartments",
-  "Beds-Wardrobes",
-  "TVs, Video - Audio",
-];
-
-const filterGroups = [
-  { title: "BHK", items: ["1", "2", "3", "4+"] },
-  { title: "Furnishing", items: ["Unfurnished", "Semi-Furnished", "Fully Furnished"] },
 ];
 
 type HomeListing = {
@@ -115,13 +104,6 @@ const researchTools = [
     description: "Research-backed content for tenants, owners, compliance and smarter rental decisions.",
     link: "/articles",
   },
-];
-
-const trustSignals = [
-  "PAN-verified landlords",
-  "Direct landlord contact flow",
-  "Application and chat tracking",
-  "Document-safe verification model",
 ];
 
 const testimonials = [
@@ -198,6 +180,631 @@ const fadeUp = {
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.45 } }),
 };
 
+const getListingCity = (address: string) => {
+  const parts = address.split(",").map((item) => item.trim()).filter(Boolean);
+  return parts.length >= 2 ? parts[1] : parts[0] || "Popular areas";
+};
+
+const propertyFallbackImages = {
+  apartment: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+  villa: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
+  studio: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+  floor: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+  default: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+} as const;
+
+const getFallbackListingImage = (propertyType: string) => {
+  const normalized = propertyType.toLowerCase();
+  if (normalized.includes("apartment") || normalized.includes("flat")) return propertyFallbackImages.apartment;
+  if (normalized.includes("villa") || normalized.includes("house")) return propertyFallbackImages.villa;
+  if (normalized.includes("studio")) return propertyFallbackImages.studio;
+  if (normalized.includes("floor")) return propertyFallbackImages.floor;
+  return propertyFallbackImages.default;
+};
+
+const sampleListings: HomeListing[] = [
+  {
+    id: "sample-bengaluru-1",
+    title: "Skyline 2BHK in Indiranagar",
+    price: "Rs. 28,000",
+    meta: "2 BHK · 2 Bathroom · 1100 sqft",
+    location: "Indiranagar, Bengaluru, Karnataka",
+    time: "14/03/2026",
+    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    address: "Indiranagar, Bengaluru, Karnataka",
+    rent: 28000,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-03-14T10:00:00.000Z",
+  },
+  {
+    id: "sample-bengaluru-2",
+    title: "Minimal Studio near Koramangala",
+    price: "Rs. 18,500",
+    meta: "Studio · 1 Bathroom · 540 sqft",
+    location: "Koramangala, Bengaluru, Karnataka",
+    time: "13/03/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "Koramangala, Bengaluru, Karnataka",
+    rent: 18500,
+    propertyType: "Studio",
+    bedrooms: 1,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-03-13T10:00:00.000Z",
+  },
+  {
+    id: "sample-chennai-1",
+    title: "Sunny Family Flat in Adyar",
+    price: "Rs. 24,000",
+    meta: "2 BHK · 2 Bathroom · 980 sqft",
+    location: "Adyar, Chennai, Tamil Nadu",
+    time: "12/03/2026",
+    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    address: "Adyar, Chennai, Tamil Nadu",
+    rent: 24000,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-03-12T10:00:00.000Z",
+  },
+  {
+    id: "sample-chennai-2",
+    title: "Compact 1BHK in Velachery",
+    price: "Rs. 15,500",
+    meta: "1 BHK · 1 Bathroom · 620 sqft",
+    location: "Velachery, Chennai, Tamil Nadu",
+    time: "11/03/2026",
+    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    address: "Velachery, Chennai, Tamil Nadu",
+    rent: 15500,
+    propertyType: "Apartment",
+    bedrooms: 1,
+    furnishing: "Unfurnished",
+    createdAt: "2026-03-11T10:00:00.000Z",
+  },
+  {
+    id: "sample-hyderabad-1",
+    title: "Modern 3BHK near Hitech City",
+    price: "Rs. 36,000",
+    meta: "3 BHK · 3 Bathroom · 1600 sqft",
+    location: "Hitech City, Hyderabad, Telangana",
+    time: "10/03/2026",
+    image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
+    address: "Hitech City, Hyderabad, Telangana",
+    rent: 36000,
+    propertyType: "Villa",
+    bedrooms: 3,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-03-10T10:00:00.000Z",
+  },
+  {
+    id: "sample-hyderabad-2",
+    title: "Quiet Builder Floor in Gachibowli",
+    price: "Rs. 22,000",
+    meta: "2 BHK · 2 Bathroom · 1020 sqft",
+    location: "Gachibowli, Hyderabad, Telangana",
+    time: "09/03/2026",
+    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    address: "Gachibowli, Hyderabad, Telangana",
+    rent: 22000,
+    propertyType: "Builder Floor",
+    bedrooms: 2,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-03-09T10:00:00.000Z",
+  },
+  {
+    id: "sample-pune-1",
+    title: "Designer 2BHK in Baner",
+    price: "Rs. 26,500",
+    meta: "2 BHK · 2 Bathroom · 1080 sqft",
+    location: "Baner, Pune, Maharashtra",
+    time: "08/03/2026",
+    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    address: "Baner, Pune, Maharashtra",
+    rent: 26500,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-03-08T10:00:00.000Z",
+  },
+  {
+    id: "sample-pune-2",
+    title: "Cozy Rental in Wakad",
+    price: "Rs. 19,000",
+    meta: "1 BHK · 1 Bathroom · 700 sqft",
+    location: "Wakad, Pune, Maharashtra",
+    time: "07/03/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "Wakad, Pune, Maharashtra",
+    rent: 19000,
+    propertyType: "Apartment",
+    bedrooms: 1,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-03-07T10:00:00.000Z",
+  },
+  {
+    id: "sample-mumbai-1",
+    title: "Sea View Flat in Powai",
+    price: "Rs. 42,000",
+    meta: "2 BHK · 2 Bathroom · 1180 sqft",
+    location: "Powai, Mumbai, Maharashtra",
+    time: "06/03/2026",
+    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    address: "Powai, Mumbai, Maharashtra",
+    rent: 42000,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-03-06T10:00:00.000Z",
+  },
+  {
+    id: "sample-mumbai-2",
+    title: "Compact Studio in Andheri",
+    price: "Rs. 21,000",
+    meta: "Studio · 1 Bathroom · 500 sqft",
+    location: "Andheri, Mumbai, Maharashtra",
+    time: "05/03/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "Andheri, Mumbai, Maharashtra",
+    rent: 21000,
+    propertyType: "Studio",
+    bedrooms: 1,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-03-05T10:00:00.000Z",
+  },
+  {
+    id: "sample-delhi-1",
+    title: "Bright 3BHK in South Delhi",
+    price: "Rs. 39,500",
+    meta: "3 BHK · 3 Bathroom · 1550 sqft",
+    location: "South Delhi, Delhi / NCR",
+    time: "04/03/2026",
+    image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
+    address: "South Delhi, Delhi / NCR",
+    rent: 39500,
+    propertyType: "Builder Floor",
+    bedrooms: 3,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-03-04T10:00:00.000Z",
+  },
+  {
+    id: "sample-delhi-2",
+    title: "Modern 2BHK in Noida",
+    price: "Rs. 24,500",
+    meta: "2 BHK · 2 Bathroom · 1040 sqft",
+    location: "Noida, Delhi / NCR",
+    time: "03/03/2026",
+    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    address: "Noida, Delhi / NCR",
+    rent: 24500,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Unfurnished",
+    createdAt: "2026-03-03T10:00:00.000Z",
+  },
+  {
+    id: "sample-kolkata-1",
+    title: "Classic Apartment in Salt Lake",
+    price: "Rs. 20,500",
+    meta: "2 BHK · 2 Bathroom · 960 sqft",
+    location: "Salt Lake, Kolkata, West Bengal",
+    time: "02/03/2026",
+    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    address: "Salt Lake, Kolkata, West Bengal",
+    rent: 20500,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-03-02T10:00:00.000Z",
+  },
+  {
+    id: "sample-ahmedabad-1",
+    title: "Spacious Rental in Prahlad Nagar",
+    price: "Rs. 23,000",
+    meta: "2 BHK · 2 Bathroom · 1120 sqft",
+    location: "Prahlad Nagar, Ahmedabad, Gujarat",
+    time: "01/03/2026",
+    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    address: "Prahlad Nagar, Ahmedabad, Gujarat",
+    rent: 23000,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-03-01T10:00:00.000Z",
+  },
+  {
+    id: "sample-bengaluru-3",
+    title: "Terrace Home in Jayanagar",
+    price: "Rs. 31,000",
+    meta: "3 BHK · 2 Bathroom · 1320 sqft",
+    location: "Jayanagar, Bengaluru, Karnataka",
+    time: "28/02/2026",
+    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    address: "Jayanagar, Bengaluru, Karnataka",
+    rent: 31000,
+    propertyType: "Villa",
+    bedrooms: 3,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-28T10:00:00.000Z",
+  },
+  {
+    id: "sample-chennai-3",
+    title: "Calm 2BHK in OMR",
+    price: "Rs. 22,500",
+    meta: "2 BHK · 2 Bathroom · 1010 sqft",
+    location: "OMR, Chennai, Tamil Nadu",
+    time: "27/02/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "OMR, Chennai, Tamil Nadu",
+    rent: 22500,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-02-27T10:00:00.000Z",
+  },
+  {
+    id: "sample-bengaluru-4",
+    title: "Loft Apartment in HSR Layout",
+    price: "Rs. 27,500",
+    meta: "2 BHK · 2 Bathroom · 1060 sqft",
+    location: "HSR Layout, Bengaluru, Karnataka",
+    time: "26/02/2026",
+    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    address: "HSR Layout, Bengaluru, Karnataka",
+    rent: 27500,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-02-26T10:00:00.000Z",
+  },
+  {
+    id: "sample-bengaluru-5",
+    title: "Garden Villa in Whitefield",
+    price: "Rs. 46,000",
+    meta: "3 BHK · 3 Bathroom · 1820 sqft",
+    location: "Whitefield, Bengaluru, Karnataka",
+    time: "25/02/2026",
+    image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
+    address: "Whitefield, Bengaluru, Karnataka",
+    rent: 46000,
+    propertyType: "Villa",
+    bedrooms: 3,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-25T10:00:00.000Z",
+  },
+  {
+    id: "sample-bengaluru-6",
+    title: "Compact Flat in Marathahalli",
+    price: "Rs. 17,500",
+    meta: "1 BHK · 1 Bathroom · 640 sqft",
+    location: "Marathahalli, Bengaluru, Karnataka",
+    time: "24/02/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "Marathahalli, Bengaluru, Karnataka",
+    rent: 17500,
+    propertyType: "Apartment",
+    bedrooms: 1,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-24T10:00:00.000Z",
+  },
+  {
+    id: "sample-chennai-4",
+    title: "Premium Flat in Anna Nagar",
+    price: "Rs. 29,000",
+    meta: "3 BHK · 2 Bathroom · 1280 sqft",
+    location: "Anna Nagar, Chennai, Tamil Nadu",
+    time: "23/02/2026",
+    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    address: "Anna Nagar, Chennai, Tamil Nadu",
+    rent: 29000,
+    propertyType: "Apartment",
+    bedrooms: 3,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-23T10:00:00.000Z",
+  },
+  {
+    id: "sample-chennai-5",
+    title: "Bright Studio in T Nagar",
+    price: "Rs. 16,500",
+    meta: "Studio · 1 Bathroom · 520 sqft",
+    location: "T Nagar, Chennai, Tamil Nadu",
+    time: "22/02/2026",
+    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    address: "T Nagar, Chennai, Tamil Nadu",
+    rent: 16500,
+    propertyType: "Studio",
+    bedrooms: 1,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-02-22T10:00:00.000Z",
+  },
+  {
+    id: "sample-chennai-6",
+    title: "Family Home in Porur",
+    price: "Rs. 21,500",
+    meta: "2 BHK · 2 Bathroom · 940 sqft",
+    location: "Porur, Chennai, Tamil Nadu",
+    time: "21/02/2026",
+    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    address: "Porur, Chennai, Tamil Nadu",
+    rent: 21500,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Unfurnished",
+    createdAt: "2026-02-21T10:00:00.000Z",
+  },
+  {
+    id: "sample-hyderabad-3",
+    title: "Executive Flat in Jubilee Hills",
+    price: "Rs. 34,000",
+    meta: "2 BHK · 2 Bathroom · 1200 sqft",
+    location: "Jubilee Hills, Hyderabad, Telangana",
+    time: "20/02/2026",
+    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    address: "Jubilee Hills, Hyderabad, Telangana",
+    rent: 34000,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-02-20T10:00:00.000Z",
+  },
+  {
+    id: "sample-hyderabad-4",
+    title: "Smart 1BHK in Kondapur",
+    price: "Rs. 18,000",
+    meta: "1 BHK · 1 Bathroom · 680 sqft",
+    location: "Kondapur, Hyderabad, Telangana",
+    time: "19/02/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "Kondapur, Hyderabad, Telangana",
+    rent: 18000,
+    propertyType: "Apartment",
+    bedrooms: 1,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-19T10:00:00.000Z",
+  },
+  {
+    id: "sample-hyderabad-5",
+    title: "Open Terrace Home in Madhapur",
+    price: "Rs. 28,500",
+    meta: "2 BHK · 2 Bathroom · 1140 sqft",
+    location: "Madhapur, Hyderabad, Telangana",
+    time: "18/02/2026",
+    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    address: "Madhapur, Hyderabad, Telangana",
+    rent: 28500,
+    propertyType: "Builder Floor",
+    bedrooms: 2,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-18T10:00:00.000Z",
+  },
+  {
+    id: "sample-pune-3",
+    title: "Urban Flat in Kharadi",
+    price: "Rs. 23,500",
+    meta: "2 BHK · 2 Bathroom · 980 sqft",
+    location: "Kharadi, Pune, Maharashtra",
+    time: "17/02/2026",
+    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    address: "Kharadi, Pune, Maharashtra",
+    rent: 23500,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-02-17T10:00:00.000Z",
+  },
+  {
+    id: "sample-pune-4",
+    title: "Compact 1BHK in Hinjewadi",
+    price: "Rs. 16,800",
+    meta: "1 BHK · 1 Bathroom · 630 sqft",
+    location: "Hinjewadi, Pune, Maharashtra",
+    time: "16/02/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "Hinjewadi, Pune, Maharashtra",
+    rent: 16800,
+    propertyType: "Apartment",
+    bedrooms: 1,
+    furnishing: "Unfurnished",
+    createdAt: "2026-02-16T10:00:00.000Z",
+  },
+  {
+    id: "sample-pune-5",
+    title: "Calm Builder Floor in Aundh",
+    price: "Rs. 27,000",
+    meta: "2 BHK · 2 Bathroom · 1090 sqft",
+    location: "Aundh, Pune, Maharashtra",
+    time: "15/02/2026",
+    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    address: "Aundh, Pune, Maharashtra",
+    rent: 27000,
+    propertyType: "Builder Floor",
+    bedrooms: 2,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-15T10:00:00.000Z",
+  },
+  {
+    id: "sample-mumbai-3",
+    title: "Contemporary Home in Bandra",
+    price: "Rs. 48,000",
+    meta: "2 BHK · 2 Bathroom · 1160 sqft",
+    location: "Bandra, Mumbai, Maharashtra",
+    time: "14/02/2026",
+    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    address: "Bandra, Mumbai, Maharashtra",
+    rent: 48000,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-02-14T10:00:00.000Z",
+  },
+  {
+    id: "sample-mumbai-4",
+    title: "Soft Loft in Lower Parel",
+    price: "Rs. 38,500",
+    meta: "1 BHK · 1 Bathroom · 720 sqft",
+    location: "Lower Parel, Mumbai, Maharashtra",
+    time: "13/02/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "Lower Parel, Mumbai, Maharashtra",
+    rent: 38500,
+    propertyType: "Studio",
+    bedrooms: 1,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-13T10:00:00.000Z",
+  },
+  {
+    id: "sample-mumbai-5",
+    title: "Family Apartment in Chembur",
+    price: "Rs. 29,500",
+    meta: "2 BHK · 2 Bathroom · 1020 sqft",
+    location: "Chembur, Mumbai, Maharashtra",
+    time: "12/02/2026",
+    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    address: "Chembur, Mumbai, Maharashtra",
+    rent: 29500,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Unfurnished",
+    createdAt: "2026-02-12T10:00:00.000Z",
+  },
+  {
+    id: "sample-delhi-3",
+    title: "Refined 2BHK in Saket",
+    price: "Rs. 31,000",
+    meta: "2 BHK · 2 Bathroom · 1080 sqft",
+    location: "Saket, Delhi / NCR",
+    time: "11/02/2026",
+    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    address: "Saket, Delhi / NCR",
+    rent: 31000,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-02-11T10:00:00.000Z",
+  },
+  {
+    id: "sample-delhi-4",
+    title: "Budget 1BHK in Dwarka",
+    price: "Rs. 17,200",
+    meta: "1 BHK · 1 Bathroom · 610 sqft",
+    location: "Dwarka, Delhi / NCR",
+    time: "10/02/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "Dwarka, Delhi / NCR",
+    rent: 17200,
+    propertyType: "Apartment",
+    bedrooms: 1,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-10T10:00:00.000Z",
+  },
+  {
+    id: "sample-delhi-5",
+    title: "Elegant Builder Floor in Gurgaon",
+    price: "Rs. 35,000",
+    meta: "3 BHK · 3 Bathroom · 1480 sqft",
+    location: "Gurgaon, Delhi / NCR",
+    time: "09/02/2026",
+    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    address: "Gurgaon, Delhi / NCR",
+    rent: 35000,
+    propertyType: "Builder Floor",
+    bedrooms: 3,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-09T10:00:00.000Z",
+  },
+  {
+    id: "sample-kolkata-2",
+    title: "Warm Home in Ballygunge",
+    price: "Rs. 22,800",
+    meta: "2 BHK · 2 Bathroom · 1000 sqft",
+    location: "Ballygunge, Kolkata, West Bengal",
+    time: "08/02/2026",
+    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    address: "Ballygunge, Kolkata, West Bengal",
+    rent: 22800,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-08T10:00:00.000Z",
+  },
+  {
+    id: "sample-kolkata-3",
+    title: "Compact Studio in New Town",
+    price: "Rs. 14,500",
+    meta: "Studio · 1 Bathroom · 480 sqft",
+    location: "New Town, Kolkata, West Bengal",
+    time: "07/02/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "New Town, Kolkata, West Bengal",
+    rent: 14500,
+    propertyType: "Studio",
+    bedrooms: 1,
+    furnishing: "Fully Furnished",
+    createdAt: "2026-02-07T10:00:00.000Z",
+  },
+  {
+    id: "sample-kolkata-4",
+    title: "Classic Flat in Alipore",
+    price: "Rs. 26,000",
+    meta: "3 BHK · 2 Bathroom · 1340 sqft",
+    location: "Alipore, Kolkata, West Bengal",
+    time: "06/02/2026",
+    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    address: "Alipore, Kolkata, West Bengal",
+    rent: 26000,
+    propertyType: "Apartment",
+    bedrooms: 3,
+    furnishing: "Unfurnished",
+    createdAt: "2026-02-06T10:00:00.000Z",
+  },
+  {
+    id: "sample-ahmedabad-2",
+    title: "Smart Apartment in Bodakdev",
+    price: "Rs. 21,500",
+    meta: "2 BHK · 2 Bathroom · 980 sqft",
+    location: "Bodakdev, Ahmedabad, Gujarat",
+    time: "05/02/2026",
+    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    address: "Bodakdev, Ahmedabad, Gujarat",
+    rent: 21500,
+    propertyType: "Apartment",
+    bedrooms: 2,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-05T10:00:00.000Z",
+  },
+  {
+    id: "sample-ahmedabad-3",
+    title: "Sunny 1BHK in Satellite",
+    price: "Rs. 15,800",
+    meta: "1 BHK · 1 Bathroom · 610 sqft",
+    location: "Satellite, Ahmedabad, Gujarat",
+    time: "04/02/2026",
+    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    address: "Satellite, Ahmedabad, Gujarat",
+    rent: 15800,
+    propertyType: "Apartment",
+    bedrooms: 1,
+    furnishing: "Unfurnished",
+    createdAt: "2026-02-04T10:00:00.000Z",
+  },
+  {
+    id: "sample-ahmedabad-4",
+    title: "Elegant Home in Thaltej",
+    price: "Rs. 27,500",
+    meta: "3 BHK · 2 Bathroom · 1420 sqft",
+    location: "Thaltej, Ahmedabad, Gujarat",
+    time: "03/02/2026",
+    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    address: "Thaltej, Ahmedabad, Gujarat",
+    rent: 27500,
+    propertyType: "Villa",
+    bedrooms: 3,
+    furnishing: "Semi-Furnished",
+    createdAt: "2026-02-03T10:00:00.000Z",
+  },
+];
+
 export default function Index() {
   const [activeTab, setActiveTab] = useState<"rent" | "buy" | "pg">("rent");
   const [searchLocation, setSearchLocation] = useState("");
@@ -206,9 +813,6 @@ export default function Index() {
   const [loadingListings, setLoadingListings] = useState(true);
   const [allListings, setAllListings] = useState<HomeListing[]>([]);
   const [filteredListings, setFilteredListings] = useState<HomeListing[]>([]);
-  const [selectedBedrooms, setSelectedBedrooms] = useState<string[]>([]);
-  const [selectedFurnishing, setSelectedFurnishing] = useState<string[]>([]);
-  const [sortOption, setSortOption] = useState("newest");
 
   useEffect(() => {
     const loadListings = async () => {
@@ -262,8 +866,16 @@ export default function Index() {
         };
       });
 
-      setAllListings(mapped);
-      setFilteredListings(mapped);
+      const completedListings = [
+        ...mapped.map((listing) => ({
+          ...listing,
+          image: listing.image || getFallbackListingImage(listing.propertyType),
+        })),
+        ...sampleListings,
+      ];
+
+      setAllListings(completedListings);
+      setFilteredListings(completedListings);
       setLoadingListings(false);
     };
 
@@ -292,152 +904,247 @@ export default function Index() {
       return true;
     };
 
-    const bedroomMatch = (bedrooms: number | null) => {
-      if (selectedBedrooms.length === 0) return true;
-      if (bedrooms === null) return false;
-
-      return selectedBedrooms.some((selected) => {
-        if (selected === "4+") return bedrooms >= 4;
-        return bedrooms === Number(selected);
-      });
-    };
-
-    const furnishingMatch = (furnishing: string | null) => {
-      if (selectedFurnishing.length === 0) return true;
-      const normalized = (furnishing || "").toLowerCase();
-      return selectedFurnishing.some((selected) => normalized === selected.toLowerCase());
-    };
-
     const next = allListings.filter((listing) => {
       const locationOk = !location || listing.address.toLowerCase().includes(location);
       return (
         locationOk &&
         typeMatch(listing.propertyType) &&
-        budgetMatch(listing.rent) &&
-        bedroomMatch(listing.bedrooms) &&
-        furnishingMatch(listing.furnishing)
+        budgetMatch(listing.rent)
       );
     });
+    setFilteredListings(next);
+  };
 
-    const sorted = [...next].sort((left, right) => {
-      if (sortOption === "rent-low") return left.rent - right.rent;
-      if (sortOption === "rent-high") return right.rent - left.rent;
-      return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime();
+  const homeCarouselSections = useMemo(() => {
+    const grouped = new Map<string, HomeListing[]>();
+
+    filteredListings.forEach((listing) => {
+      const city = getListingCity(listing.address);
+      const current = grouped.get(city) ?? [];
+      current.push(listing);
+      grouped.set(city, current);
     });
 
-    setFilteredListings(sorted);
-    const listingSection = document.getElementById("home-listings");
-    listingSection?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+    const topGroups = Array.from(grouped.entries())
+      .sort((left, right) => right[1].length - left[1].length)
+      .slice(0, 3)
+      .map(([city, listings], index) => ({
+        title:
+          index === 0
+            ? `Popular homes in ${city}`
+            : index === 1
+              ? `Available in ${city} this week`
+              : `Trending stays around ${city}`,
+        subtitle:
+          index === 0
+            ? "Guest-favorite rentals with strong photos and clear pricing"
+            : index === 1
+              ? "Freshly listed homes ready for shortlist and comparison"
+              : "Well-presented homes people are viewing right now",
+        listings: listings.slice(0, 12),
+      }));
 
-  const toggleSelection = (value: string, selected: string[], setSelected: (updater: (current: string[]) => string[]) => void) => {
-    setSelected((current) =>
-      current.includes(value) ? current.filter((item) => item !== value) : [...current, value],
-    );
-  };
+    if (topGroups.length > 0) {
+      return topGroups;
+    }
 
-  useEffect(() => {
-    applySearch();
-  }, [selectedBedrooms, selectedFurnishing, sortOption]);
-
-  const listingTitle = useMemo(() => {
-    if (!searchLocation.trim()) return "Flats for Rent";
-    return `Flats for Rent in ${searchLocation.trim()}`;
-  }, [searchLocation]);
+    return filteredListings.length > 0
+      ? [{
+          title: "Popular homes",
+          subtitle: "Verified homes worth exploring now",
+          listings: filteredListings.slice(0, 12),
+        }]
+      : [];
+  }, [filteredListings]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0e2a5c] via-[#1a3a7a] to-[#0e2a5c] pb-12 pt-10 sm:pb-20 sm:pt-14">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M0 38.5h40v1H0zM0 .5h40v1H0zM.5 0v40h1V0zM38.5 0v40h1V0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
+      <section className="relative overflow-hidden border-b bg-gradient-to-b from-[#fffaf6] via-white to-white pb-8 pt-6 sm:pb-12 sm:pt-8">
         <div className="container relative mx-auto px-4">
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0} className="mb-3 text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-sm sm:px-4 sm:py-1.5 sm:text-xs">
-              <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" /> India&apos;s Most Trusted Rental Platform
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0} className="mb-4 text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#3A7AFE]/15 bg-[#3A7AFE]/5 px-3 py-1 text-[11px] font-semibold text-[#3A7AFE] sm:px-4 sm:text-xs">
+              <Star className="h-3.5 w-3.5 fill-[#3A7AFE] text-[#3A7AFE]" /> Verified rentals across India
             </span>
           </motion.div>
-          <motion.h1 initial="hidden" animate="visible" variants={fadeUp} custom={1} className="mx-auto mb-3 max-w-3xl text-center text-3xl font-extrabold leading-tight text-white sm:mb-4 sm:text-5xl lg:text-6xl">
-            Find Your Perfect <span className="text-yellow-400">Verified</span> Rental Home
+          <motion.h1 initial="hidden" animate="visible" variants={fadeUp} custom={1} className="mx-auto mb-2 max-w-3xl text-center text-2xl font-bold leading-tight text-slate-900 sm:mb-3 sm:text-4xl lg:text-5xl">
+            Find a <span className="text-[#3A7AFE]">modern rental home</span> without the noise
           </motion.h1>
-          <motion.p initial="hidden" animate="visible" variants={fadeUp} custom={2} className="mx-auto mb-7 max-w-2xl text-center text-sm text-blue-100/80 sm:mb-10 sm:text-lg">
-            Connect with PAN-verified landlords. Secure documents. Smart matching. Zero fraud.
+          <motion.p initial="hidden" animate="visible" variants={fadeUp} custom={2} className="mx-auto mb-5 max-w-2xl text-center text-sm text-slate-500 sm:mb-7 sm:text-base">
+            Compact search, clearer pricing, and verified landlord trust signals from the first click.
           </motion.p>
 
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="mx-auto max-w-4xl overflow-hidden rounded-xl bg-white shadow-2xl sm:rounded-2xl dark:bg-card">
-            <div className="flex border-b border-border">
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="mx-auto max-w-4xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.08)] dark:bg-card">
+            <div className="flex justify-center gap-1 border-b border-border px-3 pt-2">
               {(["rent", "buy", "pg"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`flex-1 py-3 text-xs font-semibold capitalize transition-colors sm:flex-none sm:px-8 sm:py-3.5 sm:text-sm ${activeTab === tab ? "border-b-2 border-[#3A7AFE] text-[#3A7AFE]" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`rounded-full px-4 py-2 text-xs font-semibold capitalize transition-colors sm:px-6 sm:text-sm ${activeTab === tab ? "bg-slate-900 text-white" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground dark:hover:bg-slate-900/40"}`}
                 >
                   {tab === "pg" ? "PG / Hostel" : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
             </div>
-            <div className="flex flex-col gap-0 sm:flex-row sm:divide-x sm:divide-border">
-              <div className="relative flex-1 px-4 py-3">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Location / Pincode</label>
-                <div className="mt-1 flex items-center gap-2">
-                  <MapPin className="h-4 w-4 shrink-0 text-[#3A7AFE]" />
-                  <Input
-                    placeholder="Enter city, area or PIN code"
-                    value={searchLocation}
-                    onChange={(event) => setSearchLocation(event.target.value)}
-                    className="h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus-visible:ring-0"
-                  />
+            <div className="p-3 sm:p-4">
+              <div className="grid gap-1.5 rounded-[1.6rem] border border-slate-200 bg-white p-2 sm:grid-cols-[1.5fr_1fr_1fr_auto] sm:items-center sm:gap-0 sm:rounded-full sm:p-1.5">
+                <div className="relative rounded-2xl px-3 py-2 transition-colors hover:bg-slate-50 sm:rounded-full sm:px-4">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Where</label>
+                  <div className="mt-1 flex items-center gap-2">
+                    <MapPin className="h-4 w-4 shrink-0 text-[#3A7AFE]" />
+                    <Input
+                      placeholder="Search destinations"
+                      value={searchLocation}
+                      onChange={(event) => setSearchLocation(event.target.value)}
+                      className="h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus-visible:ring-0"
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl px-3 py-2 transition-colors hover:bg-slate-50 sm:relative sm:rounded-full sm:px-4 sm:before:absolute sm:before:left-0 sm:before:top-1/2 sm:before:h-8 sm:before:w-px sm:before:-translate-y-1/2 sm:before:bg-border">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Property</label>
+                  <Select value={searchType} onValueChange={setSearchType}>
+                    <SelectTrigger className="mt-1 h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
+                      <SelectValue placeholder="Any type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any type</SelectItem>
+                      <SelectItem value="apartment">Apartment</SelectItem>
+                      <SelectItem value="villa">Villa / House</SelectItem>
+                      <SelectItem value="studio">Studio</SelectItem>
+                      <SelectItem value="floor">Builder Floor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="rounded-2xl px-3 py-2 transition-colors hover:bg-slate-50 sm:relative sm:rounded-full sm:px-4 sm:before:absolute sm:before:left-0 sm:before:top-1/2 sm:before:h-8 sm:before:w-px sm:before:-translate-y-1/2 sm:before:bg-border">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Budget</label>
+                  <Select value={searchBudget} onValueChange={setSearchBudget}>
+                    <SelectTrigger className="mt-1 h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
+                      <SelectValue placeholder="Any budget" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any Budget</SelectItem>
+                      <SelectItem value="0-10000">Under Rs. 10,000</SelectItem>
+                      <SelectItem value="10000-20000">Rs. 10k - Rs. 20k</SelectItem>
+                      <SelectItem value="20000-30000">Rs. 20k - Rs. 30k</SelectItem>
+                      <SelectItem value="30000+">Rs. 30,000+</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-end p-1">
+                  <Button onClick={applySearch} className="h-11 w-full gap-2 rounded-full bg-[#ff385c] px-5 text-sm font-semibold text-white hover:bg-[#e13154] sm:h-12 sm:w-auto sm:px-6">
+                    <Search className="h-4 w-4" />
+                    Search
+                  </Button>
                 </div>
               </div>
-              <div className="relative px-4 py-3 sm:w-44">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Property Type</label>
-                <Select value={searchType} onValueChange={setSearchType}>
-                  <SelectTrigger className="mt-1 h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
-                    <SelectValue placeholder="Any Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="apartment">Apartment</SelectItem>
-                    <SelectItem value="villa">Villa / House</SelectItem>
-                    <SelectItem value="studio">Studio</SelectItem>
-                    <SelectItem value="floor">Builder Floor</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="relative px-4 py-3 sm:w-44">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Budget / Month</label>
-                <Select value={searchBudget} onValueChange={setSearchBudget}>
-                  <SelectTrigger className="mt-1 h-8 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
-                    <SelectValue placeholder="Any Budget" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="any">Any Budget</SelectItem>
-                    <SelectItem value="0-10000">Under Rs. 10,000</SelectItem>
-                    <SelectItem value="10000-20000">Rs. 10k - Rs. 20k</SelectItem>
-                    <SelectItem value="20000-30000">Rs. 20k - Rs. 30k</SelectItem>
-                    <SelectItem value="30000+">Rs. 30,000+</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center p-3">
-                <Button onClick={applySearch} className="h-11 w-full gap-2 rounded-lg bg-yellow-400 px-6 text-sm font-bold text-gray-900 hover:bg-yellow-500 sm:h-12 sm:w-auto sm:rounded-xl sm:px-8">
-                  <Search className="h-4 w-4" /> Search
-                </Button>
-              </div>
             </div>
+          </motion.div>
+
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={4} className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs sm:mt-5 sm:text-sm">
+            {[
+              "PAN-verified landlords",
+              "Secure document flow",
+              "Clear monthly pricing",
+            ].map((item) => (
+              <span key={item} className="rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-600">
+                {item}
+              </span>
+            ))}
           </motion.div>
         </div>
       </section>
 
-      <section className="border-b bg-card">
-        <div className="container mx-auto grid grid-cols-2 divide-x divide-y divide-border sm:grid-cols-4 sm:divide-y-0">
-          {stats.map((s, i) => (
-            <motion.div key={s.label} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i} className="flex flex-col items-center py-6 text-center">
-              <span className="text-2xl font-extrabold text-[#3A7AFE] sm:text-3xl">{s.value}</span>
-              <span className="mt-1 text-xs font-medium text-muted-foreground">{s.label}</span>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      {homeCarouselSections.length > 0 && (
+        <section className="bg-background py-8 sm:py-10">
+          <div className="container mx-auto space-y-8 px-4">
+            {homeCarouselSections.map((section, sectionIndex) => (
+              <motion.div
+                key={section.title}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={sectionIndex}
+              >
+                <div className="mb-4 flex items-end justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-bold tracking-tight sm:text-2xl">{section.title}</h2>
+                    <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{section.subtitle}</p>
+                  </div>
+                </div>
+
+                <Carousel
+                  opts={{ align: "start", loop: false }}
+                  className="relative"
+                >
+                  <CarouselContent className="-ml-3">
+                    {section.listings.map((item) => (
+                      <CarouselItem key={`${section.title}-${item.id}`} className="pl-3 basis-[78%] sm:basis-[42%] md:basis-[32%] lg:basis-[24%] xl:basis-[19.5%]">
+                        <Link to={`/property/${item.id}`} className="block">
+                          <div className="group overflow-hidden rounded-[24px]">
+                            <div className="relative aspect-[4/4.1] overflow-hidden rounded-[24px] bg-muted">
+                              {item.image ? (
+                                <img
+                                  src={item.image}
+                                  alt={item.title}
+                                  onError={(event) => {
+                                    event.currentTarget.src = getFallbackListingImage(item.propertyType);
+                                  }}
+                                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                              ) : (
+                                <img
+                                  src={getFallbackListingImage(item.propertyType)}
+                                  alt={item.title}
+                                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                              )}
+                              <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[10px] font-semibold text-foreground shadow-sm">
+                                Guest favourite
+                              </span>
+                              <button
+                                type="button"
+                                aria-label="Save home"
+                                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur"
+                              >
+                                <Heart className="h-4 w-4" />
+                              </button>
+                            </div>
+
+                              <div className="px-1 pb-1 pt-2.5">
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <p className="line-clamp-1 text-sm font-semibold text-foreground">{item.title}</p>
+                                  <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">{item.location}</p>
+                                </div>
+                                <div className="shrink-0 text-right">
+                                  <div className="flex items-center gap-1 text-[13px] font-semibold text-foreground">
+                                    <Star className="h-3.5 w-3.5 fill-foreground text-foreground" />
+                                    <span>4.9</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">{item.meta}</p>
+                              <p className="mt-0.5 text-[13px] text-muted-foreground">Available from {item.time}</p>
+                              <p className="mt-1.5 text-[13px] font-semibold text-foreground">{item.price} <span className="font-normal text-muted-foreground">/ month</span></p>
+                            </div>
+                          </div>
+                        </Link>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-auto right-11 top-[-3rem] h-9 w-9 translate-y-0 border-border/70 bg-white shadow-sm disabled:opacity-40 dark:bg-card" />
+                  <CarouselNext className="right-0 top-[-3rem] h-9 w-9 translate-y-0 border-border/70 bg-white shadow-sm disabled:opacity-40 dark:bg-card" />
+                </Carousel>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="border-b bg-slate-50/70 py-10 dark:bg-slate-950/20">
         <div className="container mx-auto px-4">
@@ -464,127 +1171,6 @@ export default function Index() {
                 </Card>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="home-listings" className="border-b bg-background py-6 sm:py-10">
-        <div className="container mx-auto px-4">
-          <div className="mb-4 flex flex-wrap gap-2 overflow-x-auto pb-1 sm:overflow-visible">
-            {categoryChips.map((chip, index) => (
-              <button
-                key={chip}
-                className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-medium transition-colors sm:text-sm ${index === 0 ? "border-[#3A7AFE] bg-[#3A7AFE] text-white" : "bg-card text-muted-foreground hover:text-foreground"}`}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-          <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-            <aside className="rounded-xl border bg-card p-4 lg:sticky lg:top-20 lg:h-fit">
-              <div className="mb-5 flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">Filters</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">Refine results like leading marketplaces</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedBedrooms([]);
-                    setSelectedFurnishing([]);
-                    setSortOption("newest");
-                  }}
-                  className="text-xs font-semibold text-[#3A7AFE]"
-                >
-                  Reset
-                </button>
-              </div>
-
-              {filterGroups.map((group) => {
-                const selected = group.title === "BHK" ? selectedBedrooms : selectedFurnishing;
-                const setSelected = group.title === "BHK" ? setSelectedBedrooms : setSelectedFurnishing;
-
-                return (
-                  <div key={group.title} className="mb-5">
-                    <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">{group.title}</h3>
-                    <div className="space-y-2">
-                      {group.items.map((item) => (
-                        <label key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-border"
-                            checked={selected.includes(item)}
-                            onChange={() => toggleSelection(item, selected, setSelected)}
-                          />
-                          {item}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-
-              <div>
-                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">Trust Signals</h3>
-                <div className="space-y-2">
-                  {trustSignals.map((item) => (
-                    <div key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-            <div>
-              <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-xl font-bold sm:text-2xl">{listingTitle}</h2>
-                <Select value={sortOption} onValueChange={setSortOption}>
-                  <SelectTrigger className="w-full sm:w-[220px]">
-                    <SelectValue placeholder="Sort listings" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="newest">Newest First</SelectItem>
-                    <SelectItem value="rent-low">Rent: Low to High</SelectItem>
-                    <SelectItem value="rent-high">Rent: High to Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {loadingListings ? (
-                <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">Loading listings...</div>
-              ) : filteredListings.length === 0 ? (
-                <div className="rounded-xl border bg-card p-8 text-center">
-                  <p className="font-semibold">No listings found</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Try changing area, type, or budget filters.</p>
-                </div>
-              ) : (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {filteredListings.map((item) => (
-                    <Link key={item.id} to={`/property/${item.id}`}>
-                      <Card className="overflow-hidden border transition-all hover:-translate-y-0.5 hover:shadow-md">
-                        <div className="relative h-40 overflow-hidden bg-muted sm:h-44">
-                          {item.image ? (
-                            <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="flex h-full items-center justify-center text-muted-foreground">No image</div>
-                          )}
-                          <span className="absolute left-2 top-2 rounded bg-yellow-300 px-2 py-0.5 text-[10px] font-bold text-black">FEATURED</span>
-                        </div>
-                        <CardContent className="space-y-1.5 p-3.5 sm:p-4">
-                          <p className="text-xl font-bold leading-none text-foreground sm:text-2xl">{item.price}</p>
-                          <p className="text-xs font-semibold text-foreground/90 sm:text-sm">{item.meta}</p>
-                          <p className="line-clamp-1 text-xs text-muted-foreground sm:text-sm">{item.title}</p>
-                          <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground sm:text-xs">
-                            <span className="line-clamp-1">{item.location}</span>
-                            <span>{item.time}</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </section>
@@ -864,7 +1450,7 @@ export default function Index() {
         </div>
       </section>
 
-      <footer className="border-t bg-[#0f2a5c] py-12 text-white sm:py-14">
+      <footer className="bg-[#0f2a5c] py-12 text-white sm:py-14">
         <div className="container mx-auto px-4">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
