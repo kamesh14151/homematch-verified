@@ -247,6 +247,27 @@ export default function AddProperty() {
       return;
     }
 
+    const { data: landlordProfile, error: landlordError } = await supabase
+      .from("landlords")
+      .select("pan_verified")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (landlordError) {
+      toast({ title: "Verification check failed", description: landlordError.message, variant: "destructive" });
+      return;
+    }
+
+    if (!landlordProfile?.pan_verified) {
+      toast({
+        title: "PAN verification required",
+        description: "Verify PAN in your profile before publishing a property.",
+        variant: "destructive",
+      });
+      navigate("/landlord/profile");
+      return;
+    }
+
     const composedAddress = [form.addressLine, form.area, form.city, form.district, form.state, form.pincode]
       .map((item) => item.trim())
       .filter(Boolean)

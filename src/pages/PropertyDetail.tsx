@@ -271,6 +271,27 @@ export default function PropertyDetail() {
       return;
     }
 
+    const { data: tenantKyc, error: tenantKycError } = await supabase
+      .from("tenants")
+      .select("pan_verified, aadhaar_verified")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (tenantKycError) {
+      toast({ title: "KYC check failed", description: tenantKycError.message, variant: "destructive" });
+      return;
+    }
+
+    if (!tenantKyc?.pan_verified && !tenantKyc?.aadhaar_verified) {
+      toast({
+        title: "KYC required",
+        description: "Verify PAN or Aadhaar in your profile before contacting landlords.",
+        variant: "destructive",
+      });
+      navigate("/tenant/profile");
+      return;
+    }
+
     setChatLoading(true);
 
     const { data: existingApplication } = await supabase
