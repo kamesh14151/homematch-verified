@@ -14,6 +14,7 @@ import {
   Heart,
   Home,
   MapPin,
+  MessageCircle,
   Share2,
   ShieldCheck,
   Zap,
@@ -986,6 +987,9 @@ export default function PropertyDetail() {
   const [chatLoading, setChatLoading] = useState(false);
   const [property, setProperty] = useState<PropertyData>(fallbackProperty);
   const [isSaved, setIsSaved] = useState(false);
+  const [similarProperties, setSimilarProperties] = useState<Array<{
+    id: string; title: string; address: string; rent: number; houseType: string; image?: string;
+  }>>([]);
 
   useEffect(() => {
     const loadProperty = async () => {
@@ -1108,6 +1112,40 @@ export default function PropertyDetail() {
           .eq("property_id", propertyRow.id)
           .maybeSingle();
         setIsSaved(!!savedRow);
+      }
+
+      // Load similar properties (same city, different id)
+      const cityHint = propertyRow.address.split(",").pop()?.trim() ?? "";
+      if (cityHint) {
+        const { data: simRows } = await supabase
+          .from("properties")
+          .select("id, title, address, rent, house_type")
+          .ilike("address", `%${cityHint}%`)
+          .neq("id", propertyRow.id)
+          .eq("is_active", true)
+          .limit(4);
+        if (simRows && simRows.length > 0) {
+          const simIds = simRows.map((r) => r.id);
+          const { data: simImgs } = await supabase
+            .from("property_images")
+            .select("property_id, image_url")
+            .in("property_id", simIds)
+            .order("display_order", { ascending: true });
+          const imgMap = new Map<string, string>();
+          (simImgs ?? []).forEach((img) => {
+            if (!imgMap.has(img.property_id)) imgMap.set(img.property_id, img.image_url);
+          });
+          setSimilarProperties(
+            simRows.map((r) => ({
+              id: r.id,
+              title: r.title,
+              address: r.address,
+              rent: r.rent,
+              houseType: r.house_type,
+              image: imgMap.get(r.id),
+            }))
+          );
+        }
       }
     };
 
@@ -1382,6 +1420,7 @@ export default function PropertyDetail() {
                     <Button
                       size="icon"
                       variant="secondary"
+                      aria-label="Share property"
                       className="h-10 w-10 rounded-full border border-border/70 bg-background/90 shadow-sm backdrop-blur-sm"
                       onClick={async () => {
                         const url = `${window.location.origin}/property/${property.id}`;
@@ -1399,6 +1438,23 @@ export default function PropertyDetail() {
                       }}
                     >
                       <Share2 className="h-4 w-4" />
+                    </Button>
+                    {/* WhatsApp share */}
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      aria-label="Share on WhatsApp"
+                      className="h-10 w-10 rounded-full border border-border/70 bg-background/90 shadow-sm backdrop-blur-sm"
+                      onClick={() => {
+                        const url = `${window.location.origin}/property/${property.id}`;
+                        window.open(
+                          `https://wa.me/?text=${encodeURIComponent(`${property.title} - Rs.${property.rent}/month\n${url}`)}`,
+                          "_blank",
+                          "noopener,noreferrer"
+                        );
+                      }}
+                    >
+                      <MessageCircle className="h-4 w-4" />
                     </Button>
                     <Button
                       size="icon"
@@ -1886,6 +1942,21 @@ export default function PropertyDetail() {
                   >
                     Book Now
                   </Button>
+                  <Button
+                    variant="outline"
+                    className="h-11 w-full rounded-full font-semibold"
+                    onClick={() => {
+                      const url = `${window.location.origin}/property/${property.id}`;
+                      window.open(
+                        `https://wa.me/?text=${encodeURIComponent(`Hi, I would like to schedule a visit for "${property.title}" at ${property.address}.\nListing: ${url}`)}`,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
+                    }}
+                  >
+                    <CalendarDays className="mr-2 h-4 w-4" />
+                    Request a Visit
+                  </Button>
 
                   <div className="rounded-[1.4rem] border border-border/70 bg-background/80 p-4">
                     <p className="text-sm font-semibold">Posted in</p>
@@ -1906,6 +1977,41 @@ export default function PropertyDetail() {
           </div>
         )}
       </div>
+
+      {/* Similar Properties */}
+      {!loading && similarProperties.length > 0 && (
+        <div className="container mx-auto max-w-7xl px-4 pb-8 pt-2">
+          <h2 className="mb-4 text-xl font-bold tracking-tight">Similar properties nearby</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {similarProperties.map((sim) => (
+              <Link
+                key={sim.id}
+                to={`/property/${sim.id}`}
+                className="group block overflow-hidden rounded-2xl border border-border/50 bg-card transition-all hover:-translate-y-1 hover:shadow-md"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                  <img
+                    src={sim.image ?? "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=600&q=80"}
+                    alt={sim.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-3">
+                  <p className="line-clamp-1 text-sm font-semibold">{sim.title}</p>
+                  <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3" /> {sim.address.split(",")[0]}
+                  </p>
+                  <p className="mt-1.5 text-sm font-bold text-primary">
+                    Rs. {sim.rent.toLocaleString("en-IN")}
+                    <span className="text-xs font-normal text-muted-foreground"> / mo</span>
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Sticky mobile bottom bar — hidden on desktop where sidebar is visible */}
       {!loading && (

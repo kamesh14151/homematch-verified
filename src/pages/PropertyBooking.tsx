@@ -737,16 +737,33 @@ export default function PropertyBooking() {
   const [submitting, setSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("upi");
-  const [tenantDetails, setTenantDetails] = useState<TenantDetails>({
-    name: "",
-    email: user?.email ?? "",
-    phone: "",
-    city: "",
-    occupation: "",
-    familySize: "",
-    moveInDate: "",
-    message: "",
+  const STORAGE_KEY = `hm_booking_draft_${id ?? ""}`;
+  const [tenantDetails, setTenantDetails] = useState<TenantDetails>(() => {
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved) as TenantDetails;
+        return { ...parsed, email: parsed.email || (user?.email ?? "") };
+      }
+    } catch { /* ignore */ }
+    return {
+      name: "",
+      email: user?.email ?? "",
+      phone: "",
+      city: "",
+      occupation: "",
+      familySize: "",
+      moveInDate: "",
+      message: "",
+    };
   });
+
+  // Persist form to localStorage on every change
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tenantDetails));
+    } catch { /* ignore */ }
+  }, [tenantDetails, STORAGE_KEY]);
 
   useEffect(() => {
     if (!id) return;
@@ -917,6 +934,7 @@ export default function PropertyBooking() {
       title: "Booking confirmed!",
       description: "Your booking request has been sent to the landlord.",
     });
+    try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
     navigate(`/tenant/messages?app=${created.id}`);
   };
 

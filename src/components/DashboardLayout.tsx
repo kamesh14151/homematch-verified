@@ -31,6 +31,7 @@ interface NavItem {
   title: string;
   url: string;
   icon: LucideIcon;
+  badge?: number;
 }
 
 interface DashboardLayoutProps {
@@ -116,10 +117,20 @@ function DashboardSidebar({
                               className="rounded-xl px-3 py-2.5 text-slate-500 transition-all hover:bg-white hover:text-slate-900 hover:shadow-sm dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
                               activeClassName="border border-primary/10 bg-white text-slate-900 shadow-[0_16px_28px_-24px_rgba(91,71,56,0.28)] font-semibold dark:border-primary/15 dark:bg-zinc-900 dark:text-white"
                             >
-                              <item.icon className="mr-3 h-5 w-5" />
+                              <span className="relative">
+                                <item.icon className="mr-3 h-5 w-5" />
+                                {!!item.badge && collapsed && (
+                                  <span className="absolute -right-1 -top-1 flex h-2 w-2 items-center justify-center rounded-full bg-primary" />
+                                )}
+                              </span>
                               {!collapsed && (
-                                <span className="text-[15px]">
+                                <span className="flex flex-1 items-center justify-between text-[15px]">
                                   {item.title}
+                                  {!!item.badge && (
+                                    <span className="ml-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                                      {item.badge > 99 ? "99+" : item.badge}
+                                    </span>
+                                  )}
                                 </span>
                               )}
                             </NavLink>
@@ -214,6 +225,11 @@ export function DashboardLayout({
                         />
                       )}
                       <span className="relative z-10">{item.title}</span>
+                      {!!item.badge && (
+                        <span className="relative z-10 ml-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground">
+                          {item.badge > 99 ? "99+" : item.badge}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}

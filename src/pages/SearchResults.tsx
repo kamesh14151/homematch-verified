@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { MapPin, Search, SlidersHorizontal } from "lucide-react";
+import { MapPin, Search, SlidersHorizontal, ArrowUpDown, X } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PropertyCardSkeleton } from "@/components/PropertyCardSkeleton";
 import { Helmet } from "react-helmet-async";
 import { PropertyMap } from "@/components/PropertyMap";
+import { BackToTop } from "@/components/BackToTop";
 
 type Listing = {
   id: string;
@@ -53,6 +54,7 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true);
   const [listings, setListings] = useState<Listing[]>([]);
   const [showMap, setShowMap] = useState(false);
+  const [sortBy, setSortBy] = useState("newest");
 
   const [location, setLocation] = useState(() => searchParams.get("q") ?? "");
   const [type, setType] = useState(() => searchParams.get("type") ?? "any");
@@ -191,6 +193,10 @@ export default function SearchResults() {
         typeMatch(listing.propertyType) &&
         budgetMatch(listing.rent)
       );
+    }).sort((a, b) => {
+      if (sortBy === "price-asc") return a.rent - b.rent;
+      if (sortBy === "price-desc") return b.rent - a.rent;
+      return 0; // newest = server order
     });
   }, [listings, location, type, budget]);
 
@@ -283,6 +289,33 @@ export default function SearchResults() {
                 <SelectItem value="30000+">Rs. 30,000+</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="h-9 w-[155px] rounded-xl border-border bg-card text-xs sm:text-sm gap-1.5">
+                <ArrowUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest first</SelectItem>
+                <SelectItem value="price-asc">Price: Low → High</SelectItem>
+                <SelectItem value="price-desc">Price: High → Low</SelectItem>
+              </SelectContent>
+            </Select>
+            {(location || type !== "any" || budget !== "any") && (
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label="Clear all filters"
+                className="gap-1.5 rounded-full text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setLocation("");
+                  setType("any");
+                  setBudget("any");
+                  setSortBy("newest");
+                }}
+              >
+                <X className="h-3.5 w-3.5" /> Clear
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -467,6 +500,7 @@ export default function SearchResults() {
           </div>
         </div>
       </section>
+      <BackToTop />
     </div>
   );
 }

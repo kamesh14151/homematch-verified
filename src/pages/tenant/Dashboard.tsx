@@ -32,15 +32,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-const navItems = [
-  { title: "Search Houses", url: "/tenant/dashboard", icon: Search },
-  { title: "Saved Houses", url: "/tenant/saved", icon: Bookmark },
-  { title: "Applications", url: "/tenant/applications", icon: FileText },
-  { title: "My Bookings", url: "/tenant/bookings", icon: Home },
-  { title: "Messages", url: "/tenant/messages", icon: MessageSquare },
-  { title: "Profile", url: "/tenant/profile", icon: UserCircle },
-];
-
 type Property = {
   id: string;
   title: string;
@@ -60,6 +51,19 @@ export default function TenantDashboard() {
   const [messageCount, setMessageCount] = useState(0);
   const [properties, setProperties] = useState<Property[]>([]);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [hasActiveBooking, setHasActiveBooking] = useState(false);
+
+  const navItems = useMemo(
+    () => [
+      { title: "Search Houses", url: "/tenant/dashboard", icon: Search },
+      { title: "Saved Houses", url: "/tenant/saved", icon: Bookmark },
+      { title: "Applications", url: "/tenant/applications", icon: FileText },
+      { title: "My Bookings", url: "/tenant/bookings", icon: Home },
+      { title: "Messages", url: "/tenant/messages", icon: MessageSquare, badge: messageCount || undefined },
+      { title: "Profile", url: "/tenant/profile", icon: UserCircle },
+    ],
+    [messageCount]
+  );
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -123,6 +127,17 @@ export default function TenantDashboard() {
       setSavedIds(savedSet);
       setSavedCount(savedSet.size);
       setApplicationsCount(applicationsResult.count ?? 0);
+
+      // Check for active/paid bookings to conditionally show lease escrow
+      if (user) {
+        const { data: bookings } = await supabase
+          .from("applications")
+          .select("id")
+          .eq("tenant_id", user.id)
+          .eq("status", "paid")
+          .limit(1);
+        setHasActiveBooking((bookings ?? []).length > 0);
+      }
 
       // Count messages
       if (user) {
@@ -215,6 +230,19 @@ export default function TenantDashboard() {
   return (
     <DashboardLayout navItems={navItems} title="Tenant">
       <div className="space-y-6">
+        {/* Personalized greeting */}
+        {user?.email && (
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-bold">
+              {(() => {
+                const hour = new Date().getHours();
+                const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+                const name = user.email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+                return `${greeting}, ${name}!`;
+              })()}
+            </span>
+          </div>
+        )}
         <DashboardHero
           eyebrow="Tenant experience center"
           title="Your rental search, in one focused workspace"
@@ -463,7 +491,8 @@ export default function TenantDashboard() {
         {/* Phase 5: Lease & Payments Escrow View */}
         {!loading && (
           <div className="mt-8">
-            <TenantLeaseEscrow />
+            {/* Only show lease/escrow section when tenant has a paid booking */}
+        {hasActiveBooking && <TenantLeaseEscrow />}
           </div>
         )}
       </div>

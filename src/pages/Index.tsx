@@ -50,6 +50,7 @@ import {
 import { Navbar } from "@/components/Navbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { BackToTop } from "@/components/BackToTop";
 
 const features = [
   {
@@ -1348,6 +1349,39 @@ export default function Index() {
             ))}
           </motion.div>
 
+          {/* City quick-select pills */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            custom={4.5}
+            className="mt-5 flex flex-wrap items-center justify-center gap-2"
+          >
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Popular cities:
+            </span>
+            {[
+              { label: "Bengaluru", location: "bengaluru" },
+              { label: "Chennai", location: "chennai" },
+              { label: "Hyderabad", location: "hyderabad" },
+              { label: "Mumbai", location: "mumbai" },
+              { label: "Pune", location: "pune" },
+              { label: "Delhi / NCR", location: "delhi" },
+            ].map((city) => (
+              <button
+                key={city.label}
+                type="button"
+                onClick={() => {
+                  setSearchLocation(city.location);
+                  setTimeout(() => applySearch(), 50);
+                }}
+                className="rounded-full border border-border/70 bg-white/85 px-4 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-primary dark:bg-card/70 dark:text-zinc-200 dark:hover:text-primary"
+              >
+                {city.label}
+              </button>
+            ))}
+          </motion.div>
+
           {recentSearchChips.length > 0 && (
             <motion.div
               initial="hidden"
@@ -2056,6 +2090,7 @@ export default function Index() {
           </div>
         </div>
       </footer>
+      <BackToTop />
     </div>
   );
 }

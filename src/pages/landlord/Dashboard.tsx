@@ -28,15 +28,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-const navItems = [
-  { title: "Overview", url: "/landlord/dashboard", icon: Home },
-  { title: "Add Property", url: "/landlord/add-property", icon: PlusCircle },
-  { title: "My Listings", url: "/landlord/listings", icon: Building2 },
-  { title: "Tenant Requests", url: "/landlord/requests", icon: ListChecks },
-  { title: "Messages", url: "/landlord/messages", icon: MessageSquare },
-  { title: "Profile", url: "/landlord/profile", icon: UserCircle },
-];
-
 export default function LandlordDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -169,6 +160,23 @@ export default function LandlordDashboard() {
     return `${ratio}% active inventory`;
   }, [activeListings, properties.length]);
 
+  const vacantListings = useMemo(
+    () => properties.length - activeListings,
+    [properties.length, activeListings]
+  );
+
+  const navItems = useMemo(
+    () => [
+      { title: "Overview", url: "/landlord/dashboard", icon: Home },
+      { title: "Add Property", url: "/landlord/add-property", icon: PlusCircle },
+      { title: "My Listings", url: "/landlord/listings", icon: Building2 },
+      { title: "Tenant Requests", url: "/landlord/requests", icon: ListChecks },
+      { title: "Messages", url: "/landlord/messages", icon: MessageSquare, badge: messageThreads || undefined },
+      { title: "Profile", url: "/landlord/profile", icon: UserCircle },
+    ],
+    [messageThreads]
+  );
+
   const monthlyTrendData = useMemo<LineTrendPoint[]>(() => {
     const months: LineTrendPoint[] = [];
     const monthIndex = new Map<string, number>();
@@ -288,6 +296,12 @@ export default function LandlordDashboard() {
             icon={MessageSquare}
             description="Active conversations"
           />
+          <StatCard
+            title="Vacant / Inactive"
+            value={vacantListings}
+            icon={ListChecks}
+            description={vacantListings > 0 ? "Need attention" : "All active"}
+          />
         </div>
 
         {loading ? (
@@ -366,6 +380,16 @@ export default function LandlordDashboard() {
           </div>
         )}
       </div>
+
+      {/* Floating Add Property FAB */}
+      <Link
+        to="/landlord/add-property"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        aria-label="Add new property"
+      >
+        <PlusCircle className="h-5 w-5" />
+        <span className="hidden sm:inline">Add Property</span>
+      </Link>
     </DashboardLayout>
   );
 }
