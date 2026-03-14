@@ -449,7 +449,7 @@ export default function PropertyDetail() {
   return (
     <div className="min-h-screen bg-white text-foreground dark:bg-background">
       <Navbar />
-      <div className="container mx-auto max-w-7xl px-4 py-5 sm:py-7">
+      <div className="container mx-auto max-w-7xl px-4 py-5 pb-28 sm:py-7 lg:pb-7">
         <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to listings
         </Link>
@@ -750,6 +750,34 @@ export default function PropertyDetail() {
           </div>
         )}
       </div>
+
+      {/* Sticky mobile bottom bar — hidden on desktop where sidebar is visible */}
+      {!loading && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:bg-card lg:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xl font-bold leading-none">Rs. {property.rent.toLocaleString("en-IN")} <span className="text-xs font-normal text-muted-foreground">/ month</span></p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{property.houseType} · Booking: Rs. {(property.bookingHoldAmount ?? Math.round(property.rent * 0.25)).toLocaleString("en-IN")}</p>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <Button
+                variant="outline"
+                className="h-11 rounded-full px-5 font-semibold"
+                onClick={handleStartChat}
+                disabled={chatLoading || loading}
+              >
+                {chatLoading ? "..." : "Chat"}
+              </Button>
+              <Button
+                className="h-11 rounded-full bg-[#ff385c] px-5 font-bold text-white hover:bg-[#e13153]"
+                onClick={() => navigate(`/property/${property.id}/book`)}
+              >
+                Book Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
