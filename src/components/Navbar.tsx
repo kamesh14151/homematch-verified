@@ -24,7 +24,7 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-[#0f2a5c] shadow-lg">
-      <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
+      <div className="container mx-auto flex h-16 items-center justify-between gap-3 px-4">
         <Link to="/" className="flex items-center gap-3">
           <BrandWordmark theme="dark" showTagline className="gap-2.5" />
         </Link>
@@ -64,7 +64,7 @@ export function Navbar() {
 
         {/* Mobile Toggle */}
         <div className="flex items-center gap-2 md:hidden">
-          <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)} className="text-white hover:bg-white/10">
+          <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)} className="rounded-full border border-white/15 bg-white/10 text-white hover:bg-white/20">
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
@@ -73,15 +73,15 @@ export function Navbar() {
       {/* Mobile Menu */}
       {mobileOpen && (
         <div className="border-t border-white/10 bg-[#0f2a5c] px-4 pb-4 md:hidden">
-          <div className="flex flex-col gap-3 pt-3">
-            <Link to="/" className="text-sm font-semibold text-yellow-400" onClick={() => setMobileOpen(false)}>Home</Link>
+          <div className="mt-3 flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur">
+            <Link to="/" className="rounded-xl px-3 py-2 text-sm font-semibold text-yellow-400" onClick={() => setMobileOpen(false)}>Home</Link>
             {navLinks.map((link) => (
-              <a key={link.label} href={link.href} className="text-sm font-medium text-white/80" onClick={() => setMobileOpen(false)}>{link.label}</a>
+              <a key={link.label} href={link.href} className="rounded-xl px-3 py-2 text-sm font-medium text-white/80" onClick={() => setMobileOpen(false)}>{link.label}</a>
             ))}
-            <Link to="/for-tenants" className="text-sm font-medium text-white/80" onClick={() => setMobileOpen(false)}>For Tenants</Link>
+            <Link to="/for-tenants" className="rounded-xl px-3 py-2 text-sm font-medium text-white/80" onClick={() => setMobileOpen(false)}>For Tenants</Link>
             {user ? (
               <>
-                <Link to={dashboardPath} className="text-sm font-medium text-white/80" onClick={() => setMobileOpen(false)}>Dashboard</Link>
+                <Link to={dashboardPath} className="rounded-xl px-3 py-2 text-sm font-medium text-white/80" onClick={() => setMobileOpen(false)}>Dashboard</Link>
                 <Button size="sm" onClick={handleSignOut} className="rounded-full bg-yellow-400 font-bold text-gray-900 hover:bg-yellow-500">Logout</Button>
               </>
             ) : (

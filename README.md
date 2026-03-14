@@ -263,6 +263,43 @@ Open [http://localhost:5173](http://localhost:5173).
 | `npm run preview` | Preview production build locally |
 | `npm run test` | Run unit tests (Vitest) |
 | `npm run lint` | ESLint type-checked lint |
+| `npm run mobile:sync` | Sync web assets + plugins to native projects |
+| `npm run mobile:build` | Build web app and sync both Android + iOS |
+| `npm run mobile:android` | Build + sync Android and open Android Studio |
+| `npm run mobile:ios` | Build + sync iOS and open Xcode |
+
+---
+
+## 📱 Android & iOS App Setup (Capacitor)
+
+This project is now configured with Capacitor and includes native shells for both platforms:
+
+- `android/` for Android Studio
+- `ios/` for Xcode
+- `capacitor.config.ts` with:
+  - `appId`: `com.rentverify.app`
+  - `appName`: `RentVerify`
+  - `webDir`: `dist`
+
+### Build and Sync
+
+```bash
+npm run mobile:build
+```
+
+### Open Android Project
+
+```bash
+npm run mobile:android
+```
+
+### Open iOS Project
+
+```bash
+npm run mobile:ios
+```
+
+> Note: iOS builds require macOS with Xcode. You can keep the iOS project in git from Windows, then open and archive it on a Mac.
 
 ---
 

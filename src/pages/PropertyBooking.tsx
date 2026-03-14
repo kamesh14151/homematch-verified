@@ -106,7 +106,7 @@ function StepIndicator({ current }: { current: number }) {
   return (
     <div className="border-b bg-card">
       <div className="container mx-auto px-4">
-        <div className="flex items-start gap-0 overflow-x-auto py-5">
+        <div className="flex items-start gap-0 overflow-x-auto py-4 sm:py-5">
           {STEPS.map((step, idx) => {
             const done = current > step.number;
             const active = current === step.number;
@@ -124,6 +124,9 @@ function StepIndicator({ current }: { current: number }) {
                   >
                     {done ? <Check className="h-5 w-5" /> : <Icon className="h-4 w-4" />}
                   </div>
+                  <p className={["mt-1 text-[10px] font-semibold sm:hidden", active || done ? "text-foreground" : "text-muted-foreground"].join(" ")}>
+                    {step.label}
+                  </p>
                   <div className="mt-2 hidden text-center sm:mt-0 sm:block sm:text-left">
                     <p className={["text-sm font-semibold leading-tight", active || done ? "text-foreground" : "text-muted-foreground"].join(" ")}>
                       {step.number}. {step.label}
@@ -166,7 +169,7 @@ function PaymentSidebar({
   }, []);
 
   return (
-    <Card className="lg:sticky lg:top-20 overflow-hidden">
+    <Card className="overflow-hidden lg:sticky lg:top-20">
       <div className="border-b bg-muted/30 px-5 py-4">
         <h3 className="text-lg font-bold">Payment Details</h3>
       </div>
@@ -191,7 +194,7 @@ function PaymentSidebar({
         </div>
 
         <Button
-          className="h-12 w-full rounded-full bg-yellow-400 text-sm font-bold text-gray-900 hover:bg-yellow-500 disabled:opacity-60"
+          className="h-12 w-full rounded-full bg-[#ff385c] text-sm font-bold text-white hover:bg-[#e13153] disabled:opacity-60"
           onClick={onContinue}
           disabled={loading}
         >
@@ -294,7 +297,7 @@ function Step2({ details, onChange }: { details: TenantDetails; onChange: (d: Te
 
   return (
     <Card className="overflow-hidden border-slate-200/80 shadow-[0_24px_80px_-48px_rgba(15,42,92,0.45)]">
-      <div className="border-b bg-[linear-gradient(135deg,#0f2a5c_0%,#183b78_60%,#214892_100%)] px-5 py-5 text-white sm:px-6">
+      <div className="border-b bg-[linear-gradient(135deg,#ff385c_0%,#e13153_65%,#c61b48_100%)] px-5 py-5 text-white sm:px-6">
         <h3 className="text-xl font-bold">Tenant Details</h3>
         <p className="mt-1 text-sm text-white/75">A cleaner application helps the landlord review your request faster.</p>
       </div>

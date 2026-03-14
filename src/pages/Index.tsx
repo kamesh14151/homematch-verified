@@ -976,19 +976,19 @@ export default function Index() {
           </motion.p>
 
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="mx-auto max-w-4xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.08)] dark:bg-card">
-            <div className="flex justify-center gap-1 border-b border-border px-3 pt-2">
+            <div className="flex gap-1 overflow-x-auto border-b border-border px-3 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:justify-center">
               {(["rent", "buy", "pg"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`rounded-full px-4 py-2 text-xs font-semibold capitalize transition-colors sm:px-6 sm:text-sm ${activeTab === tab ? "bg-slate-900 text-white" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground dark:hover:bg-slate-900/40"}`}
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold capitalize transition-colors sm:px-6 sm:text-sm ${activeTab === tab ? "bg-slate-900 text-white" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground dark:hover:bg-slate-900/40"}`}
                 >
                   {tab === "pg" ? "PG / Hostel" : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
             </div>
             <div className="p-3 sm:p-4">
-              <div className="grid gap-1.5 rounded-[1.6rem] border border-slate-200 bg-white p-2 sm:grid-cols-[1.5fr_1fr_1fr_auto] sm:items-center sm:gap-0 sm:rounded-full sm:p-1.5">
+              <div className="grid gap-1.5 divide-y divide-slate-200 rounded-[1.6rem] border border-slate-200 bg-white p-2 sm:grid-cols-[1.5fr_1fr_1fr_auto] sm:items-center sm:gap-0 sm:divide-y-0 sm:rounded-full sm:p-1.5">
                 <div className="relative rounded-2xl px-3 py-2 transition-colors hover:bg-slate-50 sm:rounded-full sm:px-4">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Where</label>
                   <div className="mt-1 flex items-center gap-2">
@@ -1002,7 +1002,7 @@ export default function Index() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl px-3 py-2 transition-colors hover:bg-slate-50 sm:relative sm:rounded-full sm:px-4 sm:before:absolute sm:before:left-0 sm:before:top-1/2 sm:before:h-8 sm:before:w-px sm:before:-translate-y-1/2 sm:before:bg-border">
+                <div className="rounded-2xl px-3 py-2 pt-3 transition-colors hover:bg-slate-50 sm:relative sm:rounded-full sm:px-4 sm:pt-2 sm:before:absolute sm:before:left-0 sm:before:top-1/2 sm:before:h-8 sm:before:w-px sm:before:-translate-y-1/2 sm:before:bg-border">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Property</label>
                   <Select value={searchType} onValueChange={setSearchType}>
                     <SelectTrigger className="mt-1 h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
@@ -1018,7 +1018,7 @@ export default function Index() {
                   </Select>
                 </div>
 
-                <div className="rounded-2xl px-3 py-2 transition-colors hover:bg-slate-50 sm:relative sm:rounded-full sm:px-4 sm:before:absolute sm:before:left-0 sm:before:top-1/2 sm:before:h-8 sm:before:w-px sm:before:-translate-y-1/2 sm:before:bg-border">
+                <div className="rounded-2xl px-3 py-2 pt-3 transition-colors hover:bg-slate-50 sm:relative sm:rounded-full sm:px-4 sm:pt-2 sm:before:absolute sm:before:left-0 sm:before:top-1/2 sm:before:h-8 sm:before:w-px sm:before:-translate-y-1/2 sm:before:bg-border">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Budget</label>
                   <Select value={searchBudget} onValueChange={setSearchBudget}>
                     <SelectTrigger className="mt-1 h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
@@ -1044,7 +1044,7 @@ export default function Index() {
             </div>
           </motion.div>
 
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={4} className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs sm:mt-5 sm:text-sm">
+          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={4} className="mt-4 flex flex-nowrap items-center justify-start gap-2 overflow-x-auto pb-1 text-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-5 sm:flex-wrap sm:justify-center sm:text-sm">
             {[
               "PAN-verified landlords",
               "Secure document flow",
