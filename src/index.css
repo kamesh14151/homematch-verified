@@ -212,4 +212,58 @@
   body.app-native .grid {
     gap: clamp(0.65rem, 1.8vw, 1rem);
   }
+
+  body.app-native .native-dashboard-main {
+    padding-top: 0.75rem;
+  }
+
+  body.app-native .native-dashboard-main > div {
+    max-width: 100%;
+  }
+
+  body.app-native .native-dashboard-main h1 {
+    font-size: 2rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  body.app-native .native-dashboard-main p {
+    font-size: 1.05rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  body.app-native .card,
+  body.app-native [class*="Card"] {
+    border-radius: 1.25rem;
+  }
+
+  body.app-native .native-dashboard-main .space-y-2 > label,
+  body.app-native .native-dashboard-main .space-y-2 > span,
+  body.app-native .native-dashboard-main .space-y-2 > p {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  body.app-native .native-dashboard-main input,
+  body.app-native .native-dashboard-main [data-radix-select-trigger],
+  body.app-native .native-dashboard-main textarea {
+    min-height: 3rem;
+    border-radius: 0.95rem;
+    background: hsl(var(--background));
+  }
+
+  body.app-native .native-dashboard-main button {
+    min-height: 2.85rem;
+    border-radius: 0.95rem;
+  }
+
+  body.app-native .native-dashboard-main .grid.sm\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  body.app-native .native-dashboard-main .mx-auto.max-w-2xl,
+  body.app-native .native-dashboard-main .mx-auto.max-w-3xl,
+  body.app-native .native-dashboard-main .mx-auto.max-w-4xl {
+    max-width: 100%;
+  }
 }

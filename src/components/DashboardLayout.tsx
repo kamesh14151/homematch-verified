@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Capacitor } from "@capacitor/core";
 import { useLocation } from "react-router-dom";
 import { Command, LogOut, LucideIcon, ShieldCheck } from "lucide-react";
 import { BrandWordmark } from "@/components/BrandWordmark";
@@ -135,7 +136,18 @@ function DashboardSidebar({
 
 export function DashboardLayout({ children, navItems, title, onLogout }: DashboardLayoutProps) {
   const location = useLocation();
+  const isNative = Capacitor.isNativePlatform();
   const activeItem = navItems.find((item) => location.pathname === item.url || `${location.pathname}${location.hash}` === item.url);
+
+  if (isNative) {
+    return (
+      <div className="min-h-screen w-full bg-background">
+        <main className="native-dashboard-main mx-auto w-full max-w-lg px-4 py-4">
+          {children}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>

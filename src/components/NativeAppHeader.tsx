@@ -1,8 +1,9 @@
 import { Capacitor } from "@capacitor/core";
-import { ArrowLeft, Bell, Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const HIDE_PREFIXES = ["/login", "/register", "/forgot-password", "/reset-password", "/admin"];
 
@@ -75,9 +76,7 @@ export function NativeAppHeader() {
           <p className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">{title}</p>
         </div>
 
-        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full" aria-label="Notifications">
-          <Bell className="h-4 w-4" />
-        </Button>
+        <ThemeToggle />
       </div>
     </header>
   );
