@@ -315,6 +315,27 @@ This project now uses an app-only UI layer for Capacitor builds, so web and app 
 npm run mobile:android
 ```
 
+### Build Installable Signed APK
+
+By default, this project now produces an installable release APK using debug signing if no custom keystore is configured.
+
+For production signing:
+
+1. Copy `android/key.properties.example` to `android/key.properties`
+2. Create or place your release keystore `.jks` file in `android/`
+3. Fill `android/key.properties` with your real credentials
+
+Then build release APK:
+
+```bash
+cd android
+./gradlew assembleRelease
+```
+
+Output:
+
+- `android/app/build/outputs/apk/release/app-release.apk` (signed/installable)
+
 ### Open iOS Project
 
 ```bash
