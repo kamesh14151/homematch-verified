@@ -22,3 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Web-only repository (ignore mobile/native app files)
+android/
+ios/
+.gradle/
+*.apk
+*.aab
+*.keystore
+*.jks
+*.p8
+*.mobileprovision
