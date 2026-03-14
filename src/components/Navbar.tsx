@@ -23,7 +23,7 @@ export function Navbar() {
   const dashboardPath = userRole === "landlord" ? "/landlord/dashboard" : "/tenant/dashboard";
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#0f2a5c] shadow-lg">
+    <nav data-native-topbar="true" className="sticky top-0 z-50 bg-[#0f2a5c] shadow-lg">
       <div className="container mx-auto flex h-16 items-center justify-between gap-3 px-4">
         <Link to="/" className="flex items-center gap-3">
           <BrandWordmark theme="dark" showTagline className="gap-2.5" />

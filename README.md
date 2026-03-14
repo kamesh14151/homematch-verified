@@ -263,6 +263,7 @@ Open [http://localhost:5173](http://localhost:5173).
 | `npm run preview` | Preview production build locally |
 | `npm run test` | Run unit tests (Vitest) |
 | `npm run lint` | ESLint type-checked lint |
+| `npm run mobile:assets` | Generate Android/iOS icons + splash from `resources/` |
 | `npm run mobile:sync` | Sync web assets + plugins to native projects |
 | `npm run mobile:build` | Build web app and sync both Android + iOS |
 | `npm run mobile:android` | Build + sync Android and open Android Studio |
@@ -286,6 +287,27 @@ This project is now configured with Capacitor and includes native shells for bot
 ```bash
 npm run mobile:build
 ```
+
+### App Branding Assets
+
+Place your app branding files in `resources/`:
+
+- `resources/icon.png` (square app icon, recommended 1024x1024)
+- `resources/splash.png` (square splash source, recommended 2732x2732)
+
+Then generate platform assets:
+
+```bash
+npm run mobile:assets
+```
+
+### Web UI vs App UI
+
+This project now uses an app-only UI layer for Capacitor builds, so web and app can look different while sharing one codebase.
+
+- Web behavior remains unchanged
+- Native app adds safe-area handling and status bar polish
+- App-specific classes are applied at runtime (`app-native`, `app-ios`, `app-android`)
 
 ### Open Android Project
 
