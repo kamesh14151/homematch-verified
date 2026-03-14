@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { Capacitor } from "@capacitor/core";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { SplashScreen } from "@capacitor/splash-screen";
+import { registerNativeOAuthListeners } from "@/lib/oauth";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -11,6 +12,7 @@ const isNativeApp = platform !== "web";
 if (isNativeApp) {
 	document.documentElement.classList.add("app-native", `app-${platform}`);
 	document.body.classList.add("app-native", `app-${platform}`);
+	registerNativeOAuthListeners();
 
 	void StatusBar.setOverlaysWebView({ overlay: false });
 	void StatusBar.setStyle({ style: Style.Dark });

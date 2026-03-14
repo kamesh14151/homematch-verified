@@ -155,17 +155,61 @@
     padding-left: var(--safe-area-left);
     padding-right: var(--safe-area-right);
     padding-bottom: var(--safe-area-bottom);
+    background: hsl(var(--background));
   }
 
   body.app-native [data-native-topbar="true"] {
     padding-top: var(--safe-area-top);
   }
 
+  body.app-native [data-native-topbar="true"] {
+    display: none !important;
+  }
+
+  body.app-native .app-content-with-tabs {
+    min-height: 100dvh;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  body.app-native.app-top-header-visible .app-content-with-tabs {
+    padding-top: calc(var(--safe-area-top) + 3.5rem);
+  }
+
   body.app-native.app-bottom-nav-visible .app-content-with-tabs {
-    padding-bottom: calc(var(--safe-area-bottom) + 5rem);
+    padding-bottom: calc(var(--safe-area-bottom) + 5.25rem);
   }
 
   body.app-native .app-web-footer {
     display: none !important;
+  }
+
+  body.app-native .container {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  body.app-native [class*="shadow-"] {
+    box-shadow: 0 10px 30px -22px rgba(15, 23, 42, 0.45);
+  }
+
+  body.app-native .rounded-3xl {
+    border-radius: 1.15rem;
+  }
+
+  body.app-native .rounded-2xl {
+    border-radius: 1rem;
+  }
+
+  body.app-native input,
+  body.app-native select,
+  body.app-native textarea,
+  body.app-native button {
+    font-size: 16px;
+  }
+
+  body.app-native .grid {
+    gap: clamp(0.65rem, 1.8vw, 1rem);
   }
 }

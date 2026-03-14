@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
 import { MobileAppBottomNav } from "@/components/MobileAppBottomNav";
+import { NativeAppHeader } from "@/components/NativeAppHeader";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -61,6 +62,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <NativeAppHeader />
             <div className="app-content-with-tabs">
               <Routes>
                 <Route path="/" element={<Index />} />

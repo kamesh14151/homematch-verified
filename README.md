@@ -319,6 +319,16 @@ npm run mobile:android
 
 By default, this project now produces an installable release APK using debug signing if no custom keystore is configured.
 
+### Native Google Login (Required Config)
+
+For Google OAuth to work inside Android/iOS apps, add this redirect URL in Supabase Auth settings:
+
+- `com.rentverify.app://auth/callback`
+
+Path in Supabase Dashboard:
+
+- Authentication → URL Configuration → Additional Redirect URLs
+
 For production signing:
 
 1. Copy `android/key.properties.example` to `android/key.properties`

@@ -72,10 +72,10 @@ export function MobileAppBottomNav() {
   return (
     <nav
       aria-label="App bottom navigation"
-      className="fixed inset-x-0 bottom-0 z-[60] border-t border-slate-200/80 bg-white/95 backdrop-blur md:hidden dark:border-slate-700 dark:bg-slate-950/95"
-      style={{ paddingBottom: "calc(var(--safe-area-bottom) + 0.5rem)" }}
+      className="fixed inset-x-0 bottom-0 z-[60] border-t border-slate-200/80 bg-white/95 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur md:hidden dark:border-slate-700 dark:bg-slate-950/95"
+      style={{ paddingBottom: "calc(var(--safe-area-bottom) + 0.35rem)" }}
     >
-      <div className="mx-auto grid max-w-lg grid-cols-5 px-2 pt-2">
+      <div className="mx-auto grid max-w-lg grid-cols-5 gap-1 px-2 pt-1.5">
         {tabs.map((tab) => {
           const active = isTabActive(pathname, tab.to);
           const Icon = tab.icon;
@@ -85,9 +85,9 @@ export function MobileAppBottomNav() {
               key={`${tab.label}-${tab.to}`}
               to={tab.to}
               className={[
-                "flex flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-medium transition-colors",
+                "flex flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-semibold transition-all duration-200",
                 active
-                  ? "text-[#ff385c]"
+                  ? "bg-rose-50 text-[#ff385c] dark:bg-rose-500/10"
                   : "text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white",
               ].join(" ")}
             >

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithGoogleOAuth } from "@/lib/oauth";
 import loginHero from "@/assets/login-hero.jpg";
 
 export default function Register() {
@@ -40,9 +40,7 @@ export default function Register() {
   };
 
   const handleGoogleSignIn = async () => {
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
+    const { error } = await signInWithGoogleOAuth();
     if (error) {
       toast({ title: "Google sign-in failed", description: error.message, variant: "destructive" });
     }
