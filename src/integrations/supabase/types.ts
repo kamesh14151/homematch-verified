@@ -149,8 +149,8 @@ export type Database = {
         Row: {
           address: string
           bathrooms: number | null
-          booking_hold_amount: number | null
           bedrooms: number | null
+          booking_hold_amount: number | null
           created_at: string
           description: string | null
           eb_bill_number: string | null
@@ -182,8 +182,8 @@ export type Database = {
         Insert: {
           address: string
           bathrooms?: number | null
-          booking_hold_amount?: number | null
           bedrooms?: number | null
+          booking_hold_amount?: number | null
           created_at?: string
           description?: string | null
           eb_bill_number?: string | null
@@ -215,8 +215,8 @@ export type Database = {
         Update: {
           address?: string
           bathrooms?: number | null
-          booking_hold_amount?: number | null
           bedrooms?: number | null
+          booking_hold_amount?: number | null
           created_at?: string
           description?: string | null
           eb_bill_number?: string | null
