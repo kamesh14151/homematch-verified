@@ -1,8 +1,9 @@
-import { MapPin, Home, IndianRupee, Bookmark } from "lucide-react";
+import { MapPin, Home, IndianRupee, Bookmark, BookmarkCheck, Share2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface PropertyCardProps {
   id: string;
@@ -12,6 +13,7 @@ interface PropertyCardProps {
   houseType: string;
   imageUrl?: string;
   verified?: boolean;
+  isSaved?: boolean;
   onSave?: () => void;
 }
 
@@ -23,9 +25,25 @@ export function PropertyCard({
   houseType,
   imageUrl,
   verified,
+  isSaved,
   onSave,
 }: PropertyCardProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/property/${id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text: `${title} - ₹${rent.toLocaleString("en-IN")}/month`, url });
+      } catch { /* user cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast({ title: "Link copied", description: "Property link copied to clipboard." });
+    }
+  };
 
   return (
     <Card
@@ -38,7 +56,7 @@ export function PropertyCard({
           navigate(`/property/${id}`);
         }
       }}
-      className="group cursor-pointer overflow-hidden border-[#dfe5ef] bg-white shadow-[0_8px_20px_rgba(0,51,102,0.08)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(0,51,102,0.12)] dark:border-[#24476b] dark:bg-card"
+      className="group cursor-pointer overflow-hidden border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="relative aspect-video overflow-hidden bg-muted">
         {imageUrl ? (
@@ -53,39 +71,52 @@ export function PropertyCard({
           </div>
         )}
         {verified && (
-          <Badge className="absolute left-3 top-3 rounded-full bg-brand-yellow px-3 py-1 text-[12px] font-semibold text-[#171717] shadow-sm">Verified</Badge>
+          <Badge className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-[12px] font-semibold text-primary-foreground shadow-sm">Verified</Badge>
         )}
-        {onSave && (
+        <div className="absolute right-2 top-2 flex gap-1">
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-2 top-2 h-8 w-8 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onSave();
-            }}
+            className="h-8 w-8 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card"
+            onClick={handleShare}
           >
-            <Bookmark className="h-4 w-4" />
+            <Share2 className="h-4 w-4" />
           </Button>
-        )}
-      </div>
-      <CardContent className="p-6">
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <h3 className="line-clamp-2 text-[22px] font-semibold leading-tight tracking-tight text-brand-primary dark:text-primary sm:text-[26px]">{title}</h3>
-          <Badge variant="secondary" className="shrink-0 rounded-full bg-[#f4f6f8] text-brand-text-muted dark:bg-muted dark:text-muted-foreground">{houseType}</Badge>
+          {onSave && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onSave();
+              }}
+            >
+              {isSaved ? (
+                <BookmarkCheck className="h-4 w-4 text-primary" />
+              ) : (
+                <Bookmark className="h-4 w-4" />
+              )}
+            </Button>
+          )}
         </div>
-        <div className="mb-4 flex items-center gap-1 text-[15px] text-brand-text-muted dark:text-muted-foreground">
+      </div>
+      <CardContent className="p-4 sm:p-5">
+        <div className="mb-2 flex items-start justify-between gap-3">
+          <h3 className="line-clamp-2 text-base font-semibold leading-tight tracking-tight text-foreground sm:text-lg">{title}</h3>
+          <Badge variant="secondary" className="shrink-0 rounded-full text-xs">{houseType}</Badge>
+        </div>
+        <div className="mb-3 flex items-center gap-1 text-sm text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" />
           <span className="line-clamp-1">{address}</span>
         </div>
-        <div className="flex items-center justify-between rounded-2xl bg-background-secondary px-3 py-2">
-          <div className="flex items-center gap-1 text-[28px] font-semibold leading-none text-brand-primary dark:text-brand-yellow sm:text-[34px]">
+        <div className="flex items-center justify-between rounded-xl bg-muted/50 px-3 py-2">
+          <div className="flex items-center gap-1 text-xl font-semibold leading-none text-foreground sm:text-2xl">
             <IndianRupee className="h-4 w-4" />
             <span>{rent.toLocaleString("en-IN")}</span>
-            <span className="text-sm font-normal text-brand-text-muted dark:text-muted-foreground">/month</span>
+            <span className="text-xs font-normal text-muted-foreground">/month</span>
           </div>
-          <span className="text-xs font-medium uppercase tracking-[0.16em] text-brand-text-muted dark:text-muted-foreground">Curated listing</span>
         </div>
       </CardContent>
     </Card>
