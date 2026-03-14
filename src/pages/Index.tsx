@@ -174,8 +174,6 @@ const tenantSteps = [
   { icon: Home, title: "Apply & Move In", description: "Apply and connect with the landlord directly." },
 ];
 
-const topCities = ["Mumbai", "Delhi / NCR", "Bangalore", "Chennai", "Hyderabad", "Pune", "Kolkata", "Ahmedabad"];
-
 const rentverifyLinks = [
   { label: "About Us", to: "/about-us" },
   { label: "Our Services", to: "/our-services" },
@@ -859,25 +857,6 @@ export default function Index() {
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
                   <CheckCircle2 className="mb-3 h-5 w-5 text-green-400" />
                   <p className="font-medium text-white/90">{item}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Top Cities</div>
-          <h2 className="mb-8 text-2xl font-bold sm:text-3xl">Explore Rentals in Popular Indian Cities</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-            {topCities.map((city, i) => (
-              <motion.div key={city} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}>
-                <div className="group rounded-xl border bg-card p-4 text-center transition-all hover:border-[#3A7AFE] hover:shadow-sm">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#3A7AFE]/10 transition-colors group-hover:bg-[#3A7AFE]/20">
-                    <MapPin className="h-5 w-5 text-[#3A7AFE]" />
-                  </div>
-                  <p className="text-xs font-semibold leading-tight">{city}</p>
                 </div>
               </motion.div>
             ))}
