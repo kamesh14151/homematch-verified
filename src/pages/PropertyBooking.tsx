@@ -78,8 +78,8 @@ const OCCUPATION_OPTIONS = [
 
 const FAMILY_SIZE_OPTIONS = ["1 (Single)", "2 (Couple)", "3", "4", "5+"];
 
-const inputShellClass = "h-12 rounded-2xl border-slate-200 bg-slate-50/70 px-4 text-sm shadow-none transition-colors focus-visible:border-[#3A7AFE]/40 focus-visible:ring-[#3A7AFE]/20";
-const selectShellClass = "h-12 rounded-2xl border-slate-200 bg-slate-50/70 px-4 text-sm shadow-none focus:ring-[#3A7AFE]/20 focus:ring-offset-0";
+const inputShellClass = "h-12 rounded-2xl border-slate-200 bg-slate-50/70 px-4 text-sm shadow-none transition-colors focus-visible:border-[#ff385c]/40 focus-visible:ring-[#ff385c]/20";
+const selectShellClass = "h-12 rounded-2xl border-slate-200 bg-slate-50/70 px-4 text-sm shadow-none focus:ring-[#ff385c]/20 focus:ring-offset-0";
 
 const formatPrettyDate = (date: Date) => new Intl.DateTimeFormat("en-IN", {
   day: "2-digit",
@@ -117,8 +117,8 @@ function StepIndicator({ current }: { current: number }) {
                   <div
                     className={[
                       "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold transition-all",
-                      done ? "border-[#3A7AFE] bg-[#3A7AFE] text-white" :
-                        active ? "border-[#3A7AFE] bg-[#3A7AFE]/10 text-[#3A7AFE]" :
+                      done ? "border-[#ff385c] bg-[#ff385c] text-white" :
+                        active ? "border-[#ff385c] bg-[#ff385c]/10 text-[#ff385c]" :
                           "border-muted-foreground/30 bg-muted text-muted-foreground",
                     ].join(" ")}
                   >
@@ -132,7 +132,7 @@ function StepIndicator({ current }: { current: number }) {
                   </div>
                 </div>
                 {idx < STEPS.length - 1 && (
-                  <div className={["mx-2 h-0.5 flex-1", done ? "bg-[#3A7AFE]" : "bg-border"].join(" ")} />
+                  <div className={["mx-2 h-0.5 flex-1", done ? "bg-[#ff385c]" : "bg-border"].join(" ")} />
                 )}
               </div>
             );
@@ -184,9 +184,9 @@ function PaymentSidebar({
           <span className="font-semibold">Rs. {total.toLocaleString("en-IN")}</span>
         </div>
 
-        <div className="rounded-xl bg-[#3A7AFE]/8 border border-[#3A7AFE]/20 p-4 text-center">
+        <div className="rounded-xl bg-[#ff385c]/8 border border-[#ff385c]/20 p-4 text-center">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Booking hold amount</p>
-          <p className="mt-1 text-4xl font-extrabold text-[#3A7AFE]">Rs. {advance.toLocaleString("en-IN")}</p>
+          <p className="mt-1 text-4xl font-extrabold text-[#ff385c]">Rs. {advance.toLocaleString("en-IN")}</p>
           <p className="mt-1 text-xs text-muted-foreground">Balance due by {balanceDue}</p>
         </div>
 
@@ -238,7 +238,7 @@ function Step1({ property }: { property: PropertyData }) {
             </div>
             <div className="shrink-0 rounded-2xl bg-white/90 px-4 py-2 text-center shadow-lg backdrop-blur">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Rent</p>
-              <p className="text-lg font-bold text-[#3A7AFE]">Rs.&nbsp;{property.rent.toLocaleString("en-IN")}</p>
+              <p className="text-lg font-bold text-[#ff385c]">Rs.&nbsp;{property.rent.toLocaleString("en-IN")}</p>
             </div>
           </div>
         </div>
@@ -255,7 +255,7 @@ function Step1({ property }: { property: PropertyData }) {
               <h4 className="font-semibold">Booking Hold</h4>
               <p className="mt-2 flex items-center gap-2 text-muted-foreground">
                 <span className="font-bold text-yellow-500">→</span>
-                Booking hold amount :&nbsp;<span className="font-bold text-[#3A7AFE]">Rs. {advance.toLocaleString("en-IN")}</span>
+                Booking hold amount :&nbsp;<span className="font-bold text-[#ff385c]">Rs. {advance.toLocaleString("en-IN")}</span>
               </p>
             </div>
             <div className="px-6 py-5">
@@ -263,14 +263,14 @@ function Step1({ property }: { property: PropertyData }) {
               <p className="mt-2 flex items-center gap-2 text-muted-foreground">
                 <span className="font-bold text-yellow-500">→</span>
                 Booking hold refundable as per&nbsp;
-                <span className="cursor-pointer font-medium text-[#3A7AFE] underline underline-offset-2">Cancellation Policy</span>
+                <span className="cursor-pointer font-medium text-[#ff385c] underline underline-offset-2">Cancellation Policy</span>
               </p>
             </div>
             <div className="px-6 py-5">
               <h4 className="font-semibold">Balance Payment Due</h4>
               <p className="mt-2 flex items-center gap-2 text-muted-foreground">
                 <span className="font-bold text-yellow-500">→</span>
-                Remaining due by&nbsp;<span className="font-bold text-[#3A7AFE]">{balanceDue}</span>.
+                Remaining due by&nbsp;<span className="font-bold text-[#ff385c]">{balanceDue}</span>.
               </p>
             </div>
           </div>
@@ -355,7 +355,7 @@ function Step2({ details, onChange }: { details: TenantDetails; onChange: (d: Te
                   )}
                 >
                   {selectedMoveInDate ? formatPrettyDate(selectedMoveInDate) : "Select move-in date"}
-                  <CalendarDays className="h-4 w-4 text-[#3A7AFE]" />
+                  <CalendarDays className="h-4 w-4 text-[#ff385c]" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="start" className="w-auto rounded-[24px] border-slate-200 p-3 shadow-2xl">
@@ -379,7 +379,7 @@ function Step2({ details, onChange }: { details: TenantDetails; onChange: (d: Te
           <div className="space-y-2 sm:col-span-2">
             <Label className="text-sm text-slate-600">Message to Landlord</Label>
             <Textarea
-              className="min-h-[132px] rounded-[24px] border-slate-200 bg-slate-50/70 px-4 py-3 text-sm shadow-none focus-visible:border-[#3A7AFE]/40 focus-visible:ring-[#3A7AFE]/20"
+              className="min-h-[132px] rounded-[24px] border-slate-200 bg-slate-50/70 px-4 py-3 text-sm shadow-none focus-visible:border-[#ff385c]/40 focus-visible:ring-[#ff385c]/20"
               placeholder="Introduce yourself, your timeline, and any requirements the landlord should know."
               value={details.message}
               onChange={setText("message")}
@@ -407,8 +407,8 @@ function Step3({ selected, onSelect }: { selected: string; onSelect: (id: string
               className={[
                 "flex w-full items-center gap-4 rounded-2xl border-2 px-5 py-4 text-left transition-all",
                 selected === m.id
-                  ? "border-[#3A7AFE] bg-[#3A7AFE]/5"
-                  : "border-border hover:border-[#3A7AFE]/50 hover:bg-muted/40",
+                  ? "border-[#ff385c] bg-[#ff385c]/5"
+                  : "border-border hover:border-[#ff385c]/50 hover:bg-muted/40",
               ].join(" ")}
             >
               <span className="text-2xl">{m.icon}</span>
@@ -419,7 +419,7 @@ function Step3({ selected, onSelect }: { selected: string; onSelect: (id: string
               <div
                 className={[
                   "flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all",
-                  selected === m.id ? "border-[#3A7AFE] bg-[#3A7AFE]" : "border-muted-foreground/40",
+                  selected === m.id ? "border-[#ff385c] bg-[#ff385c]" : "border-muted-foreground/40",
                 ].join(" ")}
               >
                 {selected === m.id && <div className="h-2 w-2 rounded-full bg-white" />}
@@ -508,7 +508,7 @@ function Step4({
       <div className="flex items-start gap-3 rounded-2xl border border-green-200 bg-green-50 px-5 py-4 dark:border-green-900/40 dark:bg-green-950/20">
         <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
         <p className="text-sm text-muted-foreground">
-          By confirming, you agree to the <span className="cursor-pointer font-medium text-[#3A7AFE] underline underline-offset-2">Booking Terms</span>. The rent and booking amounts shown here come directly from the landlord listing.
+          By confirming, you agree to the <span className="cursor-pointer font-medium text-[#ff385c] underline underline-offset-2">Booking Terms</span>. The rent and booking amounts shown here come directly from the landlord listing.
         </p>
       </div>
     </div>

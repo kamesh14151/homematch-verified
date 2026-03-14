@@ -126,7 +126,7 @@ const testimonials = [
 
 const propertyTypes = [
   { label: "Independent House / Villa", count: "120+", color: "bg-amber-50 dark:bg-amber-950/40" },
-  { label: "Residential Apartment", count: "70+", color: "bg-blue-50 dark:bg-blue-950/40" },
+  { label: "Residential Apartment", count: "70+", color: "bg-rose-50 dark:bg-rose-950/40" },
   { label: "Independent Builder Floor", count: "50+", color: "bg-green-50 dark:bg-green-950/40" },
   { label: "Studio Apartment", count: "30+", color: "bg-rose-50 dark:bg-rose-950/40" },
 ];
@@ -964,12 +964,12 @@ export default function Index() {
       <section className="relative overflow-hidden border-b bg-gradient-to-b from-[#fffaf6] via-white to-white pb-8 pt-6 sm:pb-12 sm:pt-8">
         <div className="container relative mx-auto px-4">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0} className="mb-4 text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#3A7AFE]/15 bg-[#3A7AFE]/5 px-3 py-1 text-[11px] font-semibold text-[#3A7AFE] sm:px-4 sm:text-xs">
-              <Star className="h-3.5 w-3.5 fill-[#3A7AFE] text-[#3A7AFE]" /> Verified rentals across India
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#ff385c]/15 bg-[#ff385c]/5 px-3 py-1 text-[11px] font-semibold text-[#ff385c] sm:px-4 sm:text-xs">
+              <Star className="h-3.5 w-3.5 fill-[#ff385c] text-[#ff385c]" /> Verified rentals across India
             </span>
           </motion.div>
           <motion.h1 initial="hidden" animate="visible" variants={fadeUp} custom={1} className="mx-auto mb-2 max-w-3xl text-center text-2xl font-bold leading-tight text-slate-900 sm:mb-3 sm:text-4xl lg:text-5xl">
-            Find a <span className="text-[#3A7AFE]">modern rental home</span> without the noise
+            Find a <span className="text-[#ff385c]">modern rental home</span> without the noise
           </motion.h1>
           <motion.p initial="hidden" animate="visible" variants={fadeUp} custom={2} className="mx-auto mb-5 max-w-2xl text-center text-sm text-slate-500 sm:mb-7 sm:text-base">
             Compact search, clearer pricing, and verified landlord trust signals from the first click.
@@ -992,7 +992,7 @@ export default function Index() {
                 <div className="relative rounded-2xl px-3 py-2 transition-colors hover:bg-slate-50 sm:rounded-full sm:px-4">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Where</label>
                   <div className="mt-1 flex items-center gap-2">
-                    <MapPin className="h-4 w-4 shrink-0 text-[#3A7AFE]" />
+                    <MapPin className="h-4 w-4 shrink-0 text-[#ff385c]" />
                     <Input
                       placeholder="Search destinations"
                       value={searchLocation}
@@ -1035,7 +1035,7 @@ export default function Index() {
                 </div>
 
                 <div className="flex items-center justify-end p-1">
-                  <Button onClick={applySearch} className="h-11 w-full gap-2 rounded-full bg-[#ff385c] px-5 text-sm font-semibold text-white hover:bg-[#e13154] sm:h-12 sm:w-auto sm:px-6">
+                  <Button onClick={applySearch} className="h-11 w-full gap-2 rounded-full bg-[#ff385c] px-5 text-sm font-semibold text-white hover:bg-[#e13153] sm:h-12 sm:w-auto sm:px-6">
                     <Search className="h-4 w-4" />
                     Search
                   </Button>
@@ -1150,7 +1150,7 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#3A7AFE]">Marketplace Standards</div>
+              <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#ff385c]">Marketplace Standards</div>
               <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Built for trust, conversion and operational clarity</h2>
             </div>
             <p className="max-w-2xl text-sm text-muted-foreground">
@@ -1162,8 +1162,8 @@ export default function Index() {
               <motion.div key={card.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
                 <Card className="h-full border-0 bg-white shadow-[0_16px_48px_rgba(15,23,42,0.08)] dark:bg-card">
                   <CardContent className="p-6">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#3A7AFE]/10">
-                      <card.icon className="h-6 w-6 text-[#3A7AFE]" />
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ff385c]/10">
+                      <card.icon className="h-6 w-6 text-[#ff385c]" />
                     </div>
                     <h3 className="text-lg font-semibold">{card.title}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.description}</p>
@@ -1182,7 +1182,7 @@ export default function Index() {
               <h2 className="text-2xl font-bold sm:text-3xl">Apartments, Villas and more</h2>
               <p className="mt-1 text-sm text-muted-foreground">Browse by property type</p>
             </div>
-            <Link to="/register" className="hidden text-sm font-semibold text-[#3A7AFE] hover:underline sm:block">View all <ChevronRight className="inline h-4 w-4" /></Link>
+            <Link to="/register" className="hidden text-sm font-semibold text-[#ff385c] hover:underline sm:block">View all <ChevronRight className="inline h-4 w-4" /></Link>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {propertyTypes.map((pt, i) => (
@@ -1190,7 +1190,7 @@ export default function Index() {
                 <Link to="/register">
                   <Card className={`group cursor-pointer overflow-hidden border transition-all hover:-translate-y-0.5 hover:shadow-md ${pt.color}`}>
                     <CardContent className="p-5">
-                      <Building2 className="mb-3 h-8 w-8 text-[#3A7AFE] transition-transform group-hover:scale-110" />
+                      <Building2 className="mb-3 h-8 w-8 text-[#ff385c] transition-transform group-hover:scale-110" />
                       <p className="font-semibold leading-tight">{pt.label}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{pt.count} Properties</p>
                     </CardContent>
@@ -1205,7 +1205,7 @@ export default function Index() {
       <section className="bg-amber-50/60 py-16 dark:bg-amber-950/10">
         <div className="container mx-auto px-4">
           <div className="mb-2 flex items-center gap-2">
-            <Home className="h-6 w-6 text-[#3A7AFE]" />
+            <Home className="h-6 w-6 text-[#ff385c]" />
             <h2 className="text-2xl font-bold">BHK Choice in Mind?</h2>
           </div>
           <p className="mb-8 text-sm text-muted-foreground">Browse by number of bedrooms</p>
@@ -1214,7 +1214,7 @@ export default function Index() {
               <motion.div key={item.bhk} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}>
                 <Card className="group border bg-white transition-all hover:-translate-y-0.5 hover:shadow-md dark:bg-card">
                   <CardContent className="flex flex-col items-center py-7 text-center">
-                    <item.icon className="mb-3 h-10 w-10 text-[#3A7AFE] transition-transform group-hover:scale-110" />
+                    <item.icon className="mb-3 h-10 w-10 text-[#ff385c] transition-transform group-hover:scale-110" />
                     <p className="font-semibold">{item.bhk}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">{item.count} Properties</p>
                   </CardContent>
@@ -1234,8 +1234,8 @@ export default function Index() {
               <motion.div key={option.label} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}>
                 <Card className="group border bg-card transition-all hover:-translate-y-0.5 hover:shadow-md">
                   <CardContent className="flex items-center gap-4 p-5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#3A7AFE]/10">
-                      <option.icon className="h-6 w-6 text-[#3A7AFE]" />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#ff385c]/10">
+                      <option.icon className="h-6 w-6 text-[#ff385c]" />
                     </div>
                     <div>
                       <p className="font-semibold">{option.label}</p>
@@ -1252,9 +1252,9 @@ export default function Index() {
       <section id="features" className="bg-[#0e2a5c] py-20">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
-            <span className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold text-blue-200">WHY RENTVERIFY</span>
+            <span className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold text-rose-200">WHY RENTVERIFY</span>
             <h2 className="text-3xl font-bold text-white">India&apos;s Most Trusted Rental Platform</h2>
-            <p className="mt-3 text-blue-200/70">Built with trust, security and convenience at the core</p>
+            <p className="mt-3 text-rose-200/70">Built with trust, security and convenience at the core</p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, i) => (
@@ -1264,7 +1264,7 @@ export default function Index() {
                     <feature.icon className="h-7 w-7 text-yellow-400" />
                   </div>
                   <h3 className="mb-2 font-semibold text-white">{feature.title}</h3>
-                  <p className="text-sm text-blue-200/70">{feature.description}</p>
+                  <p className="text-sm text-rose-200/70">{feature.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -1276,7 +1276,7 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#3A7AFE]">Research & Insights</div>
+              <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#ff385c]">Research & Insights</div>
               <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Tools users expect before making a decision</h2>
             </div>
             <p className="max-w-2xl text-sm text-muted-foreground">
@@ -1287,14 +1287,14 @@ export default function Index() {
             {researchTools.map((tool, index) => (
               <motion.div key={tool.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
                 <Link to={tool.link}>
-                  <Card className="h-full border bg-card transition-all hover:-translate-y-0.5 hover:border-[#3A7AFE]/40 hover:shadow-lg">
+                  <Card className="h-full border bg-card transition-all hover:-translate-y-0.5 hover:border-[#ff385c]/40 hover:shadow-lg">
                     <CardContent className="p-6">
-                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#3A7AFE]/10">
-                        <tool.icon className="h-6 w-6 text-[#3A7AFE]" />
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ff385c]/10">
+                        <tool.icon className="h-6 w-6 text-[#ff385c]" />
                       </div>
                       <h3 className="text-lg font-semibold">{tool.title}</h3>
                       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tool.description}</p>
-                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#3A7AFE]">
+                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#ff385c]">
                         Explore <ArrowRight className="h-4 w-4" />
                       </div>
                     </CardContent>
@@ -1338,15 +1338,15 @@ export default function Index() {
 
             <div className="rounded-2xl border bg-card p-6 sm:p-8">
               <h3 className="mb-6 flex items-center gap-2 text-xl font-bold">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                  <Users className="h-4 w-4 text-[#3A7AFE]" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/30">
+                  <Users className="h-4 w-4 text-[#ff385c]" />
                 </div>
                 For Tenants
               </h3>
               <div className="space-y-4">
                 {tenantSteps.map((step, i) => (
                   <div key={step.title} className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-sm font-bold text-[#3A7AFE] dark:bg-blue-900/30">{i + 1}</div>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-sm font-bold text-[#ff385c] dark:bg-rose-900/30">{i + 1}</div>
                     <div>
                       <p className="font-semibold">{step.title}</p>
                       <p className="text-sm text-muted-foreground">{step.description}</p>
@@ -1354,7 +1354,7 @@ export default function Index() {
                   </div>
                 ))}
               </div>
-              <Button asChild className="mt-6 w-full bg-[#3A7AFE] text-white hover:bg-[#2F65D8]">
+              <Button asChild className="mt-6 w-full bg-[#ff385c] text-white hover:bg-[#e13153]">
                 <Link to="/register">Find Your Home <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
@@ -1381,7 +1381,7 @@ export default function Index() {
               </div>
             </div>
             <div className="flex flex-col gap-3 sm:items-center">
-              <Button asChild size="lg" className="bg-[#3A7AFE] px-10 text-base font-bold hover:bg-[#2F65D8]">
+              <Button asChild size="lg" className="bg-[#ff385c] px-10 text-base font-bold hover:bg-[#e13153]">
                 <Link to="/register">Post Property - It&apos;s FREE</Link>
               </Button>
               <a href="tel:+918000000000" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
@@ -1395,7 +1395,7 @@ export default function Index() {
       <section id="trust-proof" className="py-16">
         <div className="container mx-auto px-4">
           <div className="mb-8 text-center">
-            <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#3A7AFE]">Proof of Trust</div>
+            <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#ff385c]">Proof of Trust</div>
             <h2 className="mt-2 text-2xl font-bold sm:text-3xl">What stronger marketplace design should feel like</h2>
           </div>
           <div className="grid gap-5 lg:grid-cols-3">
@@ -1425,7 +1425,7 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-xs font-bold uppercase tracking-[0.24em] text-blue-300">Owner & Tenant Services</div>
+              <div className="text-xs font-bold uppercase tracking-[0.24em] text-rose-300">Owner & Tenant Services</div>
               <h2 className="mt-2 text-2xl font-bold sm:text-3xl">More than listings. A managed rental workflow.</h2>
             </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70">
@@ -1480,7 +1480,7 @@ export default function Index() {
               <div className="space-y-2.5 text-sm text-white/60">
                 <p>Toll Free: <span className="font-medium text-white">1800-XXX-XXXX</span></p>
                 <p>9:30 AM - 6:30 PM (Mon-Sun)</p>
-                <p>Email: <a href="mailto:support@rentverify.in" className="text-[#3A7AFE] hover:underline">support@rentverify.in</a></p>
+                <p>Email: <a href="mailto:support@rentverify.in" className="text-[#ff385c] hover:underline">support@rentverify.in</a></p>
               </div>
             </div>
           </div>

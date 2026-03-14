@@ -524,7 +524,7 @@ export default function PropertyDetail() {
                       <button
                         key={image}
                         onClick={() => setActiveImage(actualIndex)}
-                        className={`relative overflow-hidden rounded-[20px] bg-muted ${activeImage === actualIndex ? "ring-2 ring-[#3A7AFE] ring-offset-2" : ""}`}
+                        className={`relative overflow-hidden rounded-[20px] bg-muted ${activeImage === actualIndex ? "ring-2 ring-[#ff385c] ring-offset-2" : ""}`}
                       >
                         <img src={image} alt={`Property ${actualIndex + 1}`} className="aspect-[4/3] h-full w-full object-cover" />
                       </button>
@@ -536,7 +536,7 @@ export default function PropertyDetail() {
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-border/70 bg-white p-4 shadow-sm dark:bg-card">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#3A7AFE]/10 text-[#3A7AFE]"><BedDouble className="h-5 w-5" /></div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff385c]/10 text-[#ff385c]"><BedDouble className="h-5 w-5" /></div>
                     <div>
                       <p className="text-sm text-muted-foreground">Bedrooms</p>
                       <p className="text-lg font-semibold">{bedroomsLabel}</p>
@@ -545,7 +545,7 @@ export default function PropertyDetail() {
                 </div>
                 <div className="rounded-2xl border border-border/70 bg-white p-4 shadow-sm dark:bg-card">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#3A7AFE]/10 text-[#3A7AFE]"><Droplets className="h-5 w-5" /></div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff385c]/10 text-[#ff385c]"><Droplets className="h-5 w-5" /></div>
                     <div>
                       <p className="text-sm text-muted-foreground">Bathrooms</p>
                       <p className="text-lg font-semibold">{bathroomsLabel}</p>
@@ -554,7 +554,7 @@ export default function PropertyDetail() {
                 </div>
                 <div className="rounded-2xl border border-border/70 bg-white p-4 shadow-sm dark:bg-card">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#3A7AFE]/10 text-[#3A7AFE]"><Building2 className="h-5 w-5" /></div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff385c]/10 text-[#ff385c]"><Building2 className="h-5 w-5" /></div>
                     <div>
                       <p className="text-sm text-muted-foreground">Built-up area</p>
                       <p className="text-lg font-semibold">{areaLabel}</p>
@@ -703,12 +703,12 @@ export default function PropertyDetail() {
                     <p className="mt-2 text-xs font-medium text-primary">{property.totalListings} active listings</p>
                   </div>
 
-                  <Button className="h-11 w-full rounded-full bg-[#3A7AFE] font-semibold text-white hover:bg-[#2f68d7]" onClick={handleStartChat} disabled={chatLoading || loading}>
+                  <Button className="h-11 w-full rounded-full bg-[#ff385c] font-semibold text-white hover:bg-[#e13153]" onClick={handleStartChat} disabled={chatLoading || loading}>
                     {chatLoading ? "Opening chat..." : "Chat with seller"}
                   </Button>
                   <Button variant="outline" className="h-11 w-full rounded-full" onClick={handleContactLandlord}>Contact Landlord</Button>
 
-                  <div className="space-y-2 rounded-2xl border border-[#3A7AFE]/15 bg-[#3A7AFE]/5 p-4">
+                  <div className="space-y-2 rounded-2xl border border-[#ff385c]/15 bg-[#ff385c]/5 p-4">
                     <h3 className="font-bold text-sm">Payment Details</h3>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Monthly rent from landlord</span>
@@ -720,7 +720,7 @@ export default function PropertyDetail() {
                     </div>
                     <div className="flex justify-between border-t pt-2 text-sm">
                       <span className="font-bold">Booking hold amount</span>
-                      <span className="text-base font-bold text-[#3A7AFE]">Rs. {(property.bookingHoldAmount ?? Math.round(property.rent * 0.25)).toLocaleString("en-IN")}</span>
+                      <span className="text-base font-bold text-[#ff385c]">Rs. {(property.bookingHoldAmount ?? Math.round(property.rent * 0.25)).toLocaleString("en-IN")}</span>
                     </div>
                     <p className="text-xs leading-relaxed text-muted-foreground">
                       Rent and booking amounts come from the landlord listing. Older listings still fall back to default calculations.
