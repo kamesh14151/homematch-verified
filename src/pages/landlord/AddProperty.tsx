@@ -6,6 +6,7 @@ import {
   ListChecks,
   MessageSquare,
   UserCircle,
+  Sparkles,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -195,12 +196,48 @@ export default function AddProperty() {
     setForm((previous) => ({ ...previous, [key]: value }));
   };
 
+  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
+
   const applyRecordToLocationFields = (record: PincodeResult) => {
     updateField("pincode", record.pincode);
     updateField("area", record.area);
     updateField("city", record.city);
     updateField("district", record.district);
     updateField("state", record.state);
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!form.houseType || !form.area || !form.city) {
+      toast({
+        title: "Missing basic details",
+        description: "Please fill Property Type, Area, and City to generate a description.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGeneratingDesc(true);
+    try {
+      // Simulate AI generation delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const facilities = [];
+      if (form.waterSupply) facilities.push("24/7 water supply");
+      if (form.separateMeter) facilities.push("separate electricity meter");
+      if (form.parkingFacility) facilities.push("dedicated parking");
+
+      const facilitiesText = facilities.length ? `It features ${facilities.join(", ")}.` : "";
+      
+      const generatedDesc = `Beautiful ${form.houseType} property located in the prime area of ${form.area}, ${form.city}. ${
+        form.rent ? `Available at a competitive rent of ₹${form.rent}/month.` : ""
+      } ${facilitiesText} With its strategic location, it offers excellent connectivity to major landmarks and essential services. An ideal choice for families and professionals looking for a comfortable living space.`;
+
+      updateField("description", generatedDesc);
+      toast({ title: "Description generated successfully!" });
+    } catch {
+      toast({ title: "Failed to generate description", variant: "destructive" });
+    } finally {
+      setIsGeneratingDesc(false);
+    }
   };
 
   useEffect(() => {
@@ -976,7 +1013,20 @@ export default function AddProperty() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Description</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Description</Label>
+                    <Button 
+                      type="button" 
+                      variant="secondary" 
+                      size="sm" 
+                      className="h-8 gap-2 text-xs"
+                      onClick={handleGenerateDescription}
+                      disabled={isGeneratingDesc}
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      {isGeneratingDesc ? "Generating..." : "Generate with AI"}
+                    </Button>
+                  </div>
                   <Textarea
                     placeholder="Describe the property, neighborhood, nearby facilities..."
                     rows={4}

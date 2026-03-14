@@ -11,6 +11,7 @@ import {
   Loader2,
   MessageSquare,
   Home,
+  Users,
   Search,
   UserCircle,
   X,
@@ -645,6 +646,20 @@ export default function MyBookings() {
                               Complete Payment
                             </Button>
                           </Link>
+                        )}
+                        {b.status === "paid" && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-7 text-xs rounded-lg"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                alert("Split rent request sent to roommates!");
+                            }}
+                          >
+                            <Users className="w-3.5 h-3.5 mr-1"/>
+                            Split Rent
+                          </Button>
                         )}
                       </div>
                     </div>

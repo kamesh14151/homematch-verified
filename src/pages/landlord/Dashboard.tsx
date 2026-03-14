@@ -22,6 +22,7 @@ import {
 } from "@/components/ChartLineInteractive";
 import { PropertyCard } from "@/components/PropertyCard";
 import { StatCard } from "@/components/StatCard";
+import { PropertyAnalytics } from "@/components/PropertyAnalytics";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -355,6 +356,13 @@ export default function LandlordDashboard() {
                 />
               </div>
             </DashboardPanel>
+          </div>
+        )}
+
+        {/* Phase 4: Landlord Analytics */}
+        {!loading && properties.length > 0 && (
+          <div className="mt-8">
+            <PropertyAnalytics />
           </div>
         )}
       </div>

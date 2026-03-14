@@ -11,6 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { TenantLeaseEscrow } from "@/components/TenantLeaseEscrow";
 import {
   DashboardHero,
   DashboardPanel,
@@ -456,6 +457,13 @@ export default function TenantDashboard() {
                 </div>
               </div>
             </DashboardPanel>
+          </div>
+        )}
+
+        {/* Phase 5: Lease & Payments Escrow View */}
+        {!loading && (
+          <div className="mt-8">
+            <TenantLeaseEscrow />
           </div>
         )}
       </div>
