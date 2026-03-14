@@ -121,6 +121,7 @@ export default function PropertyDetail() {
   const [loading, setLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(false);
   const [property, setProperty] = useState<PropertyData>(fallbackProperty);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     const loadProperty = async () => {
