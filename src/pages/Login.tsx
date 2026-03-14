@@ -134,12 +134,19 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link to="/register" className="font-medium text-foreground hover:underline">
-            Sign Up
-          </Link>
-        </p>
+        <div className="space-y-1 text-center text-sm text-muted-foreground">
+          <p>
+            <Link to="/forgot-password" className="font-medium text-foreground hover:underline">
+              Forgot your password?
+            </Link>
+          </p>
+          <p>
+            Don't have an account?{" "}
+            <Link to="/register" className="font-medium text-foreground hover:underline">
+              Sign Up
+            </Link>
+          </p>
+        </div>
       </div>
 
       {/* Right - Image */}

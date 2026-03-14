@@ -121,6 +121,7 @@ export default function PropertyDetail() {
   const [loading, setLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(false);
   const [property, setProperty] = useState<PropertyData>(fallbackProperty);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     const loadProperty = async () => {
@@ -202,10 +203,21 @@ export default function PropertyDetail() {
         videoUrl: propertyRow.video_url ?? null,
       });
       setLoading(false);
+
+      // Check if saved
+      if (user) {
+        const { data: savedRow } = await supabase
+          .from("saved_properties")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("property_id", propertyRow.id)
+          .maybeSingle();
+        setIsSaved(!!savedRow);
+      }
     };
 
     void loadProperty();
-  }, [id]);
+  }, [id, user]);
 
   const mapEmbedUrl = useMemo(
     () => `https://www.google.com/maps?q=${encodeURIComponent(property.address)}&output=embed`,
@@ -313,9 +325,42 @@ export default function PropertyDetail() {
               <Card className="overflow-hidden border">
                 <div className="relative aspect-[16/9] bg-muted">
                   <img src={property.images[activeImage]} alt={property.title} className="h-full w-full object-cover" />
-                  <div className="absolute right-3 top-3 flex gap-2">
-                    <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full"><Share2 className="h-4 w-4" /></Button>
-                    <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full"><Heart className="h-4 w-4" /></Button>
+                   <div className="absolute right-3 top-3 flex gap-2">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-9 w-9 rounded-full"
+                      onClick={async () => {
+                        const url = `${window.location.origin}/property/${property.id}`;
+                        if (navigator.share) {
+                          try { await navigator.share({ title: property.title, url }); } catch {}
+                        } else {
+                          await navigator.clipboard.writeText(url);
+                          toast({ title: "Link copied!" });
+                        }
+                      }}
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-9 w-9 rounded-full"
+                      onClick={async () => {
+                        if (!user) { toast({ title: "Please login to save", variant: "destructive" }); return; }
+                        if (isSaved) {
+                          await supabase.from("saved_properties").delete().eq("user_id", user.id).eq("property_id", property.id);
+                          setIsSaved(false);
+                          toast({ title: "Removed from saved" });
+                        } else {
+                          await supabase.from("saved_properties").insert({ user_id: user.id, property_id: property.id });
+                          setIsSaved(true);
+                          toast({ title: "Property saved!" });
+                        }
+                      }}
+                    >
+                      <Heart className={`h-4 w-4 ${isSaved ? "fill-red-500 text-red-500" : ""}`} />
+                    </Button>
                   </div>
                 </div>
                 <div className="grid grid-cols-4 gap-2 border-t p-2.5 sm:p-3">
