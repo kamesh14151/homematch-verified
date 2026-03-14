@@ -25,18 +25,12 @@ export function DashboardHero({
   return (
     <Card
       className={cn(
-        "relative overflow-hidden rounded-[2rem] border border-border/70 bg-background/92 shadow-[0_18px_48px_-32px_rgba(91,71,56,0.28)] dark:border-white/8 dark:bg-card/92 dark:shadow-[0_30px_80px_-40px_rgba(0,0,0,0.85)]"
+        "relative overflow-hidden rounded-xl border border-border bg-card shadow-sm"
       )}
     >
-      <div className="absolute inset-0 z-0 bg-[linear-gradient(180deg,rgba(255,252,247,0.94)_0%,rgba(250,244,236,0.9)_100%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(255,126,87,0.14),transparent_28%),linear-gradient(180deg,rgba(9,9,11,0.98)_0%,rgba(12,12,18,0.96)_100%)]"></div>
-
-      {/* Decorative Blob */}
-      <div className="absolute -top-40 -right-40 h-[400px] w-[400px] rounded-full bg-primary/10 blur-3xl z-0 pointer-events-none opacity-50 dark:bg-primary/15" />
-      <div className="absolute -bottom-40 -left-40 h-[400px] w-[400px] rounded-full bg-amber-300/12 blur-3xl z-0 pointer-events-none opacity-30 dark:bg-amber-500/10" />
-
       <CardContent className="relative z-10 grid gap-6 p-7 sm:p-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
         <div>
-          <div className="mb-4 inline-flex rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-primary shadow-sm dark:border-primary/20 dark:bg-primary/10">
+          <div className="mb-4 inline-flex rounded-full border border-border bg-accent/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-accent-foreground shadow-sm">
             {eyebrow}
           </div>
           <h1 className="max-w-2xl text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-[34px] dark:text-white">
@@ -79,17 +73,17 @@ export function DashboardPanel({
   return (
     <Card
       className={cn(
-        "rounded-[2rem] border border-border/70 bg-background/92 shadow-[0_18px_48px_-34px_rgba(91,71,56,0.24)] dark:border-white/8 dark:bg-zinc-950/88 dark:shadow-[0_30px_80px_-48px_rgba(0,0,0,0.9)]",
+        "rounded-xl border border-border bg-card shadow-sm",
         className
       )}
     >
       <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 px-7 pt-7 pb-5">
         <div>
-          <CardTitle className="text-[20px] font-bold tracking-tight text-foreground dark:text-white">
+          <CardTitle className="text-[20px] font-bold tracking-tight text-foreground">
             {title}
           </CardTitle>
           {description ? (
-            <p className="mt-1.5 text-[15px] font-medium text-muted-foreground dark:text-zinc-400">
+            <p className="mt-1.5 text-[15px] font-medium text-muted-foreground">
               {description}
             </p>
           ) : null}

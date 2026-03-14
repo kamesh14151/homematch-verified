@@ -176,14 +176,14 @@ export function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-[radial-gradient(circle_at_top,rgba(255,127,80,0.12),transparent_32%),linear-gradient(180deg,#fffdf8_0%,#f7f2ea_100%)] dark:bg-zinc-950">
+      <div className="flex min-h-screen w-full bg-background">
         <DashboardSidebar
           navItems={navItems}
           title={title}
           onLogout={onLogout}
         />
         <div className="flex w-full flex-1 flex-col">
-          <header className="sticky top-0 z-20 border-b border-border/70 bg-background/88 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/80 sm:px-6">
+          <header className="sticky top-0 z-20 border-b border-border bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6">
             <div className="flex items-center justify-between gap-3 rounded-full border border-border/60 bg-background/86 px-4 py-2.5 shadow-[0_14px_30px_-22px_rgba(91,71,56,0.3)] backdrop-blur-xl dark:border-white/10 dark:bg-card/86">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="rounded-full text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white" />

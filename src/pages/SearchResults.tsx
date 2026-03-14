@@ -14,6 +14,9 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { PropertyCardSkeleton } from "@/components/PropertyCardSkeleton";
+import { Helmet } from "react-helmet-async";
+import { PropertyMap } from "@/components/PropertyMap";
 
 type Listing = {
   id: string;
@@ -24,6 +27,8 @@ type Listing = {
   propertyType: string;
   meta: string;
   image?: string;
+  lat?: number;
+  lng?: number;
 };
 
 const getFallbackImage = (propertyType: string) => {
@@ -54,6 +59,47 @@ export default function SearchResults() {
   const [budget, setBudget] = useState(
     () => searchParams.get("budget") ?? "any"
   );
+  const [aiQuery, setAiQuery] = useState("");
+
+  const applyFiltersToUrl = () => {
+    const params: Record<string, string> = {};
+    if (location.trim()) params.q = location.trim();
+    if (type !== "any") params.type = type;
+    if (budget !== "any") params.budget = budget;
+    setSearchParams(params, { replace: true });
+  };
+
+  const handleAISearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = aiQuery.toLowerCase();
+    
+    // Simple robust heuristics for demo phase:
+    // Location parsing
+    if (query.includes(" in ")) {
+      const loc = query.split(" in ")[1].split(" ")[0];
+      setLocation(loc);
+    } else if (query.includes(" near ")) {
+      const loc = query.split(" near ")[1].split(" ")[0];
+      setLocation(loc);
+    }
+
+    // Type parsing
+    if (query.includes("villa") || query.includes("house")) setType("villa");
+    else if (query.includes("studio")) setType("studio");
+    else if (query.includes("apartment") || query.includes("flat") || query.includes("bhk")) setType("apartment");
+
+    // Price parsing
+    if (query.includes("under ")) {
+      const priceText = query.split("under ")[1].split(" ")[0].replace(/k/g, '000').replace(/[^\d]/g, '');
+      const price = parseInt(priceText);
+      if (price <= 10000) setBudget("0-10000");
+      else if (price <= 20000) setBudget("10000-20000");
+      else if (price <= 30000) setBudget("20000-30000");
+      else if (price > 30000) setBudget("30000+");
+    }
+    
+    setTimeout(applyFiltersToUrl, 100);
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -151,18 +197,27 @@ export default function SearchResults() {
   const firstAddress = filteredListings[0]?.address ?? "";
   const mapQuery = encodeURIComponent(firstAddress || location || "India");
 
-  const applyFiltersToUrl = () => {
-    const params: Record<string, string> = {};
-    if (location.trim()) params.q = location.trim();
-    if (type !== "any") params.type = type;
-    if (budget !== "any") params.budget = budget;
-    setSearchParams(params, { replace: true });
-  };
-
   const totalCount = filteredListings.length;
+
+  // Add dummy map coordinates clustered around Bangalore / Delhi based on search for the map
+  const mapListings = useMemo(() => {
+    return filteredListings.map((l, idx) => ({
+      id: l.id,
+      title: l.title,
+      rent: l.rent,
+      image: l.image,
+      lat: 12.9716 + (Math.random() - 0.5) * 0.1 * (idx + 1),
+      lng: 77.5946 + (Math.random() - 0.5) * 0.1 * (idx + 1),
+    }));
+  }, [filteredListings]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Helmet>
+        <title>{location ? `Rentals in ${location}` : "Search Properties"} | HomeMatch</title>
+        <meta name="description" content={`Find the best verified rental properties ${location ? `around ${location}` : "everywhere"}. Start your secure rental journey with HomeMatch.`} />
+      </Helmet>
+      
       <Navbar />
 
       <main className="border-b bg-card/40 pt-20">
@@ -238,6 +293,24 @@ export default function SearchResults() {
               Update
             </Button>
           </div>
+          
+          <form 
+            onSubmit={handleAISearch}
+            className="mt-3 flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50/50 px-3 py-2 dark:border-indigo-900/50 dark:bg-indigo-950/20"
+          >
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400">
+              <Search className="h-3.5 w-3.5" />
+            </div>
+            <Input
+              placeholder="Ask AI: e.g. '2BHK apartment in Whitefield under 30k'"
+              value={aiQuery}
+              onChange={(e) => setAiQuery(e.target.value)}
+              className="h-8 border-none bg-transparent p-0 text-sm shadow-none focus-visible:ring-0 text-indigo-900 placeholder:text-indigo-400 dark:text-indigo-100 dark:placeholder:text-indigo-500"
+            />
+            <Button type="submit" size="sm" variant="secondary" className="h-7 rounded-sm bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900 dark:text-indigo-300 dark:hover:bg-indigo-800 text-xs">
+              AI Parse Filter
+            </Button>
+          </form>
         </div>
       </main>
 
@@ -378,23 +451,16 @@ export default function SearchResults() {
               )}
             </div>
 
-            <div className={showMap ? "block" : "hidden lg:block"}>
-              <div className="rounded-xl border bg-card p-3 sm:p-4">
+            <div className={showMap ? "block" : "hidden lg:block lg:sticky lg:top-20 lg:h-[calc(100vh-80px)]"}>
+              <div className="rounded-xl border bg-card p-2 sm:p-4 h-full flex flex-col">
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <p className="text-sm font-semibold">Map view</p>
-                  <p className="text-xs text-muted-foreground">
-                    {firstAddress
-                      ? "Centered on a matching listing"
-                      : "Showing area based on your search"}
+                  <p className="text-xs text-muted-foreground hidden sm:block">
+                    Interactive local search
                   </p>
                 </div>
-                <div className="overflow-hidden rounded-lg border">
-                  <iframe
-                    title="Search map"
-                    src={`https://maps.google.com/maps?q=${mapQuery}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
-                    className="h-[320px] w-full sm:h-[420px]"
-                    loading="lazy"
-                  />
+                <div className="flex-1 w-full rounded-lg border min-h-[300px] sm:min-h-[500px]">
+                  <PropertyMap listings={mapListings} />
                 </div>
               </div>
             </div>

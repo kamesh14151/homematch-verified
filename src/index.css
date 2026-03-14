@@ -19,25 +19,25 @@
 
 @layer base {
   :root {
-    /* Spotahome-inspired warm editorial theme */
-    --background: 36 42% 97%;
-    --foreground: 223 25% 14%;
+    /* Premium Clean Light Theme */
+    --background: 0 0% 99%;
+    --foreground: 240 10% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 223 25% 14%;
+    --card-foreground: 240 10% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 223 25% 14%;
+    --popover-foreground: 240 10% 10%;
     --primary: 11 89% 61%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 32 30% 93%;
-    --secondary-foreground: 223 25% 14%;
-    --muted: 35 24% 93%;
-    --muted-foreground: 220 10% 43%;
-    --accent: 18 78% 95%;
-    --accent-foreground: 223 25% 14%;
+    --secondary: 240 5% 95%;
+    --secondary-foreground: 240 10% 10%;
+    --muted: 240 5% 95%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 18 80% 96%;
+    --accent-foreground: 240 10% 10%;
     --destructive: 346.8 77.2% 49.8%;
     --destructive-foreground: 355.7 100% 97.3%;
-    --border: 30 20% 87%;
-    --input: 30 20% 87%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
     --ring: 11 89% 61%;
     --radius: 1rem;
 
@@ -48,45 +48,46 @@
     --warning-foreground: 48 100% 96%;
 
     /* Sidebar palette for Light Mode */
-    --sidebar-background: 35 38% 96%;
-    --sidebar-foreground: 223 25% 14%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 10% 10%;
     --sidebar-primary: 11 89% 61%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 30 29% 92%;
-    --sidebar-accent-foreground: 223 25% 14%;
-    --sidebar-border: 30 18% 86%;
+    --sidebar-accent: 240 5% 94%;
+    --sidebar-accent-foreground: 240 10% 10%;
+    --sidebar-border: 240 6% 90%;
     --sidebar-ring: 11 89% 61%;
   }
 
   .dark {
-    --background: 222 24% 10%;
-    --foreground: 35 32% 95%;
-    --card: 222 22% 12%;
-    --card-foreground: 35 32% 95%;
-    --popover: 222 22% 12%;
-    --popover-foreground: 35 32% 95%;
+    /* Sleek Anthropic-style Dark Theme */
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
+    --card: 240 6% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 6% 8%;
+    --popover-foreground: 0 0% 98%;
     --primary: 11 89% 61%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 223 17% 18%;
-    --secondary-foreground: 35 32% 95%;
-    --muted: 223 16% 18%;
-    --muted-foreground: 28 10% 70%;
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
     --accent: 11 35% 18%;
-    --accent-foreground: 35 32% 95%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 346.8 77.2% 49.8%;
     --destructive-foreground: 355.7 100% 97.3%;
-    --border: 223 15% 22%;
-    --input: 223 15% 22%;
+    --border: 240 5% 18%;
+    --input: 240 5% 18%;
     --ring: 11 89% 61%;
 
     /* Sidebar mappings for Dark Mode */
-    --sidebar-background: 223 28% 9%;
-    --sidebar-foreground: 35 32% 95%;
+    --sidebar-background: 240 10% 5%;
+    --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 11 89% 61%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 223 18% 16%;
-    --sidebar-accent-foreground: 35 32% 95%;
-    --sidebar-border: 223 15% 20%;
+    --sidebar-accent: 240 5% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 5% 18%;
     --sidebar-ring: 11 89% 61%;
   }
 }

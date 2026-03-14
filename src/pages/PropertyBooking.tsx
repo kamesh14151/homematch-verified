@@ -402,8 +402,8 @@ function Step2({
     onChange({ ...details, [key]: value });
 
   return (
-    <Card className="surface-soft overflow-hidden border-border/70 shadow-[0_24px_80px_-48px_rgba(91,71,56,0.3)]">
-      <div className="border-b border-border/70 bg-[linear-gradient(135deg,hsl(var(--foreground))_0%,hsl(var(--foreground)/0.92)_55%,hsl(var(--primary)/0.88)_100%)] px-5 py-5 text-white sm:px-6">
+    <Card className="overflow-hidden border-border bg-card shadow-md">
+      <div className="border-b border-border/70 bg-foreground px-5 py-5 text-background sm:px-6">
         <h3 className="text-xl font-bold">Tenant Details</h3>
         <p className="mt-1 text-sm text-white/75">
           A cleaner application helps the landlord review your request faster.

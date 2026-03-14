@@ -48,17 +48,11 @@ export default function Login() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center p-4">
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 z-0 overflow-hidden bg-[linear-gradient(180deg,#fffaf3_0%,#fffdf8_100%)]">
-        <div className="absolute -left-[10%] -top-[10%] h-[50%] w-[50%] rounded-full bg-primary/8 blur-3xl filter" />
-        <div className="absolute -right-[10%] bottom-[10%] h-[50%] w-[50%] rounded-full bg-amber-100/60 blur-3xl filter" />
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />
-      </div>
+    <div className="relative flex min-h-screen items-center justify-center bg-background p-4">
 
-      <div className="relative z-10 w-full max-w-[1000px] overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] lg:flex lg:h-[650px]">
+      <div className="relative z-10 w-full max-w-[1000px] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl lg:flex lg:h-[650px]">
         {/* Left Side - Trust Signals & Brand */}
-        <div className="hidden flex-col justify-between bg-zinc-900 p-12 text-white lg:flex lg:w-5/12">
+        <div className="hidden flex-col justify-between bg-zinc-950 p-12 text-white lg:flex lg:w-5/12">
           <div>
             <Link to="/" className="inline-flex">
               <BrandWordmark theme="dark" />

@@ -1,5 +1,9 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import { Helmet } from "react-helmet-async";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ReviewSection } from "@/components/ReviewSection";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import {
   ArrowLeft,
   BedDouble,
@@ -1279,6 +1283,23 @@ export default function PropertyDetail() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Helmet>
+        <title>{property?.title ? `${property.title} | HomeMatch` : "Loading Property... | HomeMatch"}</title>
+        {property && (
+          <>
+            <meta name="description" content={`Rent ${property.houseType} ${property.propertyType} in ${property.address} for ₹${property.rent}/month.`} />
+            <meta property="og:title" content={property.title} />
+            <meta property="og:description" content={`Rent ${property.houseType} ${property.propertyType} in ${property.address} for ₹${property.rent}/month.`} />
+            <meta property="og:image" content={property.image} />
+            <meta property="og:type" content="website" />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={property.title} />
+            <meta name="twitter:description" content={`Rent ${property.houseType} ${property.propertyType} in ${property.address} for ₹${property.rent}/month.`} />
+            <meta name="twitter:image" content={property.image} />
+          </>
+        )}
+      </Helmet>
+      
       <Navbar />
       <div className="container mx-auto max-w-7xl px-4 pb-28 pt-24 sm:pb-7 sm:pt-28">
         <Link
@@ -1289,8 +1310,26 @@ export default function PropertyDetail() {
         </Link>
 
         {loading ? (
-          <div className="rounded-3xl border bg-card p-8 text-center text-muted-foreground shadow-sm">
-            Loading property details...
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_360px] lg:gap-8 animate-pulse">
+            <div className="space-y-6 lg:col-span-2">
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                </div>
+                <Skeleton className="h-10 w-3/4 rounded-lg" />
+                <Skeleton className="h-5 w-1/2 rounded-lg" />
+              </div>
+              <Skeleton className="aspect-[16/9] w-full rounded-2xl" />
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-1/3 rounded-lg" />
+                <Skeleton className="h-24 w-full rounded-lg" />
+              </div>
+            </div>
+            <div className="space-y-6">
+              <Skeleton className="h-[300px] w-full rounded-2xl" />
+              <Skeleton className="h-[150px] w-full rounded-2xl" />
+            </div>
           </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_360px] lg:gap-8">
@@ -1686,6 +1725,13 @@ export default function PropertyDetail() {
                   />
                 </CardContent>
               </Card>
+
+              {/* Reviews Section */}
+              {property.verified && (
+                <div className="mt-8">
+                  <ReviewSection propertyId={property.id} landlordId={property.landlordId} />
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -1730,10 +1776,13 @@ export default function PropertyDetail() {
 
                   <div className="rounded-[1.4rem] border border-border/70 bg-background/80 p-4">
                     <p className="editorial-eyebrow">Hosted by</p>
-                    <p className="mt-1 text-lg font-semibold">
-                      {property.landlordName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
+                    <div className="mt-1 flex items-center gap-2">
+                      <p className="text-lg font-semibold">
+                        {property.landlordName}
+                      </p>
+                      {property.verified && <VerifiedBadge type="landlord" />}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Member since {property.memberSince}
                     </p>
                     <p className="mt-2 text-xs font-medium text-primary">

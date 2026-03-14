@@ -8,6 +8,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -178,10 +179,9 @@ export function PropertyCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
 
         {verified && (
-          <Badge className="absolute left-3 top-3 flex items-center gap-1 rounded-full border-none bg-primary px-2.5 py-1 text-[11px] font-bold text-white shadow-md">
-            <CheckCircle2 className="h-3 w-3" />
-            Verified
-          </Badge>
+          <div className="absolute left-3 top-3 z-20">
+            <VerifiedBadge type="property" showText className="bg-white/95 px-2.5 py-1 text-[11px] shadow-sm backdrop-blur-md dark:bg-zinc-950/90 border-transparent" />
+          </div>
         )}
         <div className="absolute right-3 top-3 flex gap-2">
           <Button

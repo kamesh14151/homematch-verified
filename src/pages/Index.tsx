@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Helmet } from "react-helmet-async";
 import {
   ArrowRight,
   BarChart3,
@@ -1170,9 +1171,20 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Helmet>
+        <title>HomeMatch - Verified Properties & Secure Rentals</title>
+        <meta name="description" content="Find the perfect verified rental property, complete your secure KYC, and connect directly with trusted landlords." />
+        <meta property="og:title" content="HomeMatch - Verified Properties & Secure Rentals" />
+        <meta property="og:description" content="Find the perfect verified rental property, complete your secure KYC, and connect directly with trusted landlords." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="HomeMatch - Verified Properties & Secure Rentals" />
+        <meta name="twitter:description" content="Find the perfect verified rental property, complete your secure KYC, and connect directly with trusted landlords." />
+      </Helmet>
+
       <Navbar />
 
-      <section className="relative overflow-hidden border-b bg-[radial-gradient(circle_at_top,rgba(255,127,80,0.16),transparent_34%),linear-gradient(180deg,#fffdf8_0%,#fff7f1_42%,#fffdf9_100%)] pb-8 pt-28 sm:pb-12 sm:pt-32 lg:pt-36 dark:bg-[radial-gradient(circle_at_top,rgba(255,127,80,0.12),transparent_26%),linear-gradient(180deg,#12151d_0%,#10131b_100%)]">
+      <section className="relative overflow-hidden border-b bg-background pb-8 pt-28 sm:pb-12 sm:pt-32 lg:pt-36">
         <div className="container relative mx-auto px-4">
           <motion.div
             initial="hidden"
@@ -1508,7 +1520,7 @@ export default function Index() {
         )
       )}
 
-      <section className="border-b bg-[linear-gradient(180deg,#fff8f3_0%,#fffdf8_100%)] py-12 dark:bg-[linear-gradient(180deg,#161019_0%,#10131b_100%)]">
+      <section className="border-b bg-background py-12">
         <div className="container mx-auto px-4">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -1599,7 +1611,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="bg-[linear-gradient(180deg,#fff8ed_0%,#fff4ec_100%)] py-16 dark:bg-[linear-gradient(180deg,#1a1411_0%,#12161d_100%)]">
+      <section className="bg-background py-16">
         <div className="container mx-auto px-4">
           <div className="mb-2 flex items-center gap-2">
             <Home className="h-6 w-6 text-primary" />
@@ -1668,7 +1680,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="features" className="bg-[linear-gradient(180deg,#2a1915_0%,#18120f_100%)] py-20">
+      <section id="features" className="bg-zinc-950 py-20 text-white">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <span className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold text-orange-100">
