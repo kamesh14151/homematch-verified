@@ -1,59 +1,805 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BedDouble, Building2, CalendarDays, Car, Droplets, Heart, MapPin, Share2, ShieldCheck, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  BedDouble,
+  Building2,
+  CalendarDays,
+  Car,
+  Droplets,
+  Heart,
+  Home,
+  MapPin,
+  Share2,
+  ShieldCheck,
+  Zap,
+} from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Sample listing fallback data (mirrors Index.tsx sampleListings).
 // Used when a sample-* ID is opened directly / after page refresh.
 // ---------------------------------------------------------------------------
 type SampleEntry = {
-  title: string; address: string; rent: number; houseType: string;
-  propertyType: string; bedrooms: number; bathrooms: number;
-  area: string; furnishing: string; image: string;
-  floorNo: string; totalFloors: string; parkingSlots: string;
-  facing: string; projectName: string; maintenance: string;
+  title: string;
+  address: string;
+  rent: number;
+  houseType: string;
+  propertyType: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: string;
+  furnishing: string;
+  image: string;
+  floorNo: string;
+  totalFloors: string;
+  parkingSlots: string;
+  facing: string;
+  projectName: string;
+  maintenance: string;
   listedBy: string;
 };
 
 const sampleMap: Record<string, SampleEntry> = {
-  "sample-bengaluru-1": { title: "Skyline 2BHK in Indiranagar", address: "Indiranagar, Bengaluru, Karnataka", rent: 28000, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1100 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80", floorNo: "3", totalFloors: "6", parkingSlots: "1", facing: "East", projectName: "Skyline Residency", maintenance: "Rs. 1,500 / month", listedBy: "Owner" },
-  "sample-bengaluru-2": { title: "Minimal Studio near Koramangala", address: "Koramangala, Bengaluru, Karnataka", rent: 18500, houseType: "1 BHK", propertyType: "Studio Apartment", bedrooms: 1, bathrooms: 1, area: "540 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "4", parkingSlots: "0", facing: "North", projectName: "-", maintenance: "-", listedBy: "Owner" },
-  "sample-bengaluru-3": { title: "Terrace Home in Jayanagar", address: "Jayanagar, Bengaluru, Karnataka", rent: 31000, houseType: "3 BHK", propertyType: "Independent House / Villa", bedrooms: 3, bathrooms: 2, area: "1320 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "2", parkingSlots: "2", facing: "North", projectName: "-", maintenance: "Rs. 2,000 / month", listedBy: "Owner" },
-  "sample-bengaluru-4": { title: "Loft Apartment in HSR Layout", address: "HSR Layout, Bengaluru, Karnataka", rent: 27500, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1060 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80", floorNo: "4", totalFloors: "8", parkingSlots: "1", facing: "West", projectName: "HSR Lofts", maintenance: "Rs. 1,800 / month", listedBy: "Owner" },
-  "sample-bengaluru-5": { title: "Garden Villa in Whitefield", address: "Whitefield, Bengaluru, Karnataka", rent: 46000, houseType: "3 BHK", propertyType: "Independent House / Villa", bedrooms: 3, bathrooms: 3, area: "1820 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1400&q=80", floorNo: "G", totalFloors: "2", parkingSlots: "2", facing: "South", projectName: "Green Villa", maintenance: "Rs. 3,000 / month", listedBy: "Owner" },
-  "sample-bengaluru-6": { title: "Compact Flat in Marathahalli", address: "Marathahalli, Bengaluru, Karnataka", rent: 17500, houseType: "1 BHK", propertyType: "Flats / Apartments", bedrooms: 1, bathrooms: 1, area: "640 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "5", parkingSlots: "1", facing: "East", projectName: "-", maintenance: "Rs. 800 / month", listedBy: "Owner" },
-  "sample-chennai-1": { title: "Sunny Family Flat in Adyar", address: "Adyar, Chennai, Tamil Nadu", rent: 24000, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "980 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "6", parkingSlots: "1", facing: "North", projectName: "Adyar Complex", maintenance: "Rs. 1,200 / month", listedBy: "Owner" },
-  "sample-chennai-2": { title: "Compact 1BHK in Velachery", address: "Velachery, Chennai, Tamil Nadu", rent: 15500, houseType: "1 BHK", propertyType: "Flats / Apartments", bedrooms: 1, bathrooms: 1, area: "620 sqft", furnishing: "Unfurnished", image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "4", parkingSlots: "0", facing: "East", projectName: "-", maintenance: "-", listedBy: "Owner" },
-  "sample-chennai-3": { title: "Calm 2BHK in OMR", address: "OMR, Chennai, Tamil Nadu", rent: 22500, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1010 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "3", totalFloors: "7", parkingSlots: "1", facing: "West", projectName: "OMR Heights", maintenance: "Rs. 1,500 / month", listedBy: "Owner" },
-  "sample-chennai-4": { title: "Premium Flat in Anna Nagar", address: "Anna Nagar, Chennai, Tamil Nadu", rent: 29000, houseType: "3 BHK", propertyType: "Flats / Apartments", bedrooms: 3, bathrooms: 2, area: "1280 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80", floorNo: "4", totalFloors: "8", parkingSlots: "2", facing: "North", projectName: "Anna Grand", maintenance: "Rs. 2,200 / month", listedBy: "Owner" },
-  "sample-chennai-5": { title: "Bright Studio in T Nagar", address: "T Nagar, Chennai, Tamil Nadu", rent: 16500, houseType: "1 BHK", propertyType: "Studio Apartment", bedrooms: 1, bathrooms: 1, area: "520 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "5", parkingSlots: "0", facing: "East", projectName: "-", maintenance: "-", listedBy: "Owner" },
-  "sample-chennai-6": { title: "Family Home in Porur", address: "Porur, Chennai, Tamil Nadu", rent: 21500, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "940 sqft", furnishing: "Unfurnished", image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "4", parkingSlots: "1", facing: "South", projectName: "-", maintenance: "Rs. 1,000 / month", listedBy: "Owner" },
-  "sample-hyderabad-1": { title: "Modern 3BHK near Hitech City", address: "Hitech City, Hyderabad, Telangana", rent: 36000, houseType: "3 BHK", propertyType: "Independent House / Villa", bedrooms: 3, bathrooms: 3, area: "1600 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1400&q=80", floorNo: "G", totalFloors: "3", parkingSlots: "2", facing: "North-East", projectName: "HiTech Villas", maintenance: "Rs. 3,000 / month", listedBy: "Owner" },
-  "sample-hyderabad-2": { title: "Quiet Builder Floor in Gachibowli", address: "Gachibowli, Hyderabad, Telangana", rent: 22000, houseType: "2 BHK", propertyType: "Builder Floor", bedrooms: 2, bathrooms: 2, area: "1020 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "3", parkingSlots: "1", facing: "West", projectName: "-", maintenance: "Rs. 1,500 / month", listedBy: "Owner" },
-  "sample-hyderabad-3": { title: "Executive Flat in Jubilee Hills", address: "Jubilee Hills, Hyderabad, Telangana", rent: 34000, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1200 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80", floorNo: "5", totalFloors: "10", parkingSlots: "1", facing: "East", projectName: "Jubilee Heights", maintenance: "Rs. 2,500 / month", listedBy: "Owner" },
-  "sample-hyderabad-4": { title: "Smart 1BHK in Kondapur", address: "Kondapur, Hyderabad, Telangana", rent: 18000, houseType: "1 BHK", propertyType: "Flats / Apartments", bedrooms: 1, bathrooms: 1, area: "680 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "6", parkingSlots: "1", facing: "North", projectName: "-", maintenance: "Rs. 900 / month", listedBy: "Owner" },
-  "sample-hyderabad-5": { title: "Open Terrace Home in Madhapur", address: "Madhapur, Hyderabad, Telangana", rent: 28500, houseType: "2 BHK", propertyType: "Builder Floor", bedrooms: 2, bathrooms: 2, area: "1140 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "3", parkingSlots: "1", facing: "South", projectName: "-", maintenance: "Rs. 1,800 / month", listedBy: "Owner" },
-  "sample-pune-1": { title: "Designer 2BHK in Baner", address: "Baner, Pune, Maharashtra", rent: 26500, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1080 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80", floorNo: "3", totalFloors: "7", parkingSlots: "1", facing: "North", projectName: "Baner Gardens", maintenance: "Rs. 2,000 / month", listedBy: "Owner" },
-  "sample-pune-2": { title: "Cozy Rental in Wakad", address: "Wakad, Pune, Maharashtra", rent: 19000, houseType: "1 BHK", propertyType: "Flats / Apartments", bedrooms: 1, bathrooms: 1, area: "700 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "5", parkingSlots: "1", facing: "East", projectName: "-", maintenance: "Rs. 1,000 / month", listedBy: "Owner" },
-  "sample-pune-3": { title: "Urban Flat in Kharadi", address: "Kharadi, Pune, Maharashtra", rent: 23500, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "980 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80", floorNo: "4", totalFloors: "9", parkingSlots: "1", facing: "West", projectName: "Kharadi Towers", maintenance: "Rs. 1,600 / month", listedBy: "Owner" },
-  "sample-pune-4": { title: "Compact 1BHK in Hinjewadi", address: "Hinjewadi, Pune, Maharashtra", rent: 16800, houseType: "1 BHK", propertyType: "Flats / Apartments", bedrooms: 1, bathrooms: 1, area: "630 sqft", furnishing: "Unfurnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "6", parkingSlots: "0", facing: "North", projectName: "-", maintenance: "-", listedBy: "Owner" },
-  "sample-pune-5": { title: "Calm Builder Floor in Aundh", address: "Aundh, Pune, Maharashtra", rent: 27000, houseType: "2 BHK", propertyType: "Builder Floor", bedrooms: 2, bathrooms: 2, area: "1090 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "3", parkingSlots: "1", facing: "East", projectName: "-", maintenance: "Rs. 1,700 / month", listedBy: "Owner" },
-  "sample-mumbai-1": { title: "Sea View Flat in Powai", address: "Powai, Mumbai, Maharashtra", rent: 42000, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1180 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80", floorNo: "8", totalFloors: "14", parkingSlots: "1", facing: "West", projectName: "Powai Lakes", maintenance: "Rs. 3,500 / month", listedBy: "Owner" },
-  "sample-mumbai-2": { title: "Compact Studio in Andheri", address: "Andheri, Mumbai, Maharashtra", rent: 21000, houseType: "1 BHK", propertyType: "Studio Apartment", bedrooms: 1, bathrooms: 1, area: "500 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "3", totalFloors: "8", parkingSlots: "0", facing: "North", projectName: "-", maintenance: "-", listedBy: "Owner" },
-  "sample-mumbai-3": { title: "Contemporary Home in Bandra", address: "Bandra, Mumbai, Maharashtra", rent: 48000, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1160 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80", floorNo: "6", totalFloors: "12", parkingSlots: "2", facing: "South", projectName: "Bandra Elite", maintenance: "Rs. 4,000 / month", listedBy: "Owner" },
-  "sample-mumbai-4": { title: "Soft Loft in Lower Parel", address: "Lower Parel, Mumbai, Maharashtra", rent: 38500, houseType: "1 BHK", propertyType: "Studio Apartment", bedrooms: 1, bathrooms: 1, area: "720 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "5", totalFloors: "10", parkingSlots: "1", facing: "East", projectName: "Parel Lofts", maintenance: "Rs. 2,500 / month", listedBy: "Owner" },
-  "sample-mumbai-5": { title: "Family Apartment in Chembur", address: "Chembur, Mumbai, Maharashtra", rent: 29500, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1020 sqft", furnishing: "Unfurnished", image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "6", parkingSlots: "1", facing: "North", projectName: "-", maintenance: "Rs. 1,800 / month", listedBy: "Owner" },
-  "sample-delhi-1": { title: "Bright 3BHK in South Delhi", address: "South Delhi, Delhi / NCR", rent: 39500, houseType: "3 BHK", propertyType: "Builder Floor", bedrooms: 3, bathrooms: 3, area: "1550 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "3", parkingSlots: "2", facing: "North", projectName: "-", maintenance: "Rs. 2,500 / month", listedBy: "Owner" },
-  "sample-delhi-2": { title: "Modern 2BHK in Noida", address: "Noida, Delhi / NCR", rent: 24500, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1040 sqft", furnishing: "Unfurnished", image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80", floorNo: "3", totalFloors: "7", parkingSlots: "1", facing: "East", projectName: "Noida Vertex", maintenance: "Rs. 1,500 / month", listedBy: "Owner" },
-  "sample-delhi-3": { title: "Refined 2BHK in Saket", address: "Saket, Delhi / NCR", rent: 31000, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1080 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80", floorNo: "4", totalFloors: "8", parkingSlots: "1", facing: "West", projectName: "Saket Square", maintenance: "Rs. 2,000 / month", listedBy: "Owner" },
-  "sample-delhi-4": { title: "Budget 1BHK in Dwarka", address: "Dwarka, Delhi / NCR", rent: 17200, houseType: "1 BHK", propertyType: "Flats / Apartments", bedrooms: 1, bathrooms: 1, area: "610 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "5", parkingSlots: "0", facing: "North", projectName: "-", maintenance: "Rs. 800 / month", listedBy: "Owner" },
-  "sample-delhi-5": { title: "Elegant Builder Floor in Gurgaon", address: "Gurgaon, Delhi / NCR", rent: 35000, houseType: "3 BHK", propertyType: "Builder Floor", bedrooms: 3, bathrooms: 3, area: "1480 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "3", parkingSlots: "2", facing: "South", projectName: "-", maintenance: "Rs. 2,800 / month", listedBy: "Owner" },
-  "sample-kolkata-1": { title: "Classic Apartment in Salt Lake", address: "Salt Lake, Kolkata, West Bengal", rent: 20500, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "960 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "5", parkingSlots: "1", facing: "East", projectName: "Salt Lake Plaza", maintenance: "Rs. 1,300 / month", listedBy: "Owner" },
-  "sample-kolkata-2": { title: "Warm Home in Ballygunge", address: "Ballygunge, Kolkata, West Bengal", rent: 22800, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1000 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80", floorNo: "3", totalFloors: "6", parkingSlots: "1", facing: "North", projectName: "-", maintenance: "Rs. 1,400 / month", listedBy: "Owner" },
-  "sample-kolkata-3": { title: "Compact Studio in New Town", address: "New Town, Kolkata, West Bengal", rent: 14500, houseType: "1 BHK", propertyType: "Studio Apartment", bedrooms: 1, bathrooms: 1, area: "480 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80", floorNo: "1", totalFloors: "4", parkingSlots: "0", facing: "West", projectName: "-", maintenance: "-", listedBy: "Owner" },
-  "sample-kolkata-4": { title: "Classic Flat in Alipore", address: "Alipore, Kolkata, West Bengal", rent: 26000, houseType: "3 BHK", propertyType: "Flats / Apartments", bedrooms: 3, bathrooms: 2, area: "1340 sqft", furnishing: "Unfurnished", image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "5", parkingSlots: "2", facing: "South", projectName: "Alipore Abode", maintenance: "Rs. 2,000 / month", listedBy: "Owner" },
-  "sample-ahmedabad-1": { title: "Spacious Rental in Prahlad Nagar", address: "Prahlad Nagar, Ahmedabad, Gujarat", rent: 23000, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "1120 sqft", furnishing: "Fully Furnished", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80", floorNo: "3", totalFloors: "7", parkingSlots: "1", facing: "North", projectName: "Prahlad Greens", maintenance: "Rs. 1,600 / month", listedBy: "Owner" },
-  "sample-ahmedabad-2": { title: "Smart Apartment in Bodakdev", address: "Bodakdev, Ahmedabad, Gujarat", rent: 21500, houseType: "2 BHK", propertyType: "Flats / Apartments", bedrooms: 2, bathrooms: 2, area: "980 sqft", furnishing: "Semi-Furnished", image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80", floorNo: "2", totalFloors: "6", parkingSlots: "1", facing: "East", projectName: "-", maintenance: "Rs. 1,200 / month", listedBy: "Owner" },
+  "sample-bengaluru-1": {
+    title: "Skyline 2BHK in Indiranagar",
+    address: "Indiranagar, Bengaluru, Karnataka",
+    rent: 28000,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1100 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "3",
+    totalFloors: "6",
+    parkingSlots: "1",
+    facing: "East",
+    projectName: "Skyline Residency",
+    maintenance: "Rs. 1,500 / month",
+    listedBy: "Owner",
+  },
+  "sample-bengaluru-2": {
+    title: "Minimal Studio near Koramangala",
+    address: "Koramangala, Bengaluru, Karnataka",
+    rent: 18500,
+    houseType: "1 BHK",
+    propertyType: "Studio Apartment",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "540 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "4",
+    parkingSlots: "0",
+    facing: "North",
+    projectName: "-",
+    maintenance: "-",
+    listedBy: "Owner",
+  },
+  "sample-bengaluru-3": {
+    title: "Terrace Home in Jayanagar",
+    address: "Jayanagar, Bengaluru, Karnataka",
+    rent: 31000,
+    houseType: "3 BHK",
+    propertyType: "Independent House / Villa",
+    bedrooms: 3,
+    bathrooms: 2,
+    area: "1320 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "2",
+    parkingSlots: "2",
+    facing: "North",
+    projectName: "-",
+    maintenance: "Rs. 2,000 / month",
+    listedBy: "Owner",
+  },
+  "sample-bengaluru-4": {
+    title: "Loft Apartment in HSR Layout",
+    address: "HSR Layout, Bengaluru, Karnataka",
+    rent: 27500,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1060 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "4",
+    totalFloors: "8",
+    parkingSlots: "1",
+    facing: "West",
+    projectName: "HSR Lofts",
+    maintenance: "Rs. 1,800 / month",
+    listedBy: "Owner",
+  },
+  "sample-bengaluru-5": {
+    title: "Garden Villa in Whitefield",
+    address: "Whitefield, Bengaluru, Karnataka",
+    rent: 46000,
+    houseType: "3 BHK",
+    propertyType: "Independent House / Villa",
+    bedrooms: 3,
+    bathrooms: 3,
+    area: "1820 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "G",
+    totalFloors: "2",
+    parkingSlots: "2",
+    facing: "South",
+    projectName: "Green Villa",
+    maintenance: "Rs. 3,000 / month",
+    listedBy: "Owner",
+  },
+  "sample-bengaluru-6": {
+    title: "Compact Flat in Marathahalli",
+    address: "Marathahalli, Bengaluru, Karnataka",
+    rent: 17500,
+    houseType: "1 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "640 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "5",
+    parkingSlots: "1",
+    facing: "East",
+    projectName: "-",
+    maintenance: "Rs. 800 / month",
+    listedBy: "Owner",
+  },
+  "sample-chennai-1": {
+    title: "Sunny Family Flat in Adyar",
+    address: "Adyar, Chennai, Tamil Nadu",
+    rent: 24000,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "980 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "6",
+    parkingSlots: "1",
+    facing: "North",
+    projectName: "Adyar Complex",
+    maintenance: "Rs. 1,200 / month",
+    listedBy: "Owner",
+  },
+  "sample-chennai-2": {
+    title: "Compact 1BHK in Velachery",
+    address: "Velachery, Chennai, Tamil Nadu",
+    rent: 15500,
+    houseType: "1 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "620 sqft",
+    furnishing: "Unfurnished",
+    image:
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "4",
+    parkingSlots: "0",
+    facing: "East",
+    projectName: "-",
+    maintenance: "-",
+    listedBy: "Owner",
+  },
+  "sample-chennai-3": {
+    title: "Calm 2BHK in OMR",
+    address: "OMR, Chennai, Tamil Nadu",
+    rent: 22500,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1010 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "3",
+    totalFloors: "7",
+    parkingSlots: "1",
+    facing: "West",
+    projectName: "OMR Heights",
+    maintenance: "Rs. 1,500 / month",
+    listedBy: "Owner",
+  },
+  "sample-chennai-4": {
+    title: "Premium Flat in Anna Nagar",
+    address: "Anna Nagar, Chennai, Tamil Nadu",
+    rent: 29000,
+    houseType: "3 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 3,
+    bathrooms: 2,
+    area: "1280 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "4",
+    totalFloors: "8",
+    parkingSlots: "2",
+    facing: "North",
+    projectName: "Anna Grand",
+    maintenance: "Rs. 2,200 / month",
+    listedBy: "Owner",
+  },
+  "sample-chennai-5": {
+    title: "Bright Studio in T Nagar",
+    address: "T Nagar, Chennai, Tamil Nadu",
+    rent: 16500,
+    houseType: "1 BHK",
+    propertyType: "Studio Apartment",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "520 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "5",
+    parkingSlots: "0",
+    facing: "East",
+    projectName: "-",
+    maintenance: "-",
+    listedBy: "Owner",
+  },
+  "sample-chennai-6": {
+    title: "Family Home in Porur",
+    address: "Porur, Chennai, Tamil Nadu",
+    rent: 21500,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "940 sqft",
+    furnishing: "Unfurnished",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "4",
+    parkingSlots: "1",
+    facing: "South",
+    projectName: "-",
+    maintenance: "Rs. 1,000 / month",
+    listedBy: "Owner",
+  },
+  "sample-hyderabad-1": {
+    title: "Modern 3BHK near Hitech City",
+    address: "Hitech City, Hyderabad, Telangana",
+    rent: 36000,
+    houseType: "3 BHK",
+    propertyType: "Independent House / Villa",
+    bedrooms: 3,
+    bathrooms: 3,
+    area: "1600 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "G",
+    totalFloors: "3",
+    parkingSlots: "2",
+    facing: "North-East",
+    projectName: "HiTech Villas",
+    maintenance: "Rs. 3,000 / month",
+    listedBy: "Owner",
+  },
+  "sample-hyderabad-2": {
+    title: "Quiet Builder Floor in Gachibowli",
+    address: "Gachibowli, Hyderabad, Telangana",
+    rent: 22000,
+    houseType: "2 BHK",
+    propertyType: "Builder Floor",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1020 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "3",
+    parkingSlots: "1",
+    facing: "West",
+    projectName: "-",
+    maintenance: "Rs. 1,500 / month",
+    listedBy: "Owner",
+  },
+  "sample-hyderabad-3": {
+    title: "Executive Flat in Jubilee Hills",
+    address: "Jubilee Hills, Hyderabad, Telangana",
+    rent: 34000,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1200 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "5",
+    totalFloors: "10",
+    parkingSlots: "1",
+    facing: "East",
+    projectName: "Jubilee Heights",
+    maintenance: "Rs. 2,500 / month",
+    listedBy: "Owner",
+  },
+  "sample-hyderabad-4": {
+    title: "Smart 1BHK in Kondapur",
+    address: "Kondapur, Hyderabad, Telangana",
+    rent: 18000,
+    houseType: "1 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "680 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "6",
+    parkingSlots: "1",
+    facing: "North",
+    projectName: "-",
+    maintenance: "Rs. 900 / month",
+    listedBy: "Owner",
+  },
+  "sample-hyderabad-5": {
+    title: "Open Terrace Home in Madhapur",
+    address: "Madhapur, Hyderabad, Telangana",
+    rent: 28500,
+    houseType: "2 BHK",
+    propertyType: "Builder Floor",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1140 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "3",
+    parkingSlots: "1",
+    facing: "South",
+    projectName: "-",
+    maintenance: "Rs. 1,800 / month",
+    listedBy: "Owner",
+  },
+  "sample-pune-1": {
+    title: "Designer 2BHK in Baner",
+    address: "Baner, Pune, Maharashtra",
+    rent: 26500,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1080 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "3",
+    totalFloors: "7",
+    parkingSlots: "1",
+    facing: "North",
+    projectName: "Baner Gardens",
+    maintenance: "Rs. 2,000 / month",
+    listedBy: "Owner",
+  },
+  "sample-pune-2": {
+    title: "Cozy Rental in Wakad",
+    address: "Wakad, Pune, Maharashtra",
+    rent: 19000,
+    houseType: "1 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "700 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "5",
+    parkingSlots: "1",
+    facing: "East",
+    projectName: "-",
+    maintenance: "Rs. 1,000 / month",
+    listedBy: "Owner",
+  },
+  "sample-pune-3": {
+    title: "Urban Flat in Kharadi",
+    address: "Kharadi, Pune, Maharashtra",
+    rent: 23500,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "980 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "4",
+    totalFloors: "9",
+    parkingSlots: "1",
+    facing: "West",
+    projectName: "Kharadi Towers",
+    maintenance: "Rs. 1,600 / month",
+    listedBy: "Owner",
+  },
+  "sample-pune-4": {
+    title: "Compact 1BHK in Hinjewadi",
+    address: "Hinjewadi, Pune, Maharashtra",
+    rent: 16800,
+    houseType: "1 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "630 sqft",
+    furnishing: "Unfurnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "6",
+    parkingSlots: "0",
+    facing: "North",
+    projectName: "-",
+    maintenance: "-",
+    listedBy: "Owner",
+  },
+  "sample-pune-5": {
+    title: "Calm Builder Floor in Aundh",
+    address: "Aundh, Pune, Maharashtra",
+    rent: 27000,
+    houseType: "2 BHK",
+    propertyType: "Builder Floor",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1090 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "3",
+    parkingSlots: "1",
+    facing: "East",
+    projectName: "-",
+    maintenance: "Rs. 1,700 / month",
+    listedBy: "Owner",
+  },
+  "sample-mumbai-1": {
+    title: "Sea View Flat in Powai",
+    address: "Powai, Mumbai, Maharashtra",
+    rent: 42000,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1180 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "8",
+    totalFloors: "14",
+    parkingSlots: "1",
+    facing: "West",
+    projectName: "Powai Lakes",
+    maintenance: "Rs. 3,500 / month",
+    listedBy: "Owner",
+  },
+  "sample-mumbai-2": {
+    title: "Compact Studio in Andheri",
+    address: "Andheri, Mumbai, Maharashtra",
+    rent: 21000,
+    houseType: "1 BHK",
+    propertyType: "Studio Apartment",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "500 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "3",
+    totalFloors: "8",
+    parkingSlots: "0",
+    facing: "North",
+    projectName: "-",
+    maintenance: "-",
+    listedBy: "Owner",
+  },
+  "sample-mumbai-3": {
+    title: "Contemporary Home in Bandra",
+    address: "Bandra, Mumbai, Maharashtra",
+    rent: 48000,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1160 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "6",
+    totalFloors: "12",
+    parkingSlots: "2",
+    facing: "South",
+    projectName: "Bandra Elite",
+    maintenance: "Rs. 4,000 / month",
+    listedBy: "Owner",
+  },
+  "sample-mumbai-4": {
+    title: "Soft Loft in Lower Parel",
+    address: "Lower Parel, Mumbai, Maharashtra",
+    rent: 38500,
+    houseType: "1 BHK",
+    propertyType: "Studio Apartment",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "720 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "5",
+    totalFloors: "10",
+    parkingSlots: "1",
+    facing: "East",
+    projectName: "Parel Lofts",
+    maintenance: "Rs. 2,500 / month",
+    listedBy: "Owner",
+  },
+  "sample-mumbai-5": {
+    title: "Family Apartment in Chembur",
+    address: "Chembur, Mumbai, Maharashtra",
+    rent: 29500,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1020 sqft",
+    furnishing: "Unfurnished",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "6",
+    parkingSlots: "1",
+    facing: "North",
+    projectName: "-",
+    maintenance: "Rs. 1,800 / month",
+    listedBy: "Owner",
+  },
+  "sample-delhi-1": {
+    title: "Bright 3BHK in South Delhi",
+    address: "South Delhi, Delhi / NCR",
+    rent: 39500,
+    houseType: "3 BHK",
+    propertyType: "Builder Floor",
+    bedrooms: 3,
+    bathrooms: 3,
+    area: "1550 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "3",
+    parkingSlots: "2",
+    facing: "North",
+    projectName: "-",
+    maintenance: "Rs. 2,500 / month",
+    listedBy: "Owner",
+  },
+  "sample-delhi-2": {
+    title: "Modern 2BHK in Noida",
+    address: "Noida, Delhi / NCR",
+    rent: 24500,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1040 sqft",
+    furnishing: "Unfurnished",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "3",
+    totalFloors: "7",
+    parkingSlots: "1",
+    facing: "East",
+    projectName: "Noida Vertex",
+    maintenance: "Rs. 1,500 / month",
+    listedBy: "Owner",
+  },
+  "sample-delhi-3": {
+    title: "Refined 2BHK in Saket",
+    address: "Saket, Delhi / NCR",
+    rent: 31000,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1080 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "4",
+    totalFloors: "8",
+    parkingSlots: "1",
+    facing: "West",
+    projectName: "Saket Square",
+    maintenance: "Rs. 2,000 / month",
+    listedBy: "Owner",
+  },
+  "sample-delhi-4": {
+    title: "Budget 1BHK in Dwarka",
+    address: "Dwarka, Delhi / NCR",
+    rent: 17200,
+    houseType: "1 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "610 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "5",
+    parkingSlots: "0",
+    facing: "North",
+    projectName: "-",
+    maintenance: "Rs. 800 / month",
+    listedBy: "Owner",
+  },
+  "sample-delhi-5": {
+    title: "Elegant Builder Floor in Gurgaon",
+    address: "Gurgaon, Delhi / NCR",
+    rent: 35000,
+    houseType: "3 BHK",
+    propertyType: "Builder Floor",
+    bedrooms: 3,
+    bathrooms: 3,
+    area: "1480 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "3",
+    parkingSlots: "2",
+    facing: "South",
+    projectName: "-",
+    maintenance: "Rs. 2,800 / month",
+    listedBy: "Owner",
+  },
+  "sample-kolkata-1": {
+    title: "Classic Apartment in Salt Lake",
+    address: "Salt Lake, Kolkata, West Bengal",
+    rent: 20500,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "960 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "5",
+    parkingSlots: "1",
+    facing: "East",
+    projectName: "Salt Lake Plaza",
+    maintenance: "Rs. 1,300 / month",
+    listedBy: "Owner",
+  },
+  "sample-kolkata-2": {
+    title: "Warm Home in Ballygunge",
+    address: "Ballygunge, Kolkata, West Bengal",
+    rent: 22800,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1000 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "3",
+    totalFloors: "6",
+    parkingSlots: "1",
+    facing: "North",
+    projectName: "-",
+    maintenance: "Rs. 1,400 / month",
+    listedBy: "Owner",
+  },
+  "sample-kolkata-3": {
+    title: "Compact Studio in New Town",
+    address: "New Town, Kolkata, West Bengal",
+    rent: 14500,
+    houseType: "1 BHK",
+    propertyType: "Studio Apartment",
+    bedrooms: 1,
+    bathrooms: 1,
+    area: "480 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "1",
+    totalFloors: "4",
+    parkingSlots: "0",
+    facing: "West",
+    projectName: "-",
+    maintenance: "-",
+    listedBy: "Owner",
+  },
+  "sample-kolkata-4": {
+    title: "Classic Flat in Alipore",
+    address: "Alipore, Kolkata, West Bengal",
+    rent: 26000,
+    houseType: "3 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 3,
+    bathrooms: 2,
+    area: "1340 sqft",
+    furnishing: "Unfurnished",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "5",
+    parkingSlots: "2",
+    facing: "South",
+    projectName: "Alipore Abode",
+    maintenance: "Rs. 2,000 / month",
+    listedBy: "Owner",
+  },
+  "sample-ahmedabad-1": {
+    title: "Spacious Rental in Prahlad Nagar",
+    address: "Prahlad Nagar, Ahmedabad, Gujarat",
+    rent: 23000,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "1120 sqft",
+    furnishing: "Fully Furnished",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "3",
+    totalFloors: "7",
+    parkingSlots: "1",
+    facing: "North",
+    projectName: "Prahlad Greens",
+    maintenance: "Rs. 1,600 / month",
+    listedBy: "Owner",
+  },
+  "sample-ahmedabad-2": {
+    title: "Smart Apartment in Bodakdev",
+    address: "Bodakdev, Ahmedabad, Gujarat",
+    rent: 21500,
+    houseType: "2 BHK",
+    propertyType: "Flats / Apartments",
+    bedrooms: 2,
+    bathrooms: 2,
+    area: "980 sqft",
+    furnishing: "Semi-Furnished",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=80",
+    floorNo: "2",
+    totalFloors: "6",
+    parkingSlots: "1",
+    facing: "East",
+    projectName: "-",
+    maintenance: "Rs. 1,200 / month",
+    listedBy: "Owner",
+  },
 };
 
 function sampleToPropertyData(id: string, s: SampleEntry): PropertyData {
@@ -82,7 +828,11 @@ function sampleToPropertyData(id: string, s: SampleEntry): PropertyData {
       { key: "Project Name", value: s.projectName },
       { key: "Maintenance", value: s.maintenance },
     ],
-    facilities: { water: true, separateMeter: true, parking: s.parkingSlots !== "0" },
+    facilities: {
+      water: true,
+      separateMeter: true,
+      parking: s.parkingSlots !== "0",
+    },
     verified: false,
     landlordName: "Sample Landlord",
     landlordPhone: null,
@@ -90,7 +840,12 @@ function sampleToPropertyData(id: string, s: SampleEntry): PropertyData {
     memberSince: "Recently",
     totalListings: 1,
     listingId: id,
-    images: [s.image, fallbackGalleryImages[0], fallbackGalleryImages[1], fallbackGalleryImages[2]],
+    images: [
+      s.image,
+      fallbackGalleryImages[0],
+      fallbackGalleryImages[1],
+      fallbackGalleryImages[2],
+    ],
     videoUrl: null,
   };
 }
@@ -140,7 +895,8 @@ const fallbackProperty: PropertyData = {
   bookingHoldAmount: 5000,
   houseType: "2 BHK",
   postedAt: "Today",
-  description: "Rental for 2BHK furnished house in a gated community, ready to occupy. Walkable distance from Salem bus stand with all daily convenience facilities nearby.",
+  description:
+    "Rental for 2BHK furnished house in a gated community, ready to occupy. Walkable distance from Salem bus stand with all daily convenience facilities nearby.",
   details: [
     { key: "House Type", value: "2 BHK" },
     { key: "Type", value: "Flats / Apartments" },
@@ -206,7 +962,11 @@ const getVideoSource = (videoUrl: string | null) => {
 
   const youtubeEmbed = getYouTubeEmbedUrl(videoUrl);
   if (youtubeEmbed) {
-    return { type: "youtube" as const, embedUrl: youtubeEmbed, directUrl: null };
+    return {
+      type: "youtube" as const,
+      embedUrl: youtubeEmbed,
+      directUrl: null,
+    };
   }
 
   return { type: "direct" as const, embedUrl: null, directUrl: videoUrl };
@@ -273,15 +1033,33 @@ export default function PropertyDetail() {
         { key: "Type", value: propertyRow.property_type ?? "-" },
         { key: "Bedrooms", value: propertyRow.bedrooms?.toString() ?? "-" },
         { key: "Bathrooms", value: propertyRow.bathrooms?.toString() ?? "-" },
-        { key: "Super Built-up Area", value: propertyRow.super_builtup_area ? `${propertyRow.super_builtup_area} sqft` : "-" },
+        {
+          key: "Super Built-up Area",
+          value: propertyRow.super_builtup_area
+            ? `${propertyRow.super_builtup_area} sqft`
+            : "-",
+        },
         { key: "Furnishing", value: propertyRow.furnishing ?? "-" },
         { key: "Listed By", value: propertyRow.listed_by ?? "Owner" },
         { key: "Floor No", value: propertyRow.floor_no?.toString() ?? "-" },
-        { key: "Total Floors", value: propertyRow.total_floors?.toString() ?? "-" },
-        { key: "Parking Slots", value: propertyRow.parking_slots?.toString() ?? "-" },
+        {
+          key: "Total Floors",
+          value: propertyRow.total_floors?.toString() ?? "-",
+        },
+        {
+          key: "Parking Slots",
+          value: propertyRow.parking_slots?.toString() ?? "-",
+        },
         { key: "Facing", value: propertyRow.facing ?? "-" },
         { key: "Project Name", value: propertyRow.project_name ?? "-" },
-        { key: "Maintenance", value: propertyRow.maintenance_amount ? `Rs. ${propertyRow.maintenance_amount.toLocaleString("en-IN")} / month` : "-" },
+        {
+          key: "Maintenance",
+          value: propertyRow.maintenance_amount
+            ? `Rs. ${propertyRow.maintenance_amount.toLocaleString(
+                "en-IN"
+              )} / month`
+            : "-",
+        },
       ];
 
       setProperty({
@@ -304,7 +1082,9 @@ export default function PropertyDetail() {
         landlordName: profileData?.full_name || "Landlord",
         landlordPhone: profileData?.phone || null,
         landlordId: propertyRow.landlord_id,
-        memberSince: profileData?.created_at ? new Date(profileData.created_at).toLocaleDateString("en-IN") : "Recently",
+        memberSince: profileData?.created_at
+          ? new Date(profileData.created_at).toLocaleDateString("en-IN")
+          : "Recently",
         totalListings: listingsCount ?? 1,
         listingId: propertyRow.id.slice(0, 8),
         images:
@@ -331,14 +1111,41 @@ export default function PropertyDetail() {
   }, [id, user]);
 
   const mapEmbedUrl = useMemo(
-    () => `https://www.google.com/maps?q=${encodeURIComponent(property.address)}&output=embed`,
+    () =>
+      `https://www.google.com/maps?q=${encodeURIComponent(
+        property.address
+      )}&output=embed`,
     [property.address]
   );
-  const videoSource = useMemo(() => getVideoSource(property.videoUrl), [property.videoUrl]);
-  const galleryImages = useMemo(() => property.images.slice(0, 5), [property.images]);
-  const bedroomsLabel = useMemo(() => property.details.find((item) => item.key === "Bedrooms")?.value ?? "-", [property.details]);
-  const bathroomsLabel = useMemo(() => property.details.find((item) => item.key === "Bathrooms")?.value ?? "-", [property.details]);
-  const areaLabel = useMemo(() => property.details.find((item) => item.key === "Super Built-up Area")?.value ?? "-", [property.details]);
+  const videoSource = useMemo(
+    () => getVideoSource(property.videoUrl),
+    [property.videoUrl]
+  );
+  const galleryImages = useMemo(
+    () => property.images.slice(0, 5),
+    [property.images]
+  );
+  const bedroomsLabel = useMemo(
+    () =>
+      property.details.find((item) => item.key === "Bedrooms")?.value ?? "-",
+    [property.details]
+  );
+  const bathroomsLabel = useMemo(
+    () =>
+      property.details.find((item) => item.key === "Bathrooms")?.value ?? "-",
+    [property.details]
+  );
+  const areaLabel = useMemo(
+    () =>
+      property.details.find((item) => item.key === "Super Built-up Area")
+        ?.value ?? "-",
+    [property.details]
+  );
+  const furnishingLabel = useMemo(
+    () =>
+      property.details.find((item) => item.key === "Furnishing")?.value ?? "-",
+    [property.details]
+  );
 
   const handleContactLandlord = () => {
     const rawPhone = (property.landlordPhone || "").trim();
@@ -371,18 +1178,30 @@ export default function PropertyDetail() {
 
   const handleStartChat = async () => {
     if (!user) {
-      toast({ title: "Please login", description: "Login as tenant to chat with landlord.", variant: "destructive" });
+      toast({
+        title: "Please login",
+        description: "Login as tenant to chat with landlord.",
+        variant: "destructive",
+      });
       navigate("/login");
       return;
     }
 
     if (userRole !== "tenant") {
-      toast({ title: "Tenant account required", description: "Switch to a tenant account to contact landlord.", variant: "destructive" });
+      toast({
+        title: "Tenant account required",
+        description: "Switch to a tenant account to contact landlord.",
+        variant: "destructive",
+      });
       return;
     }
 
     if (property.landlordId && property.landlordId === user.id) {
-      toast({ title: "Not allowed", description: "You cannot create a request on your own property.", variant: "destructive" });
+      toast({
+        title: "Not allowed",
+        description: "You cannot create a request on your own property.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -393,14 +1212,19 @@ export default function PropertyDetail() {
       .maybeSingle();
 
     if (tenantKycError) {
-      toast({ title: "KYC check failed", description: tenantKycError.message, variant: "destructive" });
+      toast({
+        title: "KYC check failed",
+        description: tenantKycError.message,
+        variant: "destructive",
+      });
       return;
     }
 
     if (!tenantKyc?.pan_verified && !tenantKyc?.aadhaar_verified) {
       toast({
         title: "KYC required",
-        description: "Verify PAN or Aadhaar in your profile before contacting landlords.",
+        description:
+          "Verify PAN or Aadhaar in your profile before contacting landlords.",
         variant: "destructive",
       });
       navigate("/tenant/profile");
@@ -422,7 +1246,8 @@ export default function PropertyDetail() {
       return;
     }
 
-    const initialMessage = "Tenant: Hi, I am interested in this property. Please share availability details.";
+    const initialMessage =
+      "Tenant: Hi, I am interested in this property. Please share availability details.";
     const { data: createdApplication, error } = await supabase
       .from("applications")
       .insert({
@@ -437,53 +1262,97 @@ export default function PropertyDetail() {
     setChatLoading(false);
 
     if (error) {
-      toast({ title: "Request failed", description: error.message, variant: "destructive" });
+      toast({
+        title: "Request failed",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
 
-    toast({ title: "Request sent", description: "You can continue chat in Messages." });
+    toast({
+      title: "Request sent",
+      description: "You can continue chat in Messages.",
+    });
     navigate(`/tenant/messages?app=${createdApplication.id}`);
   };
 
   return (
-    <div className="min-h-screen bg-white text-foreground dark:bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <div className="container mx-auto max-w-7xl px-4 py-5 pb-28 sm:py-7 lg:pb-7">
-        <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+      <div className="container mx-auto max-w-7xl px-4 pb-28 pt-24 sm:pb-7 sm:pt-28">
+        <Link
+          to="/"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-4 w-4" /> Back to listings
         </Link>
 
         {loading ? (
-          <div className="rounded-3xl border bg-card p-8 text-center text-muted-foreground shadow-sm">Loading property details...</div>
+          <div className="rounded-3xl border bg-card p-8 text-center text-muted-foreground shadow-sm">
+            Loading property details...
+          </div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_360px] lg:gap-8">
             <div className="space-y-6 lg:col-span-2">
               <div className="space-y-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <div className="mb-2 flex flex-wrap items-center gap-2">
                       {property.verified && (
-                        <Badge className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-200">
-                          <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Verified home
+                        <Badge className="rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
+                          <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Verified
+                          home
                         </Badge>
                       )}
-                      <Badge variant="secondary" className="rounded-full px-3 py-1">{property.houseType}</Badge>
+                      <Badge
+                        variant="secondary"
+                        className="rounded-full px-3 py-1"
+                      >
+                        {property.houseType}
+                      </Badge>
                     </div>
-                    <h1 className="max-w-4xl text-2xl font-semibold tracking-tight sm:text-[2rem]">{property.title}</h1>
+                    <h1 className="max-w-4xl text-2xl font-semibold tracking-tight sm:text-[2rem]">
+                      {property.title}
+                    </h1>
                     <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                      <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {property.address}</span>
-                      <span className="inline-flex items-center gap-1"><CalendarDays className="h-4 w-4" /> Posted {property.postedAt}</span>
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-4 w-4" /> {property.address}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <CalendarDays className="h-4 w-4" /> Posted{" "}
+                        {property.postedAt}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                      <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5 text-slate-700 dark:bg-slate-950/40">
+                        <BedDouble className="h-4 w-4" />
+                        {bedroomsLabel} · {bathroomsLabel} bath
+                      </span>
+                      <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5 text-slate-700 dark:bg-slate-950/40">
+                        <Building2 className="h-4 w-4" />
+                        {areaLabel}
+                      </span>
+                      <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5 text-slate-700 dark:bg-slate-950/40">
+                        <Home className="h-4 w-4" />
+                        {furnishingLabel}
+                      </span>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <Button
                       size="icon"
                       variant="secondary"
-                      className="h-10 w-10 rounded-full border bg-white shadow-sm dark:bg-card"
+                      className="h-10 w-10 rounded-full border border-border/70 bg-background/90 shadow-sm backdrop-blur-sm"
                       onClick={async () => {
                         const url = `${window.location.origin}/property/${property.id}`;
                         if (navigator.share) {
-                          try { await navigator.share({ title: property.title, url }); } catch {}
+                          try {
+                            await navigator.share({
+                              title: property.title,
+                              url,
+                            });
+                          } catch {}
                         } else {
                           await navigator.clipboard.writeText(url);
                           toast({ title: "Link copied!" });
@@ -495,28 +1364,53 @@ export default function PropertyDetail() {
                     <Button
                       size="icon"
                       variant="secondary"
-                      className="h-10 w-10 rounded-full border bg-white shadow-sm dark:bg-card"
+                      className="h-10 w-10 rounded-full border border-border/70 bg-background/90 shadow-sm backdrop-blur-sm"
                       onClick={async () => {
-                        if (!user) { toast({ title: "Please login to save", variant: "destructive" }); return; }
+                        if (!user) {
+                          toast({
+                            title: "Please login to save",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
                         if (isSaved) {
-                          await supabase.from("saved_properties").delete().eq("user_id", user.id).eq("property_id", property.id);
+                          await supabase
+                            .from("saved_properties")
+                            .delete()
+                            .eq("user_id", user.id)
+                            .eq("property_id", property.id);
                           setIsSaved(false);
                           toast({ title: "Removed from saved" });
                         } else {
-                          await supabase.from("saved_properties").insert({ user_id: user.id, property_id: property.id });
+                          await supabase.from("saved_properties").insert({
+                            user_id: user.id,
+                            property_id: property.id,
+                          });
                           setIsSaved(true);
                           toast({ title: "Property saved!" });
                         }
                       }}
                     >
-                      <Heart className={`h-4 w-4 ${isSaved ? "fill-red-500 text-red-500" : ""}`} />
+                      <Heart
+                        className={`h-4 w-4 ${
+                          isSaved ? "fill-primary text-primary" : ""
+                        }`}
+                      />
                     </Button>
                   </div>
                 </div>
 
-                <div className="grid gap-2 sm:grid-cols-[2fr_1fr_1fr] sm:grid-rows-2">
-                  <button className="relative overflow-hidden rounded-[24px] bg-muted sm:row-span-2" onClick={() => setActiveImage(0)}>
-                    <img src={property.images[activeImage] ?? property.images[0]} alt={property.title} className="aspect-[16/12] h-full w-full object-cover sm:aspect-auto sm:min-h-[26rem]" />
+                <div className="group relative grid gap-2 sm:grid-cols-[2fr_1fr_1fr] sm:grid-rows-2 overflow-hidden rounded-[24px]">
+                  <button
+                    className="relative overflow-hidden bg-muted sm:row-span-2 cursor-pointer transition-opacity hover:opacity-90"
+                    onClick={() => setActiveImage(0)}
+                  >
+                    <img
+                      src={property.images[0]}
+                      alt={property.title}
+                      loading="eager"
+                      className="aspect-[4/3] h-full w-full object-cover transition-transform duration-500 hover:scale-105 sm:aspect-auto sm:min-h-[26rem]"
+                    />
                   </button>
                   {galleryImages.slice(1, 5).map((image, index) => {
                     const actualIndex = index + 1;
@@ -524,73 +1418,166 @@ export default function PropertyDetail() {
                       <button
                         key={image}
                         onClick={() => setActiveImage(actualIndex)}
-                        className={`relative overflow-hidden rounded-[20px] bg-muted ${activeImage === actualIndex ? "ring-2 ring-[#ff385c] ring-offset-2" : ""}`}
+                        className="relative overflow-hidden bg-muted cursor-pointer transition-opacity hover:opacity-90"
                       >
-                        <img src={image} alt={`Property ${actualIndex + 1}`} className="aspect-[4/3] h-full w-full object-cover" />
+                        <img
+                          src={image}
+                          alt={`Property ${actualIndex + 1}`}
+                          loading="lazy"
+                          className="aspect-[4/3] h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                        />
                       </button>
                     );
                   })}
+                  <div className="absolute right-4 bottom-4 z-10 hidden sm:block">
+                    <Button
+                      variant="secondary"
+                      className="gap-2 rounded-lg border border-border/70 bg-background/95 px-4 font-semibold text-foreground shadow-md backdrop-blur-sm transition-all hover:scale-105 hover:bg-background"
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                        />
+                      </svg>
+                      Show all photos
+                    </Button>
+                  </div>
                 </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-border/70 bg-white p-4 shadow-sm dark:bg-card">
+                <div className="surface-soft p-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff385c]/10 text-[#ff385c]"><BedDouble className="h-5 w-5" /></div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <BedDouble className="h-5 w-5" />
+                    </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Bedrooms</p>
                       <p className="text-lg font-semibold">{bedroomsLabel}</p>
                     </div>
                   </div>
                 </div>
-                <div className="rounded-2xl border border-border/70 bg-white p-4 shadow-sm dark:bg-card">
+                <div className="surface-soft p-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff385c]/10 text-[#ff385c]"><Droplets className="h-5 w-5" /></div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <Droplets className="h-5 w-5" />
+                    </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Bathrooms</p>
                       <p className="text-lg font-semibold">{bathroomsLabel}</p>
                     </div>
                   </div>
                 </div>
-                <div className="rounded-2xl border border-border/70 bg-white p-4 shadow-sm dark:bg-card">
+                <div className="surface-soft p-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff385c]/10 text-[#ff385c]"><Building2 className="h-5 w-5" /></div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <Building2 className="h-5 w-5" />
+                    </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Built-up area</p>
+                      <p className="text-sm text-muted-foreground">
+                        Built-up area
+                      </p>
                       <p className="text-lg font-semibold">{areaLabel}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <Card className="rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
+              <Card className="surface-soft">
                 <CardContent className="p-5 sm:p-6">
                   <h2 className="mb-3 text-lg font-semibold">Details</h2>
-                  <div className="grid gap-3 text-sm sm:grid-cols-2">
-                    {property.details.map((item) => (
-                      <div key={item.key} className="flex items-center justify-between rounded-xl border border-border/70 bg-slate-50 px-4 py-3 dark:bg-slate-950/20">
-                        <span className="text-muted-foreground">{item.key}</span>
-                        <span className="font-semibold text-right">{item.value}</span>
-                      </div>
-                    ))}
+                  <div className="grid gap-4 text-sm md:grid-cols-2">
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Basics
+                      </p>
+                      {property.details
+                        .filter((item) =>
+                          [
+                            "House Type",
+                            "Type",
+                            "Bedrooms",
+                            "Bathrooms",
+                            "Super Built-up Area",
+                            "Furnishing",
+                          ].includes(item.key)
+                        )
+                        .map((item) => (
+                          <div
+                            key={item.key}
+                            className="flex items-center justify-between rounded-xl border border-border/70 bg-slate-50 px-4 py-2.5 dark:bg-slate-950/20"
+                          >
+                            <span className="text-muted-foreground">
+                              {item.key}
+                            </span>
+                            <span className="font-semibold text-right">
+                              {item.value}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Building & project
+                      </p>
+                      {property.details
+                        .filter((item) =>
+                          [
+                            "Listed By",
+                            "Floor No",
+                            "Total Floors",
+                            "Parking Slots",
+                            "Facing",
+                            "Project Name",
+                            "Maintenance",
+                          ].includes(item.key)
+                        )
+                        .map((item) => (
+                          <div
+                            key={item.key}
+                            className="flex items-center justify-between rounded-xl border border-border/70 bg-slate-50 px-4 py-2.5 dark:bg-slate-950/20"
+                          >
+                            <span className="text-muted-foreground">
+                              {item.key}
+                            </span>
+                            <span className="font-semibold text-right">
+                              {item.value}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
+              <Card className="surface-soft">
                 <CardContent className="p-5 sm:p-6">
                   <h2 className="mb-3 text-lg font-semibold">Description</h2>
-                  <p className="leading-7 text-muted-foreground">{property.description}</p>
+                  <p className="leading-7 text-muted-foreground">
+                    {property.description}
+                  </p>
                 </CardContent>
               </Card>
 
               {videoSource.type !== "none" && (
-                <Card className="overflow-hidden rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
+                <Card className="surface-soft overflow-hidden">
                   <CardContent className="p-0">
                     <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
                       <div>
-                        <h2 className="text-lg font-semibold">Property Video</h2>
-                        <p className="text-xs text-muted-foreground sm:text-sm">Virtual walkthrough</p>
+                        <h2 className="text-lg font-semibold">
+                          Property Video
+                        </h2>
+                        <p className="text-xs text-muted-foreground sm:text-sm">
+                          Virtual walkthrough
+                        </p>
                       </div>
                       <a
                         href={property.videoUrl ?? "#"}
@@ -630,35 +1617,59 @@ export default function PropertyDetail() {
                 </Card>
               )}
 
-              <Card className="rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
+              <Card className="surface-soft">
                 <CardContent className="p-5 sm:p-6">
                   <h2 className="mb-4 text-lg font-semibold">Facilities</h2>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                     <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-slate-50 px-4 py-3 dark:bg-slate-950/20">
-                      <Droplets className={`h-5 w-5 ${property.facilities.water ? "text-success" : "text-muted-foreground"}`} />
-                      <span className="text-sm">Water Supply</span>
+                      <Droplets
+                        className={`h-5 w-5 ${
+                          property.facilities.water
+                            ? "text-success"
+                            : "text-muted-foreground"
+                        }`}
+                      />
+                      <span className="text-sm">Water supply</span>
                     </div>
                     <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-slate-50 px-4 py-3 dark:bg-slate-950/20">
-                      <Zap className={`h-5 w-5 ${property.facilities.separateMeter ? "text-success" : "text-muted-foreground"}`} />
-                      <span className="text-sm">Separate Electricity Meter</span>
+                      <Zap
+                        className={`h-5 w-5 ${
+                          property.facilities.separateMeter
+                            ? "text-success"
+                            : "text-muted-foreground"
+                        }`}
+                      />
+                      <span className="text-sm">
+                        Separate electricity meter
+                      </span>
                     </div>
                     <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-slate-50 px-4 py-3 dark:bg-slate-950/20">
-                      <Car className={`h-5 w-5 ${property.facilities.parking ? "text-success" : "text-muted-foreground"}`} />
+                      <Car
+                        className={`h-5 w-5 ${
+                          property.facilities.parking
+                            ? "text-success"
+                            : "text-muted-foreground"
+                        }`}
+                      />
                       <span className="text-sm">Parking</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="overflow-hidden rounded-2xl border border-border/70 bg-white shadow-sm dark:bg-card">
+              <Card className="surface-soft overflow-hidden">
                 <CardContent className="p-0">
                   <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
                     <div>
                       <h2 className="text-lg font-semibold">Location</h2>
-                      <p className="text-xs text-muted-foreground sm:text-sm">{property.address}</p>
+                      <p className="text-xs text-muted-foreground sm:text-sm">
+                        {property.address}
+                      </p>
                     </div>
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(property.address)}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        property.address
+                      )}`}
                       target="_blank"
                       rel="noreferrer"
                       className="rounded-md border px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-accent"
@@ -678,70 +1689,167 @@ export default function PropertyDetail() {
             </div>
 
             <div className="space-y-4">
-              <Card className="rounded-[28px] border border-border/70 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.07)] lg:sticky lg:top-20 dark:bg-card">
-                <CardContent className="space-y-4 p-5">
+              <Card className="overflow-hidden rounded-[30px] border border-border/70 bg-background/95 shadow-[0_24px_60px_-36px_rgba(91,71,56,0.28)] lg:sticky lg:top-20">
+                <CardContent className="space-y-5 p-5">
+                  <div className="flex flex-wrap gap-2">
+                    <span className="trust-chip">Online booking ready</span>
+                    <span className="trust-chip">Deposit visibility</span>
+                    <span className="trust-chip">Verified host signals</span>
+                  </div>
                   <div>
-                    <p className="text-3xl font-bold leading-none text-foreground">Rs. {property.rent.toLocaleString("en-IN")} <span className="text-sm font-medium text-muted-foreground">/ month</span></p>
-                    <p className="mt-1.5 text-sm text-muted-foreground">{property.houseType} with clear move-in pricing and verified host details.</p>
+                    <p className="text-3xl font-bold leading-none text-foreground">
+                      Rs. {property.rent.toLocaleString("en-IN")}{" "}
+                      <span className="text-sm font-medium text-muted-foreground">
+                        / month
+                      </span>
+                    </p>
+                    <p className="mt-1.5 text-sm text-muted-foreground">
+                      {property.houseType} with clear move-in pricing and
+                      verified host details.
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl border border-border/70 bg-slate-50 p-3 dark:bg-slate-950/20">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Stay type</p>
-                      <p className="mt-1 text-sm font-semibold">{property.houseType}</p>
+                    <div className="rounded-[1.1rem] border border-border/70 bg-secondary/55 p-3">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Stay type
+                      </p>
+                      <p className="mt-1 text-sm font-semibold">
+                        {property.houseType}
+                      </p>
                     </div>
-                    <div className="rounded-xl border border-border/70 bg-slate-50 p-3 dark:bg-slate-950/20">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">Listing ID</p>
-                      <p className="mt-1 text-sm font-semibold">{property.listingId}</p>
+                    <div className="rounded-[1.1rem] border border-border/70 bg-secondary/55 p-3">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Listing ID
+                      </p>
+                      <p className="mt-1 text-sm font-semibold">
+                        {property.listingId}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-border/70 p-4">
-                    <p className="text-sm text-muted-foreground">Hosted by</p>
-                    <p className="mt-1 text-lg font-semibold">{property.landlordName}</p>
-                    <p className="text-xs text-muted-foreground">Member since {property.memberSince}</p>
-                    <p className="mt-2 text-xs font-medium text-primary">{property.totalListings} active listings</p>
-                  </div>
-
-                  <Button className="h-11 w-full rounded-full bg-[#ff385c] font-semibold text-white hover:bg-[#e13153]" onClick={handleStartChat} disabled={chatLoading || loading}>
-                    {chatLoading ? "Opening chat..." : "Chat with seller"}
-                  </Button>
-                  <Button variant="outline" className="h-11 w-full rounded-full" onClick={handleContactLandlord}>Contact Landlord</Button>
-
-                  <div className="space-y-2 rounded-2xl border border-[#ff385c]/15 bg-[#ff385c]/5 p-4">
-                    <h3 className="font-bold text-sm">Payment Details</h3>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Monthly rent from landlord</span>
-                      <span className="font-semibold">Rs. {property.rent.toLocaleString("en-IN")}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Security deposit</span>
-                      <span className="font-semibold">Rs. {(property.securityDepositAmount ?? Math.round(property.rent * 0.5)).toLocaleString("en-IN")}</span>
-                    </div>
-                    <div className="flex justify-between border-t pt-2 text-sm">
-                      <span className="font-bold">Booking hold amount</span>
-                      <span className="text-base font-bold text-[#ff385c]">Rs. {(property.bookingHoldAmount ?? Math.round(property.rent * 0.25)).toLocaleString("en-IN")}</span>
-                    </div>
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                      Rent and booking amounts come from the landlord listing. Older listings still fall back to default calculations.
+                  <div className="rounded-[1.4rem] border border-border/70 bg-background/80 p-4">
+                    <p className="editorial-eyebrow">Hosted by</p>
+                    <p className="mt-1 text-lg font-semibold">
+                      {property.landlordName}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Member since {property.memberSince}
+                    </p>
+                    <p className="mt-2 text-xs font-medium text-primary">
+                      {property.totalListings} active listings
                     </p>
                   </div>
 
                   <Button
-                    className="h-11 w-full rounded-full bg-[#ff385c] font-bold text-white hover:bg-[#e13153]"
+                    className="h-11 w-full rounded-full bg-primary font-semibold text-primary-foreground hover:bg-primary/90"
+                    onClick={handleStartChat}
+                    disabled={chatLoading || loading}
+                  >
+                    {chatLoading ? "Opening chat..." : "Chat with seller"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-11 w-full rounded-full"
+                    onClick={handleContactLandlord}
+                  >
+                    Contact Landlord
+                  </Button>
+
+                  <div className="space-y-3 rounded-[1.4rem] border border-border/70 bg-secondary/45 p-5">
+                    <h3 className="font-bold text-[15px] flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-primary" />
+                      Cost Breakdown
+                    </h3>
+                    <div className="flex justify-between text-[13px] font-medium text-slate-600 dark:text-slate-400">
+                      <span>Monthly Rent</span>
+                      <span className="text-slate-900 dark:text-slate-100">
+                        Rs. {property.rent.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-[13px] font-medium text-slate-600 dark:text-slate-400">
+                      <span>Security Deposit (Refundable)</span>
+                      <span className="text-slate-900 dark:text-slate-100">
+                        Rs.{" "}
+                        {(
+                          property.securityDepositAmount ??
+                          Math.round(property.rent * 0.5)
+                        ).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    {property.details.find((x) => x.key === "Maintenance")
+                      ?.value !== "-" && (
+                      <div className="flex justify-between text-[13px] font-medium text-slate-600 dark:text-slate-400">
+                        <span>Maintenance</span>
+                        <span className="text-slate-900 dark:text-slate-100">
+                          {
+                            property.details.find(
+                              (x) => x.key === "Maintenance"
+                            )?.value
+                          }
+                        </span>
+                      </div>
+                    )}
+                    <div className="my-2 border-t border-border border-dashed" />
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="font-bold text-[15px] text-slate-900 dark:text-slate-100">
+                          Booking Amount
+                        </span>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          Pay this to hold the property
+                        </p>
+                      </div>
+                      <span className="text-lg font-bold text-primary">
+                        Rs.{" "}
+                        {(
+                          property.bookingHoldAmount ??
+                          Math.round(property.rent * 0.25)
+                        ).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 rounded-[1.4rem] border border-border/70 bg-background/75 p-4">
+                    <div className="flex items-start gap-3">
+                      <ShieldCheck className="mt-0.5 h-4 w-4 text-success" />
+                      <div>
+                        <p className="text-sm font-semibold">Deposit guidance</p>
+                        <p className="text-xs text-muted-foreground">
+                          Security deposit and booking amount are shown before checkout.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CalendarDays className="mt-0.5 h-4 w-4 text-primary" />
+                      <div>
+                        <p className="text-sm font-semibold">Move-in clarity</p>
+                        <p className="text-xs text-muted-foreground">
+                          Review pricing, host profile, and start booking from this panel.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    className="h-11 w-full rounded-full bg-primary font-bold text-primary-foreground hover:bg-primary/90"
                     onClick={() => navigate(`/property/${property.id}/book`)}
                   >
                     Book Now
                   </Button>
 
-                  <div className="rounded-2xl border border-border/70 p-4">
+                  <div className="rounded-[1.4rem] border border-border/70 bg-background/80 p-4">
                     <p className="text-sm font-semibold">Posted in</p>
-                    <p className="text-sm text-muted-foreground">{property.address}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {property.address}
+                    </p>
                   </div>
 
-                  <div className="rounded-2xl border border-border/70 p-4 text-xs text-muted-foreground">
+                  <div className="rounded-[1.4rem] border border-border/70 bg-background/80 p-4 text-xs text-muted-foreground">
                     <p>Ad ID {property.listingId}</p>
-                    <button className="mt-2 font-semibold text-primary">Report this ad</button>
+                    <button className="mt-2 font-semibold text-primary">
+                      Report this ad
+                    </button>
                   </div>
                 </CardContent>
               </Card>
@@ -752,23 +1860,33 @@ export default function PropertyDetail() {
 
       {/* Sticky mobile bottom bar — hidden on desktop where sidebar is visible */}
       {!loading && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:bg-card lg:hidden">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-lg font-bold leading-none sm:text-xl">Rs. {property.rent.toLocaleString("en-IN")} <span className="text-xs font-normal text-muted-foreground">/ month</span></p>
-              <p className="mt-0.5 text-xs text-muted-foreground">{property.houseType} · Booking: Rs. {(property.bookingHoldAmount ?? Math.round(property.rent * 0.25)).toLocaleString("en-IN")}</p>
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/70 bg-background/95 px-4 py-3 shadow-[0_-4px_20px_rgba(91,71,56,0.14)] backdrop-blur-sm lg:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xl font-bold leading-none">
+                Rs. {property.rent.toLocaleString("en-IN")}{" "}
+                <span className="text-xs font-normal text-muted-foreground">
+                  / month
+                </span>
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {property.houseType} · Booking: Rs.{" "}
+                {(
+                  property.bookingHoldAmount ?? Math.round(property.rent * 0.25)
+                ).toLocaleString("en-IN")}
+              </p>
             </div>
-            <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex">
+            <div className="flex shrink-0 gap-2">
               <Button
                 variant="outline"
-                className="h-11 rounded-full px-4 font-semibold"
+                className="h-11 rounded-full px-5 font-semibold"
                 onClick={handleStartChat}
                 disabled={chatLoading || loading}
               >
                 {chatLoading ? "..." : "Chat"}
               </Button>
               <Button
-                className="h-11 rounded-full bg-[#ff385c] px-4 font-bold text-white hover:bg-[#e13153]"
+                className="h-11 rounded-full bg-primary px-5 font-bold text-primary-foreground hover:bg-primary/90"
                 onClick={() => navigate(`/property/${property.id}/book`)}
               >
                 Book Now

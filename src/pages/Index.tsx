@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -31,17 +31,46 @@ import {
 import { Button } from "@/components/ui/button";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { Card, CardContent } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Navbar } from "@/components/Navbar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 
 const features = [
-  { icon: ShieldCheck, title: "Verified Landlords", description: "Every landlord is PAN-verified before listing." },
-  { icon: Lock, title: "Secure Documents", description: "Tenant proofs are encrypted and auto-purged safely." },
-  { icon: Search, title: "Smart Matching", description: "Find homes by budget, location, and family preferences." },
-  { icon: Users, title: "Tenant Filtering", description: "Landlords can screen profiles with transparent details." },
+  {
+    icon: ShieldCheck,
+    title: "Verified Landlords",
+    description: "Every landlord is PAN-verified before listing.",
+  },
+  {
+    icon: Lock,
+    title: "Secure Documents",
+    description: "Tenant proofs are encrypted and auto-purged safely.",
+  },
+  {
+    icon: Search,
+    title: "Smart Matching",
+    description: "Find homes by budget, location, and family preferences.",
+  },
+  {
+    icon: Users,
+    title: "Tenant Filtering",
+    description: "Landlords can screen profiles with transparent details.",
+  },
 ];
 
 const stats = [
@@ -71,17 +100,20 @@ const solutionCards = [
   {
     icon: Search,
     title: "Discovery-first search",
-    description: "Free-text location search, verified inventory and fast shortlist-friendly browsing.",
+    description:
+      "Free-text location search, verified inventory and fast shortlist-friendly browsing.",
   },
   {
     icon: FileText,
     title: "Compliance-ready leasing",
-    description: "Structured tenant profiles, document checks and cleaner approval workflows for landlords.",
+    description:
+      "Structured tenant profiles, document checks and cleaner approval workflows for landlords.",
   },
   {
     icon: Headphones,
     title: "Owner success tools",
-    description: "Post faster, respond sooner and manage leads from one focused landlord workspace.",
+    description:
+      "Post faster, respond sooner and manage leads from one focused landlord workspace.",
   },
 ];
 
@@ -89,46 +121,68 @@ const researchTools = [
   {
     icon: BarChart3,
     title: "Price Trends",
-    description: "See how rental demand and pricing move across major localities before you decide.",
+    description:
+      "See how rental demand and pricing move across major localities before you decide.",
     link: "/price-trends",
   },
   {
     icon: Calculator,
     title: "Affordability Planning",
-    description: "Compare budget bands quickly and match them with furnishing and BHK expectations.",
+    description:
+      "Compare budget bands quickly and match them with furnishing and BHK expectations.",
     link: "/for-tenants",
   },
   {
     icon: Newspaper,
     title: "Guides & Insights",
-    description: "Research-backed content for tenants, owners, compliance and smarter rental decisions.",
+    description:
+      "Research-backed content for tenants, owners, compliance and smarter rental decisions.",
     link: "/articles",
   },
 ];
 
 const testimonials = [
   {
-    quote: "The platform feels more credible than generic classifieds because verification and applications are built into the flow.",
+    quote:
+      "The platform feels more credible than generic classifieds because verification and applications are built into the flow.",
     name: "Sanjay Raman",
     role: "Property Owner, Chennai",
   },
   {
-    quote: "Shortlisting was easier because listings showed the right signals first: area, budget, furnishing and trust markers.",
+    quote:
+      "Shortlisting was easier because listings showed the right signals first: area, budget, furnishing and trust markers.",
     name: "Nivetha K",
     role: "Tenant, Bengaluru",
   },
   {
-    quote: "The landlord dashboard and request pipeline reduce follow-up chaos. It feels like an actual operating system for rentals.",
+    quote:
+      "The landlord dashboard and request pipeline reduce follow-up chaos. It feels like an actual operating system for rentals.",
     name: "Ashwin Joseph",
     role: "Portfolio Manager, Hyderabad",
   },
 ];
 
 const propertyTypes = [
-  { label: "Independent House / Villa", count: "120+", color: "bg-amber-50 dark:bg-amber-950/40" },
-  { label: "Residential Apartment", count: "70+", color: "bg-rose-50 dark:bg-rose-950/40" },
-  { label: "Independent Builder Floor", count: "50+", color: "bg-green-50 dark:bg-green-950/40" },
-  { label: "Studio Apartment", count: "30+", color: "bg-rose-50 dark:bg-rose-950/40" },
+  {
+    label: "Independent House / Villa",
+    count: "120+",
+    color: "bg-amber-50/80 dark:bg-amber-950/30",
+  },
+  {
+    label: "Residential Apartment",
+    count: "70+",
+    color: "bg-primary/8 dark:bg-primary/12",
+  },
+  {
+    label: "Independent Builder Floor",
+    count: "50+",
+    color: "bg-success/10 dark:bg-success/15",
+  },
+  {
+    label: "Studio Apartment",
+    count: "30+",
+    color: "bg-secondary dark:bg-secondary/80",
+  },
 ];
 
 const bhkOptions = [
@@ -145,15 +199,39 @@ const furnishingOptions = [
 ];
 
 const landlordSteps = [
-  { icon: UserCheck, title: "Register & Verify", description: "Sign up and verify your PAN card." },
-  { icon: Building2, title: "List Property", description: "Add photos, video and complete details." },
-  { icon: Handshake, title: "Find Tenants", description: "Review and approve applications quickly." },
+  {
+    icon: UserCheck,
+    title: "Register & Verify",
+    description: "Sign up and verify your PAN card.",
+  },
+  {
+    icon: Building2,
+    title: "List Property",
+    description: "Add photos, video and complete details.",
+  },
+  {
+    icon: Handshake,
+    title: "Find Tenants",
+    description: "Review and approve applications quickly.",
+  },
 ];
 
 const tenantSteps = [
-  { icon: FileCheck, title: "Create Profile", description: "Set your details and rental preferences." },
-  { icon: Search, title: "Search Houses", description: "Browse thousands of verified homes." },
-  { icon: Home, title: "Apply & Move In", description: "Apply and connect with the landlord directly." },
+  {
+    icon: FileCheck,
+    title: "Create Profile",
+    description: "Set your details and rental preferences.",
+  },
+  {
+    icon: Search,
+    title: "Search Houses",
+    description: "Browse thousands of verified homes.",
+  },
+  {
+    icon: Home,
+    title: "Apply & Move In",
+    description: "Apply and connect with the landlord directly.",
+  },
 ];
 
 const rentverifyLinks = [
@@ -177,26 +255,40 @@ const companyLinks = [
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.45 } }),
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.45 },
+  }),
 };
 
 const getListingCity = (address: string) => {
-  const parts = address.split(",").map((item) => item.trim()).filter(Boolean);
+  const parts = address
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
   return parts.length >= 2 ? parts[1] : parts[0] || "Popular areas";
 };
 
 const propertyFallbackImages = {
-  apartment: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
-  villa: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
-  studio: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
-  floor: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
-  default: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+  apartment:
+    "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+  villa:
+    "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
+  studio:
+    "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+  floor:
+    "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+  default:
+    "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
 } as const;
 
 const getFallbackListingImage = (propertyType: string) => {
   const normalized = propertyType.toLowerCase();
-  if (normalized.includes("apartment") || normalized.includes("flat")) return propertyFallbackImages.apartment;
-  if (normalized.includes("villa") || normalized.includes("house")) return propertyFallbackImages.villa;
+  if (normalized.includes("apartment") || normalized.includes("flat"))
+    return propertyFallbackImages.apartment;
+  if (normalized.includes("villa") || normalized.includes("house"))
+    return propertyFallbackImages.villa;
   if (normalized.includes("studio")) return propertyFallbackImages.studio;
   if (normalized.includes("floor")) return propertyFallbackImages.floor;
   return propertyFallbackImages.default;
@@ -210,7 +302,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1100 sqft",
     location: "Indiranagar, Bengaluru, Karnataka",
     time: "14/03/2026",
-    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
     address: "Indiranagar, Bengaluru, Karnataka",
     rent: 28000,
     propertyType: "Apartment",
@@ -225,7 +318,8 @@ const sampleListings: HomeListing[] = [
     meta: "Studio · 1 Bathroom · 540 sqft",
     location: "Koramangala, Bengaluru, Karnataka",
     time: "13/03/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "Koramangala, Bengaluru, Karnataka",
     rent: 18500,
     propertyType: "Studio",
@@ -240,7 +334,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 980 sqft",
     location: "Adyar, Chennai, Tamil Nadu",
     time: "12/03/2026",
-    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
     address: "Adyar, Chennai, Tamil Nadu",
     rent: 24000,
     propertyType: "Apartment",
@@ -255,7 +350,8 @@ const sampleListings: HomeListing[] = [
     meta: "1 BHK · 1 Bathroom · 620 sqft",
     location: "Velachery, Chennai, Tamil Nadu",
     time: "11/03/2026",
-    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
     address: "Velachery, Chennai, Tamil Nadu",
     rent: 15500,
     propertyType: "Apartment",
@@ -270,7 +366,8 @@ const sampleListings: HomeListing[] = [
     meta: "3 BHK · 3 Bathroom · 1600 sqft",
     location: "Hitech City, Hyderabad, Telangana",
     time: "10/03/2026",
-    image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
     address: "Hitech City, Hyderabad, Telangana",
     rent: 36000,
     propertyType: "Villa",
@@ -285,7 +382,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1020 sqft",
     location: "Gachibowli, Hyderabad, Telangana",
     time: "09/03/2026",
-    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
     address: "Gachibowli, Hyderabad, Telangana",
     rent: 22000,
     propertyType: "Builder Floor",
@@ -300,7 +398,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1080 sqft",
     location: "Baner, Pune, Maharashtra",
     time: "08/03/2026",
-    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
     address: "Baner, Pune, Maharashtra",
     rent: 26500,
     propertyType: "Apartment",
@@ -315,7 +414,8 @@ const sampleListings: HomeListing[] = [
     meta: "1 BHK · 1 Bathroom · 700 sqft",
     location: "Wakad, Pune, Maharashtra",
     time: "07/03/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "Wakad, Pune, Maharashtra",
     rent: 19000,
     propertyType: "Apartment",
@@ -330,7 +430,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1180 sqft",
     location: "Powai, Mumbai, Maharashtra",
     time: "06/03/2026",
-    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
     address: "Powai, Mumbai, Maharashtra",
     rent: 42000,
     propertyType: "Apartment",
@@ -345,7 +446,8 @@ const sampleListings: HomeListing[] = [
     meta: "Studio · 1 Bathroom · 500 sqft",
     location: "Andheri, Mumbai, Maharashtra",
     time: "05/03/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "Andheri, Mumbai, Maharashtra",
     rent: 21000,
     propertyType: "Studio",
@@ -360,7 +462,8 @@ const sampleListings: HomeListing[] = [
     meta: "3 BHK · 3 Bathroom · 1550 sqft",
     location: "South Delhi, Delhi / NCR",
     time: "04/03/2026",
-    image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
     address: "South Delhi, Delhi / NCR",
     rent: 39500,
     propertyType: "Builder Floor",
@@ -375,7 +478,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1040 sqft",
     location: "Noida, Delhi / NCR",
     time: "03/03/2026",
-    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
     address: "Noida, Delhi / NCR",
     rent: 24500,
     propertyType: "Apartment",
@@ -390,7 +494,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 960 sqft",
     location: "Salt Lake, Kolkata, West Bengal",
     time: "02/03/2026",
-    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
     address: "Salt Lake, Kolkata, West Bengal",
     rent: 20500,
     propertyType: "Apartment",
@@ -405,7 +510,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1120 sqft",
     location: "Prahlad Nagar, Ahmedabad, Gujarat",
     time: "01/03/2026",
-    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
     address: "Prahlad Nagar, Ahmedabad, Gujarat",
     rent: 23000,
     propertyType: "Apartment",
@@ -420,7 +526,8 @@ const sampleListings: HomeListing[] = [
     meta: "3 BHK · 2 Bathroom · 1320 sqft",
     location: "Jayanagar, Bengaluru, Karnataka",
     time: "28/02/2026",
-    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
     address: "Jayanagar, Bengaluru, Karnataka",
     rent: 31000,
     propertyType: "Villa",
@@ -435,7 +542,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1010 sqft",
     location: "OMR, Chennai, Tamil Nadu",
     time: "27/02/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "OMR, Chennai, Tamil Nadu",
     rent: 22500,
     propertyType: "Apartment",
@@ -450,7 +558,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1060 sqft",
     location: "HSR Layout, Bengaluru, Karnataka",
     time: "26/02/2026",
-    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
     address: "HSR Layout, Bengaluru, Karnataka",
     rent: 27500,
     propertyType: "Apartment",
@@ -465,7 +574,8 @@ const sampleListings: HomeListing[] = [
     meta: "3 BHK · 3 Bathroom · 1820 sqft",
     location: "Whitefield, Bengaluru, Karnataka",
     time: "25/02/2026",
-    image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80",
     address: "Whitefield, Bengaluru, Karnataka",
     rent: 46000,
     propertyType: "Villa",
@@ -480,7 +590,8 @@ const sampleListings: HomeListing[] = [
     meta: "1 BHK · 1 Bathroom · 640 sqft",
     location: "Marathahalli, Bengaluru, Karnataka",
     time: "24/02/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "Marathahalli, Bengaluru, Karnataka",
     rent: 17500,
     propertyType: "Apartment",
@@ -495,7 +606,8 @@ const sampleListings: HomeListing[] = [
     meta: "3 BHK · 2 Bathroom · 1280 sqft",
     location: "Anna Nagar, Chennai, Tamil Nadu",
     time: "23/02/2026",
-    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
     address: "Anna Nagar, Chennai, Tamil Nadu",
     rent: 29000,
     propertyType: "Apartment",
@@ -510,7 +622,8 @@ const sampleListings: HomeListing[] = [
     meta: "Studio · 1 Bathroom · 520 sqft",
     location: "T Nagar, Chennai, Tamil Nadu",
     time: "22/02/2026",
-    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
     address: "T Nagar, Chennai, Tamil Nadu",
     rent: 16500,
     propertyType: "Studio",
@@ -525,7 +638,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 940 sqft",
     location: "Porur, Chennai, Tamil Nadu",
     time: "21/02/2026",
-    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
     address: "Porur, Chennai, Tamil Nadu",
     rent: 21500,
     propertyType: "Apartment",
@@ -540,7 +654,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1200 sqft",
     location: "Jubilee Hills, Hyderabad, Telangana",
     time: "20/02/2026",
-    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
     address: "Jubilee Hills, Hyderabad, Telangana",
     rent: 34000,
     propertyType: "Apartment",
@@ -555,7 +670,8 @@ const sampleListings: HomeListing[] = [
     meta: "1 BHK · 1 Bathroom · 680 sqft",
     location: "Kondapur, Hyderabad, Telangana",
     time: "19/02/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "Kondapur, Hyderabad, Telangana",
     rent: 18000,
     propertyType: "Apartment",
@@ -570,7 +686,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1140 sqft",
     location: "Madhapur, Hyderabad, Telangana",
     time: "18/02/2026",
-    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
     address: "Madhapur, Hyderabad, Telangana",
     rent: 28500,
     propertyType: "Builder Floor",
@@ -585,7 +702,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 980 sqft",
     location: "Kharadi, Pune, Maharashtra",
     time: "17/02/2026",
-    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
     address: "Kharadi, Pune, Maharashtra",
     rent: 23500,
     propertyType: "Apartment",
@@ -600,7 +718,8 @@ const sampleListings: HomeListing[] = [
     meta: "1 BHK · 1 Bathroom · 630 sqft",
     location: "Hinjewadi, Pune, Maharashtra",
     time: "16/02/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "Hinjewadi, Pune, Maharashtra",
     rent: 16800,
     propertyType: "Apartment",
@@ -615,7 +734,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1090 sqft",
     location: "Aundh, Pune, Maharashtra",
     time: "15/02/2026",
-    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
     address: "Aundh, Pune, Maharashtra",
     rent: 27000,
     propertyType: "Builder Floor",
@@ -630,7 +750,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1160 sqft",
     location: "Bandra, Mumbai, Maharashtra",
     time: "14/02/2026",
-    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
     address: "Bandra, Mumbai, Maharashtra",
     rent: 48000,
     propertyType: "Apartment",
@@ -645,7 +766,8 @@ const sampleListings: HomeListing[] = [
     meta: "1 BHK · 1 Bathroom · 720 sqft",
     location: "Lower Parel, Mumbai, Maharashtra",
     time: "13/02/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "Lower Parel, Mumbai, Maharashtra",
     rent: 38500,
     propertyType: "Studio",
@@ -660,7 +782,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1020 sqft",
     location: "Chembur, Mumbai, Maharashtra",
     time: "12/02/2026",
-    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
     address: "Chembur, Mumbai, Maharashtra",
     rent: 29500,
     propertyType: "Apartment",
@@ -675,7 +798,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1080 sqft",
     location: "Saket, Delhi / NCR",
     time: "11/02/2026",
-    image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80",
     address: "Saket, Delhi / NCR",
     rent: 31000,
     propertyType: "Apartment",
@@ -690,7 +814,8 @@ const sampleListings: HomeListing[] = [
     meta: "1 BHK · 1 Bathroom · 610 sqft",
     location: "Dwarka, Delhi / NCR",
     time: "10/02/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "Dwarka, Delhi / NCR",
     rent: 17200,
     propertyType: "Apartment",
@@ -705,7 +830,8 @@ const sampleListings: HomeListing[] = [
     meta: "3 BHK · 3 Bathroom · 1480 sqft",
     location: "Gurgaon, Delhi / NCR",
     time: "09/02/2026",
-    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
     address: "Gurgaon, Delhi / NCR",
     rent: 35000,
     propertyType: "Builder Floor",
@@ -720,7 +846,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 1000 sqft",
     location: "Ballygunge, Kolkata, West Bengal",
     time: "08/02/2026",
-    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
     address: "Ballygunge, Kolkata, West Bengal",
     rent: 22800,
     propertyType: "Apartment",
@@ -735,7 +862,8 @@ const sampleListings: HomeListing[] = [
     meta: "Studio · 1 Bathroom · 480 sqft",
     location: "New Town, Kolkata, West Bengal",
     time: "07/02/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "New Town, Kolkata, West Bengal",
     rent: 14500,
     propertyType: "Studio",
@@ -750,7 +878,8 @@ const sampleListings: HomeListing[] = [
     meta: "3 BHK · 2 Bathroom · 1340 sqft",
     location: "Alipore, Kolkata, West Bengal",
     time: "06/02/2026",
-    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
     address: "Alipore, Kolkata, West Bengal",
     rent: 26000,
     propertyType: "Apartment",
@@ -765,7 +894,8 @@ const sampleListings: HomeListing[] = [
     meta: "2 BHK · 2 Bathroom · 980 sqft",
     location: "Bodakdev, Ahmedabad, Gujarat",
     time: "05/02/2026",
-    image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80",
     address: "Bodakdev, Ahmedabad, Gujarat",
     rent: 21500,
     propertyType: "Apartment",
@@ -780,7 +910,8 @@ const sampleListings: HomeListing[] = [
     meta: "1 BHK · 1 Bathroom · 610 sqft",
     location: "Satellite, Ahmedabad, Gujarat",
     time: "04/02/2026",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
     address: "Satellite, Ahmedabad, Gujarat",
     rent: 15800,
     propertyType: "Apartment",
@@ -795,7 +926,8 @@ const sampleListings: HomeListing[] = [
     meta: "3 BHK · 2 Bathroom · 1420 sqft",
     location: "Thaltej, Ahmedabad, Gujarat",
     time: "03/02/2026",
-    image: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&w=1200&q=80",
     address: "Thaltej, Ahmedabad, Gujarat",
     rent: 27500,
     propertyType: "Villa",
@@ -813,6 +945,11 @@ export default function Index() {
   const [loadingListings, setLoadingListings] = useState(true);
   const [allListings, setAllListings] = useState<HomeListing[]>([]);
   const [filteredListings, setFilteredListings] = useState<HomeListing[]>([]);
+  const [recentSearchChips, setRecentSearchChips] = useState<
+    Array<{ label: string; location?: string; type?: string; budget?: string }>
+  >([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadListings = async () => {
@@ -820,7 +957,9 @@ export default function Index() {
 
       const { data: rows } = await supabase
         .from("properties")
-        .select("id, title, address, rent, house_type, property_type, bedrooms, bathrooms, super_builtup_area, furnishing, created_at")
+        .select(
+          "id, title, address, rent, house_type, property_type, bedrooms, bathrooms, super_builtup_area, furnishing, created_at"
+        )
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(60);
@@ -880,6 +1019,41 @@ export default function Index() {
     };
 
     void loadListings();
+
+    const stored = window.localStorage.getItem("rv_recent_searches");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as Array<{
+          label: string;
+          location?: string;
+          type?: string;
+          budget?: string;
+        }>;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setRecentSearchChips(parsed.slice(0, 4));
+        }
+      } catch {
+        // ignore
+      }
+    } else {
+      setRecentSearchChips([
+        {
+          label: "Bengaluru · under Rs. 30,000",
+          location: "bengaluru",
+          budget: "20000-30000",
+        },
+        {
+          label: "2 BHK in Chennai",
+          location: "chennai",
+          type: "apartment",
+        },
+        {
+          label: "Studios in Hyderabad",
+          location: "hyderabad",
+          type: "studio",
+        },
+      ]);
+    }
   }, []);
 
   const applySearch = () => {
@@ -897,15 +1071,18 @@ export default function Index() {
     const typeMatch = (type: string) => {
       if (searchType === "any") return true;
       const normalized = type.toLowerCase();
-      if (searchType === "apartment") return normalized.includes("apartment") || normalized.includes("flat");
-      if (searchType === "villa") return normalized.includes("villa") || normalized.includes("house");
+      if (searchType === "apartment")
+        return normalized.includes("apartment") || normalized.includes("flat");
+      if (searchType === "villa")
+        return normalized.includes("villa") || normalized.includes("house");
       if (searchType === "studio") return normalized.includes("studio");
       if (searchType === "floor") return normalized.includes("floor");
       return true;
     };
 
     const next = allListings.filter((listing) => {
-      const locationOk = !location || listing.address.toLowerCase().includes(location);
+      const locationOk =
+        !location || listing.address.toLowerCase().includes(location);
       return (
         locationOk &&
         typeMatch(listing.propertyType) &&
@@ -913,6 +1090,38 @@ export default function Index() {
       );
     });
     setFilteredListings(next);
+
+    const labelParts: string[] = [];
+    if (location) labelParts.push(location);
+    if (searchType !== "any") labelParts.push(searchType);
+    if (searchBudget !== "any") labelParts.push(searchBudget);
+    const label =
+      labelParts.length > 0 ? labelParts.join(" · ") : "Recent search";
+
+    const nextChip = {
+      label,
+      location,
+      type: searchType !== "any" ? searchType : undefined,
+      budget: searchBudget !== "any" ? searchBudget : undefined,
+    };
+    setRecentSearchChips((prev) => {
+      const merged = [
+        nextChip,
+        ...prev.filter((chip) => chip.label !== nextChip.label),
+      ];
+      const trimmed = merged.slice(0, 4);
+      window.localStorage.setItem(
+        "rv_recent_searches",
+        JSON.stringify(trimmed)
+      );
+      return trimmed;
+    });
+
+    const params = new URLSearchParams();
+    if (location) params.set("q", location);
+    if (searchType !== "any") params.set("type", searchType);
+    if (searchBudget !== "any") params.set("budget", searchBudget);
+    navigate(`/search?${params.toString()}`);
   };
 
   const homeCarouselSections = useMemo(() => {
@@ -933,14 +1142,14 @@ export default function Index() {
           index === 0
             ? `Popular homes in ${city}`
             : index === 1
-              ? `Available in ${city} this week`
-              : `Trending stays around ${city}`,
+            ? `Available in ${city} this week`
+            : `Trending stays around ${city}`,
         subtitle:
           index === 0
             ? "Guest-favorite rentals with strong photos and clear pricing"
             : index === 1
-              ? "Freshly listed homes ready for shortlist and comparison"
-              : "Well-presented homes people are viewing right now",
+            ? "Freshly listed homes ready for shortlist and comparison"
+            : "Well-presented homes people are viewing right now",
         listings: listings.slice(0, 12),
       }));
 
@@ -949,11 +1158,13 @@ export default function Index() {
     }
 
     return filteredListings.length > 0
-      ? [{
-          title: "Popular homes",
-          subtitle: "Verified homes worth exploring now",
-          listings: filteredListings.slice(0, 12),
-        }]
+      ? [
+          {
+            title: "Popular homes",
+            subtitle: "Verified homes worth exploring now",
+            listings: filteredListings.slice(0, 12),
+          },
+        ]
       : [];
   }, [filteredListings]);
 
@@ -961,51 +1172,102 @@ export default function Index() {
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
 
-      <section className="relative overflow-hidden border-b bg-gradient-to-b from-[#fffaf6] via-white to-white pb-8 pt-6 sm:pb-12 sm:pt-8">
+      <section className="relative overflow-hidden border-b bg-[radial-gradient(circle_at_top,rgba(255,127,80,0.16),transparent_34%),linear-gradient(180deg,#fffdf8_0%,#fff7f1_42%,#fffdf9_100%)] pb-8 pt-28 sm:pb-12 sm:pt-32 lg:pt-36 dark:bg-[radial-gradient(circle_at_top,rgba(255,127,80,0.12),transparent_26%),linear-gradient(180deg,#12151d_0%,#10131b_100%)]">
         <div className="container relative mx-auto px-4">
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0} className="mb-4 text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#ff385c]/15 bg-[#ff385c]/5 px-3 py-1 text-[11px] font-semibold text-[#ff385c] sm:px-4 sm:text-xs">
-              <Star className="h-3.5 w-3.5 fill-[#ff385c] text-[#ff385c]" /> Verified rentals across India
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            custom={0}
+            className="mb-3 text-center"
+          >
+            <span className="trust-chip sm:px-4 sm:text-xs">
+              <Star className="h-3.5 w-3.5 fill-primary text-primary" />{" "}
+              100% online booking-ready rental flow
             </span>
           </motion.div>
-          <motion.h1 initial="hidden" animate="visible" variants={fadeUp} custom={1} className="mx-auto mb-2 max-w-3xl text-center text-2xl font-bold leading-tight text-slate-900 sm:mb-3 sm:text-4xl lg:text-5xl">
-            Find a <span className="text-[#ff385c]">modern rental home</span> without the noise
+          <motion.h1
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            custom={1}
+            className="mx-auto mb-2 max-w-4xl text-center text-[1.7rem] font-extrabold leading-[1.05] text-slate-900 sm:text-[2.8rem] lg:text-[3.8rem] dark:text-white"
+          >
+            Verified homes with the
+            <span className="text-primary"> right trust signals</span> before
+            you book
           </motion.h1>
-          <motion.p initial="hidden" animate="visible" variants={fadeUp} custom={2} className="mx-auto mb-5 max-w-2xl text-center text-sm text-slate-500 sm:mb-7 sm:text-base">
-            Compact search, clearer pricing, and verified landlord trust signals from the first click.
+          <motion.p
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            custom={2}
+            className="mx-auto mb-6 max-w-3xl text-center text-sm text-slate-600 sm:text-[1.02rem] dark:text-zinc-300/85"
+          >
+            Search by location, compare pricing, review availability, and spot
+            verified landlord signals before you commit to a visit or booking
+            request.
           </motion.p>
 
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={3} className="mx-auto max-w-4xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.08)] dark:bg-card">
-            <div className="flex gap-1 overflow-x-auto border-b border-border px-3 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:justify-center">
-              {(["rent", "buy", "pg"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold capitalize transition-colors sm:px-6 sm:text-sm ${activeTab === tab ? "bg-slate-900 text-white" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground dark:hover:bg-slate-900/40"}`}
-                >
-                  {tab === "pg" ? "PG / Hostel" : tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              ))}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            custom={3}
+            className="surface-soft mx-auto max-w-5xl overflow-hidden"
+          >
+            <div className="flex justify-center gap-1 border-b border-border/80 px-3 pt-3">
+              <button
+                type="button"
+                onClick={() => setActiveTab("rent")}
+                className={`rounded-full px-5 py-2 text-xs font-semibold capitalize transition-colors sm:px-7 sm:text-sm ${
+                  activeTab === "rent"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                }`}
+              >
+                Homes
+              </button>
+              <button
+                type="button"
+                disabled
+                className="cursor-not-allowed rounded-full px-5 py-2 text-xs font-semibold capitalize text-muted-foreground/60 sm:px-7 sm:text-sm"
+              >
+                Rooms (soon)
+              </button>
+              <button
+                type="button"
+                disabled
+                className="cursor-not-allowed rounded-full px-5 py-2 text-xs font-semibold capitalize text-muted-foreground/60 sm:px-7 sm:text-sm"
+              >
+                Studios (soon)
+              </button>
             </div>
-            <div className="p-3 sm:p-4">
-              <div className="grid gap-1.5 divide-y divide-slate-200 rounded-[1.6rem] border border-slate-200 bg-white p-2 sm:grid-cols-[1.5fr_1fr_1fr_auto] sm:items-center sm:gap-0 sm:divide-y-0 sm:rounded-full sm:p-1.5">
-                <div className="relative rounded-2xl px-3 py-2 transition-colors hover:bg-slate-50 sm:rounded-full sm:px-4">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Where</label>
+            <div className="p-3 md:p-5">
+              <div className="grid gap-2 rounded-[1.8rem] border border-border/80 bg-white/92 p-2 md:grid-cols-[1.45fr_1fr_1fr_auto] md:items-center md:gap-0 md:rounded-[1.8rem] md:p-2 dark:bg-card/92">
+                <div className="relative rounded-[1.25rem] px-3 py-3 transition-colors hover:bg-accent/50 md:px-5">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    City or locality
+                  </label>
                   <div className="mt-1 flex items-center gap-2">
-                    <MapPin className="h-4 w-4 shrink-0 text-[#ff385c]" />
+                    <MapPin className="h-4 w-4 shrink-0 text-primary" />
                     <Input
                       placeholder="Search destinations"
                       value={searchLocation}
-                      onChange={(event) => setSearchLocation(event.target.value)}
-                      className="h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus-visible:ring-0"
+                      onChange={(event) =>
+                        setSearchLocation(event.target.value)
+                      }
+                      className="h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus-visible:ring-0 truncate"
                     />
                   </div>
                 </div>
 
-                <div className="rounded-2xl px-3 py-2 pt-3 transition-colors hover:bg-slate-50 sm:relative sm:rounded-full sm:px-4 sm:pt-2 sm:before:absolute sm:before:left-0 sm:before:top-1/2 sm:before:h-8 sm:before:w-px sm:before:-translate-y-1/2 sm:before:bg-border">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Property</label>
+                <div className="rounded-[1.25rem] px-3 py-3 transition-colors hover:bg-accent/50 md:relative md:px-5 md:before:absolute md:before:left-0 md:before:top-1/2 md:before:h-10 md:before:w-px md:before:-translate-y-1/2 md:before:bg-border">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    Home type
+                  </label>
                   <Select value={searchType} onValueChange={setSearchType}>
-                    <SelectTrigger className="mt-1 h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
+                    <SelectTrigger className="mt-1 h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0 [&>span]:truncate">
                       <SelectValue placeholder="Any type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1018,155 +1280,270 @@ export default function Index() {
                   </Select>
                 </div>
 
-                <div className="rounded-2xl px-3 py-2 pt-3 transition-colors hover:bg-slate-50 sm:relative sm:rounded-full sm:px-4 sm:pt-2 sm:before:absolute sm:before:left-0 sm:before:top-1/2 sm:before:h-8 sm:before:w-px sm:before:-translate-y-1/2 sm:before:bg-border">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Budget</label>
+                <div className="rounded-[1.25rem] px-3 py-3 transition-colors hover:bg-accent/50 md:relative md:px-5 md:before:absolute md:before:left-0 md:before:top-1/2 md:before:h-10 md:before:w-px md:before:-translate-y-1/2 md:before:bg-border">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    Monthly budget
+                  </label>
                   <Select value={searchBudget} onValueChange={setSearchBudget}>
-                    <SelectTrigger className="mt-1 h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0">
+                    <SelectTrigger className="mt-1 h-7 border-none bg-transparent p-0 text-sm font-medium shadow-none focus:ring-0 [&>span]:truncate">
                       <SelectValue placeholder="Any budget" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="any">Any Budget</SelectItem>
                       <SelectItem value="0-10000">Under Rs. 10,000</SelectItem>
-                      <SelectItem value="10000-20000">Rs. 10k - Rs. 20k</SelectItem>
-                      <SelectItem value="20000-30000">Rs. 20k - Rs. 30k</SelectItem>
+                      <SelectItem value="10000-20000">
+                        Rs. 10k - Rs. 20k
+                      </SelectItem>
+                      <SelectItem value="20000-30000">
+                        Rs. 20k - Rs. 30k
+                      </SelectItem>
                       <SelectItem value="30000+">Rs. 30,000+</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="flex items-center justify-end p-1">
-                  <Button onClick={applySearch} className="h-11 w-full gap-2 rounded-full bg-[#ff385c] px-5 text-sm font-semibold text-white hover:bg-[#e13153] sm:h-12 sm:w-auto sm:px-6">
+                <div className="flex items-center justify-end p-2 md:p-0 md:pl-3">
+                  <Button
+                    onClick={applySearch}
+                    className="h-12 w-full gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground shadow-[0_18px_30px_-18px_hsl(var(--primary))] hover:bg-primary/90 md:w-auto"
+                  >
                     <Search className="h-4 w-4" />
-                    Search
+                    <span className="md:hidden lg:inline">Search</span>
                   </Button>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={4} className="mt-4 flex flex-nowrap items-center justify-start gap-2 overflow-x-auto pb-1 text-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-5 sm:flex-wrap sm:justify-center sm:text-sm">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            custom={4}
+            className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] sm:mt-5 sm:text-xs"
+          >
             {[
               "PAN-verified landlords",
-              "Secure document flow",
+              "Deposit-safe flow",
               "Clear monthly pricing",
             ].map((item) => (
-              <span key={item} className="rounded-full bg-slate-100 px-3 py-1.5 font-medium text-slate-600">
+              <span
+                key={item}
+                className="rounded-full border border-border/70 bg-white/85 px-3 py-1.5 font-medium text-slate-600 shadow-sm dark:bg-card/70"
+              >
                 {item}
               </span>
             ))}
           </motion.div>
+
+          {recentSearchChips.length > 0 && (
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              custom={5}
+              className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] sm:text-xs"
+            >
+              <span className="text-muted-foreground">Quick picks:</span>
+              {recentSearchChips.map((chip) => (
+                <button
+                  key={chip.label}
+                  type="button"
+                  onClick={() => {
+                    if (chip.location) setSearchLocation(chip.location);
+                    if (chip.type) setSearchType(chip.type);
+                    if (chip.budget) setSearchBudget(chip.budget);
+                    applySearch();
+                  }}
+                  className="rounded-full border border-border/70 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-accent"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </motion.div>
+          )}
         </div>
       </section>
 
-      {homeCarouselSections.length > 0 && (
+      {loadingListings ? (
         <section className="bg-background py-8 sm:py-10">
-          <div className="container mx-auto space-y-8 px-4">
-            {homeCarouselSections.map((section, sectionIndex) => (
-              <motion.div
-                key={section.title}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                custom={sectionIndex}
-              >
-                <div className="mb-4 flex items-end justify-between gap-3">
-                  <div>
-                    <h2 className="text-xl font-bold tracking-tight sm:text-2xl">{section.title}</h2>
-                    <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{section.subtitle}</p>
+          <div className="container mx-auto space-y-6 px-4">
+            <div className="space-y-2">
+              <div className="h-4 w-40 rounded-full bg-muted" />
+              <div className="h-3 w-64 rounded-full bg-muted/80" />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="space-y-3">
+                  <Skeleton className="aspect-[4/4.1] w-full rounded-[24px]" />
+                  <div className="space-y-1.5 px-1">
+                    <Skeleton className="h-3 w-5/6 rounded-full" />
+                    <Skeleton className="h-3 w-2/3 rounded-full" />
+                    <Skeleton className="h-3 w-3/4 rounded-full" />
                   </div>
                 </div>
-
-                <Carousel
-                  opts={{ align: "start", loop: false }}
-                  className="relative"
-                >
-                  <CarouselContent className="-ml-3">
-                    {section.listings.map((item) => (
-                      <CarouselItem key={`${section.title}-${item.id}`} className="pl-3 basis-[78%] sm:basis-[42%] md:basis-[32%] lg:basis-[24%] xl:basis-[19.5%]">
-                        <Link to={`/property/${item.id}`} className="block">
-                          <div className="group overflow-hidden rounded-[24px]">
-                            <div className="relative aspect-[4/4.1] overflow-hidden rounded-[24px] bg-muted">
-                              {item.image ? (
-                                <img
-                                  src={item.image}
-                                  alt={item.title}
-                                  onError={(event) => {
-                                    event.currentTarget.src = getFallbackListingImage(item.propertyType);
-                                  }}
-                                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                              ) : (
-                                <img
-                                  src={getFallbackListingImage(item.propertyType)}
-                                  alt={item.title}
-                                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                              )}
-                              <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[10px] font-semibold text-foreground shadow-sm">
-                                Guest favourite
-                              </span>
-                              <button
-                                type="button"
-                                aria-label="Save home"
-                                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur"
-                              >
-                                <Heart className="h-4 w-4" />
-                              </button>
-                            </div>
-
-                              <div className="px-1 pb-1 pt-2.5">
-                              <div className="flex items-start justify-between gap-3">
-                                <div>
-                                  <p className="line-clamp-1 text-sm font-semibold text-foreground">{item.title}</p>
-                                  <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">{item.location}</p>
-                                </div>
-                                <div className="shrink-0 text-right">
-                                  <div className="flex items-center gap-1 text-[13px] font-semibold text-foreground">
-                                    <Star className="h-3.5 w-3.5 fill-foreground text-foreground" />
-                                    <span>4.9</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">{item.meta}</p>
-                              <p className="mt-0.5 text-[13px] text-muted-foreground">Available from {item.time}</p>
-                              <p className="mt-1.5 text-[13px] font-semibold text-foreground">{item.price} <span className="font-normal text-muted-foreground">/ month</span></p>
-                            </div>
-                          </div>
-                        </Link>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="left-auto right-11 top-[-3rem] h-9 w-9 translate-y-0 border-border/70 bg-white shadow-sm disabled:opacity-40 dark:bg-card" />
-                  <CarouselNext className="right-0 top-[-3rem] h-9 w-9 translate-y-0 border-border/70 bg-white shadow-sm disabled:opacity-40 dark:bg-card" />
-                </Carousel>
-              </motion.div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
+      ) : (
+        homeCarouselSections.length > 0 && (
+          <section className="bg-background py-8 sm:py-10">
+            <div className="container mx-auto space-y-8 px-4">
+              {homeCarouselSections.map((section, sectionIndex) => (
+                <motion.div
+                  key={section.title}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={fadeUp}
+                  custom={sectionIndex}
+                >
+                  <div className="mb-4 flex items-end justify-between gap-3">
+                    <div>
+                      <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
+                        {section.title}
+                      </h2>
+                      <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+                        {section.subtitle}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Carousel
+                    opts={{ align: "start", loop: false }}
+                    className="relative"
+                  >
+                    <CarouselContent className="-ml-3">
+                      {section.listings.map((item) => (
+                        <CarouselItem
+                          key={`${section.title}-${item.id}`}
+                          className="pl-3 basis-[85%] sm:basis-[48%] md:basis-[33%] lg:basis-[25%] xl:basis-[20%]"
+                        >
+                          <Link to={`/property/${item.id}`} className="block">
+                            <div className="group overflow-hidden">
+                              <div className="relative aspect-[4/3.8] overflow-hidden rounded-[1.5rem] bg-muted shadow-sm transition-transform duration-300 group-hover:shadow-md">
+                                {item.image ? (
+                                  <img
+                                    src={item.image}
+                                    alt={item.title}
+                                    loading="lazy"
+                                    onError={(event) => {
+                                      event.currentTarget.src =
+                                        getFallbackListingImage(
+                                          item.propertyType
+                                        );
+                                    }}
+                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                  />
+                                ) : (
+                                  <img
+                                    src={getFallbackListingImage(
+                                      item.propertyType
+                                    )}
+                                    alt={item.title}
+                                    loading="lazy"
+                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                  />
+                                )}
+
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
+
+                                <span className="absolute left-3 top-3 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm border-none dark:bg-card dark:text-slate-100">
+                                  Guest favourite
+                                </span>
+                                <button
+                                  type="button"
+                                  aria-label="Save home"
+                                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-sm backdrop-blur transition-transform hover:scale-110"
+                                >
+                                  <Heart className="h-4 w-4" />
+                                </button>
+                              </div>
+
+                              <div className="px-1 pb-1 pt-3">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div>
+                                    <p className="line-clamp-1 text-[15px] font-bold leading-tight tracking-tight text-foreground transition-colors group-hover:text-primary">
+                                      {item.title}
+                                    </p>
+                                    <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">
+                                      {item.location}
+                                    </p>
+                                  </div>
+                                  <div className="shrink-0 text-right">
+                                    <div className="flex items-center gap-1 text-[13px] font-semibold text-foreground">
+                                      <Star className="h-3.5 w-3.5 fill-foreground text-foreground" />
+                                      <span>4.9</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <p className="mt-1 line-clamp-1 text-[13px] font-medium text-slate-600 dark:text-slate-400">
+                                  {item.meta}
+                                </p>
+                                <p className="mt-0.5 text-[13px] text-muted-foreground">
+                                  Available from {item.time}
+                                </p>
+                                <div className="mt-2 flex items-baseline gap-1">
+                                  <span className="text-[15px] font-bold tracking-tight text-foreground">
+                                    {item.price}
+                                  </span>
+                                  <span className="text-xs font-medium text-muted-foreground">
+                                    / month
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-auto right-11 top-[-3rem] h-9 w-9 translate-y-0 border-border/70 bg-white shadow-sm disabled:opacity-40 dark:bg-card" />
+                    <CarouselNext className="right-0 top-[-3rem] h-9 w-9 translate-y-0 border-border/70 bg-white shadow-sm disabled:opacity-40 dark:bg-card" />
+                  </Carousel>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )
       )}
 
-      <section className="border-b bg-slate-50/70 py-10 dark:bg-slate-950/20">
+      <section className="border-b bg-[linear-gradient(180deg,#fff8f3_0%,#fffdf8_100%)] py-12 dark:bg-[linear-gradient(180deg,#161019_0%,#10131b_100%)]">
         <div className="container mx-auto px-4">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#ff385c]">Marketplace Standards</div>
-              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Built for trust, conversion and operational clarity</h2>
+              <div className="text-xs font-bold uppercase tracking-[0.24em] text-primary">
+                Marketplace Standards
+              </div>
+              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+                Built for trust, conversion and operational clarity
+              </h2>
             </div>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Leading platforms win with strong trust signals, decision-support content and simplified journeys. RentVerify is now aligned with those core patterns.
+              Leading platforms win with strong trust signals, decision-support
+              content and simplified journeys. RentVerify is now aligned with
+              those core patterns.
             </p>
           </div>
           <div className="grid gap-4 lg:grid-cols-3">
             {solutionCards.map((card, index) => (
-              <motion.div key={card.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
-                <Card className="h-full border-0 bg-white shadow-[0_16px_48px_rgba(15,23,42,0.08)] dark:bg-card">
+              <motion.div
+                key={card.title}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={index}
+              >
+                <Card className="h-full border border-border/60 bg-white/90 shadow-[0_16px_48px_-30px_rgba(91,71,56,0.22)] dark:bg-card/90">
                   <CardContent className="p-6">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ff385c]/10">
-                      <card.icon className="h-6 w-6 text-[#ff385c]" />
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+                      <card.icon className="h-6 w-6 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold">{card.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.description}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {card.description}
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -1179,20 +1556,40 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <div className="mb-8 flex items-end justify-between">
             <div>
-              <h2 className="text-2xl font-bold sm:text-3xl">Apartments, Villas and more</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Browse by property type</p>
+              <h2 className="text-2xl font-bold sm:text-3xl">
+                Apartments, Villas and more
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Browse by property type
+              </p>
             </div>
-            <Link to="/register" className="hidden text-sm font-semibold text-[#ff385c] hover:underline sm:block">View all <ChevronRight className="inline h-4 w-4" /></Link>
+            <Link
+              to="/register"
+              className="hidden text-sm font-semibold text-primary hover:underline sm:block"
+            >
+              View all <ChevronRight className="inline h-4 w-4" />
+            </Link>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {propertyTypes.map((pt, i) => (
-              <motion.div key={pt.label} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}>
+              <motion.div
+                key={pt.label}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={i}
+              >
                 <Link to="/register">
-                  <Card className={`group cursor-pointer overflow-hidden border transition-all hover:-translate-y-0.5 hover:shadow-md ${pt.color}`}>
+                  <Card
+                    className={`group cursor-pointer overflow-hidden border border-border/70 transition-all hover:-translate-y-0.5 hover:shadow-md ${pt.color}`}
+                  >
                     <CardContent className="p-5">
-                      <Building2 className="mb-3 h-8 w-8 text-[#ff385c] transition-transform group-hover:scale-110" />
+                      <Building2 className="mb-3 h-8 w-8 text-primary transition-transform group-hover:scale-110" />
                       <p className="font-semibold leading-tight">{pt.label}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{pt.count} Properties</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {pt.count} Properties
+                      </p>
                     </CardContent>
                   </Card>
                 </Link>
@@ -1202,21 +1599,32 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="bg-amber-50/60 py-16 dark:bg-amber-950/10">
+      <section className="bg-[linear-gradient(180deg,#fff8ed_0%,#fff4ec_100%)] py-16 dark:bg-[linear-gradient(180deg,#1a1411_0%,#12161d_100%)]">
         <div className="container mx-auto px-4">
           <div className="mb-2 flex items-center gap-2">
-            <Home className="h-6 w-6 text-[#ff385c]" />
+            <Home className="h-6 w-6 text-primary" />
             <h2 className="text-2xl font-bold">BHK Choice in Mind?</h2>
           </div>
-          <p className="mb-8 text-sm text-muted-foreground">Browse by number of bedrooms</p>
+          <p className="mb-8 text-sm text-muted-foreground">
+            Browse by number of bedrooms
+          </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {bhkOptions.map((item, i) => (
-              <motion.div key={item.bhk} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}>
+              <motion.div
+                key={item.bhk}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={i}
+              >
                 <Card className="group border bg-white transition-all hover:-translate-y-0.5 hover:shadow-md dark:bg-card">
                   <CardContent className="flex flex-col items-center py-7 text-center">
-                    <item.icon className="mb-3 h-10 w-10 text-[#ff385c] transition-transform group-hover:scale-110" />
+                    <item.icon className="mb-3 h-10 w-10 text-primary transition-transform group-hover:scale-110" />
                     <p className="font-semibold">{item.bhk}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{item.count} Properties</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {item.count} Properties
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -1228,18 +1636,29 @@ export default function Index() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="mb-2 text-2xl font-bold">Homes by Furnishing</h2>
-          <p className="mb-8 text-sm text-muted-foreground">Choose your preferred furnishing</p>
+          <p className="mb-8 text-sm text-muted-foreground">
+            Choose your preferred furnishing
+          </p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
             {furnishingOptions.map((option, i) => (
-              <motion.div key={option.label} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}>
+              <motion.div
+                key={option.label}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={i}
+              >
                 <Card className="group border bg-card transition-all hover:-translate-y-0.5 hover:shadow-md">
                   <CardContent className="flex items-center gap-4 p-5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#ff385c]/10">
-                      <option.icon className="h-6 w-6 text-[#ff385c]" />
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                      <option.icon className="h-6 w-6 text-primary" />
                     </div>
                     <div>
                       <p className="font-semibold">{option.label}</p>
-                      <p className="text-xs text-muted-foreground">Browse listings</p>
+                      <p className="text-xs text-muted-foreground">
+                        Browse listings
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -1249,22 +1668,40 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="features" className="bg-[#0e2a5c] py-20">
+      <section id="features" className="bg-[linear-gradient(180deg,#2a1915_0%,#18120f_100%)] py-20">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
-            <span className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold text-rose-200">WHY RENTVERIFY</span>
-            <h2 className="text-3xl font-bold text-white">India&apos;s Most Trusted Rental Platform</h2>
-            <p className="mt-3 text-rose-200/70">Built with trust, security and convenience at the core</p>
+            <span className="mb-3 inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold text-orange-100">
+              WHY RENTVERIFY
+            </span>
+            <h2 className="text-3xl font-bold text-white">
+              Search, trust and booking signals in one rental workflow
+            </h2>
+            <p className="mt-3 text-orange-100/70">
+              Inspired by the best rental portals: image-first browsing, clear
+              rules, and trust before contact.
+            </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, i) => (
-              <motion.div key={feature.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-sm transition-all hover:bg-white/10">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-400/10">
-                    <feature.icon className="h-7 w-7 text-yellow-400" />
+              <motion.div
+                key={feature.title}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={i}
+              >
+                <div className="rounded-[1.7rem] border border-white/10 bg-white/5 p-6 text-center backdrop-blur-sm transition-all hover:bg-white/10">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15">
+                    <feature.icon className="h-7 w-7 text-primary" />
                   </div>
-                  <h3 className="mb-2 font-semibold text-white">{feature.title}</h3>
-                  <p className="text-sm text-rose-200/70">{feature.description}</p>
+                  <h3 className="mb-2 font-semibold text-white">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-orange-100/70">
+                    {feature.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -1272,29 +1709,47 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="insights" className="border-y bg-gradient-to-b from-white to-slate-50 py-16 dark:from-background dark:to-slate-950/20">
+      <section
+        id="insights"
+        className="border-y bg-gradient-to-b from-white to-[#fff7f1] py-16 dark:from-background dark:to-slate-950/20"
+      >
         <div className="container mx-auto px-4">
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#ff385c]">Research & Insights</div>
-              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">Tools users expect before making a decision</h2>
+              <div className="text-xs font-bold uppercase tracking-[0.24em] text-primary">
+                Research & Insights
+              </div>
+              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+                Tools users expect before making a decision
+              </h2>
             </div>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Inspired by high-performing property portals, these sections reduce hesitation by combining search, insights and planning help in one experience.
+              Inspired by high-performing property portals, these sections
+              reduce hesitation by combining search, insights and planning help
+              in one experience.
             </p>
           </div>
           <div className="grid gap-5 lg:grid-cols-3">
             {researchTools.map((tool, index) => (
-              <motion.div key={tool.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
+              <motion.div
+                key={tool.title}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={index}
+              >
                 <Link to={tool.link}>
-                  <Card className="h-full border bg-card transition-all hover:-translate-y-0.5 hover:border-[#ff385c]/40 hover:shadow-lg">
+                  <Card className="h-full border border-border/70 bg-card transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
                     <CardContent className="p-6">
-                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ff385c]/10">
-                        <tool.icon className="h-6 w-6 text-[#ff385c]" />
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+                        <tool.icon className="h-6 w-6 text-primary" />
                       </div>
                       <h3 className="text-lg font-semibold">{tool.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{tool.description}</p>
-                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#ff385c]">
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {tool.description}
+                      </p>
+                      <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary">
                         Explore <ArrowRight className="h-4 w-4" />
                       </div>
                     </CardContent>
@@ -1310,7 +1765,9 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold">How It Works</h2>
-            <p className="mt-3 text-muted-foreground">Simple steps for landlords and tenants</p>
+            <p className="mt-3 text-muted-foreground">
+              Simple steps for landlords and tenants
+            </p>
           </div>
           <div className="grid gap-10 lg:grid-cols-2">
             <div className="rounded-2xl border bg-card p-6 sm:p-8">
@@ -1323,68 +1780,99 @@ export default function Index() {
               <div className="space-y-4">
                 {landlordSteps.map((step, i) => (
                   <div key={step.title} className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-sm font-bold text-orange-600 dark:bg-orange-900/30">{i + 1}</div>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-sm font-bold text-orange-600 dark:bg-orange-900/30">
+                      {i + 1}
+                    </div>
                     <div>
                       <p className="font-semibold">{step.title}</p>
-                      <p className="text-sm text-muted-foreground">{step.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {step.description}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
-              <Button asChild className="mt-6 w-full bg-orange-500 text-white hover:bg-orange-600">
-                <Link to="/register">List Your Property Free <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Button
+                asChild
+                className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Link to="/register">
+                  List Your Property Free{" "}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </div>
 
             <div className="rounded-2xl border bg-card p-6 sm:p-8">
               <h3 className="mb-6 flex items-center gap-2 text-xl font-bold">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/30">
-                  <Users className="h-4 w-4 text-[#ff385c]" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted dark:bg-muted/80">
+                  <Users className="h-4 w-4 text-primary" />
                 </div>
                 For Tenants
               </h3>
               <div className="space-y-4">
                 {tenantSteps.map((step, i) => (
                   <div key={step.title} className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-sm font-bold text-[#ff385c] dark:bg-rose-900/30">{i + 1}</div>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold text-primary dark:bg-muted/80">
+                      {i + 1}
+                    </div>
                     <div>
                       <p className="font-semibold">{step.title}</p>
-                      <p className="text-sm text-muted-foreground">{step.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {step.description}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
-              <Button asChild className="mt-6 w-full bg-[#ff385c] text-white hover:bg-[#e13153]">
-                <Link to="/register">Find Your Home <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Button
+                asChild
+                className="mt-6 w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Link to="/register">
+                  Find Your Home <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-green-50 py-16 dark:bg-green-950/20">
+      <section className="bg-secondary/55 py-16 dark:bg-secondary/20">
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-green-200 bg-white p-8 shadow-sm dark:border-green-900/40 dark:bg-card sm:flex-row sm:items-center">
             <div>
-              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Sell or rent faster at the right price</h2>
-              <p className="mt-2 text-muted-foreground">Your perfect tenant is waiting. List your property now for free.</p>
+              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
+                Sell or rent faster at the right price
+              </h2>
+              <p className="mt-2 text-muted-foreground">
+                Your perfect tenant is waiting. List your property now for free.
+              </p>
               <div className="mt-4 flex flex-wrap gap-3">
-                {[
-                  "Free Listing",
-                  "Verified Tenants",
-                  "Quick Response",
-                ].map((item) => (
-                  <span key={item} className="flex items-center gap-1.5 text-sm font-medium text-green-700 dark:text-green-400">
-                    <CheckCircle2 className="h-4 w-4" /> {item}
-                  </span>
-                ))}
+                {["Free Listing", "Verified Tenants", "Quick Response"].map(
+                  (item) => (
+                    <span
+                      key={item}
+                      className="flex items-center gap-1.5 text-sm font-medium text-success"
+                    >
+                      <CheckCircle2 className="h-4 w-4" /> {item}
+                    </span>
+                  )
+                )}
               </div>
             </div>
             <div className="flex flex-col gap-3 sm:items-center">
-              <Button asChild size="lg" className="bg-[#ff385c] px-10 text-base font-bold hover:bg-[#e13153]">
+              <Button
+                asChild
+                size="lg"
+                className="bg-primary px-10 text-base font-bold text-primary-foreground hover:bg-primary/90"
+              >
                 <Link to="/register">Post Property - It&apos;s FREE</Link>
               </Button>
-              <a href="tel:+918000000000" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+              <a
+                href="tel:+918000000000"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+              >
                 <PhoneCall className="h-4 w-4" /> Post via call
               </a>
             </div>
@@ -1395,23 +1883,41 @@ export default function Index() {
       <section id="trust-proof" className="py-16">
         <div className="container mx-auto px-4">
           <div className="mb-8 text-center">
-            <div className="text-xs font-bold uppercase tracking-[0.24em] text-[#ff385c]">Proof of Trust</div>
-            <h2 className="mt-2 text-2xl font-bold sm:text-3xl">What stronger marketplace design should feel like</h2>
+            <div className="text-xs font-bold uppercase tracking-[0.24em] text-primary">
+              Proof of Trust
+            </div>
+            <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+              What stronger marketplace design should feel like
+            </h2>
           </div>
           <div className="grid gap-5 lg:grid-cols-3">
             {testimonials.map((testimonial, index) => (
-              <motion.div key={testimonial.name} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
+              <motion.div
+                key={testimonial.name}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={index}
+              >
                 <Card className="h-full border bg-card shadow-sm">
                   <CardContent className="p-6">
                     <div className="mb-4 flex items-center gap-1 text-amber-500">
                       {Array.from({ length: 5 }).map((_, starIndex) => (
-                        <Star key={starIndex} className="h-4 w-4 fill-current" />
+                        <Star
+                          key={starIndex}
+                          className="h-4 w-4 fill-current"
+                        />
                       ))}
                     </div>
-                    <p className="text-sm leading-7 text-foreground/85">&ldquo;{testimonial.quote}&rdquo;</p>
+                    <p className="text-sm leading-7 text-foreground/85">
+                      &ldquo;{testimonial.quote}&rdquo;
+                    </p>
                     <div className="mt-5 border-t pt-4">
                       <p className="font-semibold">{testimonial.name}</p>
-                      <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {testimonial.role}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -1421,15 +1927,20 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="services" className="bg-[#0f2a5c] py-16 text-white">
+      <section id="services" className="bg-zinc-950 dark:bg-zinc-900 py-16 text-white">
         <div className="container mx-auto px-4">
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-xs font-bold uppercase tracking-[0.24em] text-rose-300">Owner & Tenant Services</div>
-              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">More than listings. A managed rental workflow.</h2>
+              <div className="text-xs font-bold uppercase tracking-[0.24em] text-primary/60">
+                Owner & Tenant Services
+              </div>
+              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+                More than listings. A managed rental workflow.
+              </h2>
             </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70">
-              <Sparkles className="h-4 w-4 text-yellow-400" /> Inspired by category leaders, adapted for verified rentals.
+              <Sparkles className="h-4 w-4 text-yellow-400" /> Inspired by
+              category leaders, adapted for verified rentals.
             </div>
           </div>
           <div className="grid gap-4 lg:grid-cols-4">
@@ -1439,7 +1950,14 @@ export default function Index() {
               "Direct owner contact path",
               "Safer document and KYC readiness",
             ].map((item, index) => (
-              <motion.div key={item} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={index}>
+              <motion.div
+                key={item}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={index}
+              >
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
                   <CheckCircle2 className="mb-3 h-5 w-5 text-green-400" />
                   <p className="font-medium text-white/90">{item}</p>
@@ -1450,46 +1968,84 @@ export default function Index() {
         </div>
       </section>
 
-      <footer className="app-web-footer bg-[#0f2a5c] py-12 text-white sm:py-14">
+      <footer className="bg-zinc-950 dark:bg-zinc-900 py-12 text-white sm:py-14">
         <div className="container mx-auto px-4">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <div className="mb-4 flex items-center gap-2">
                 <BrandWordmark theme="dark" compact />
               </div>
-              <p className="text-sm leading-relaxed text-white/50">India&apos;s trusted rental verification platform for secure, transparent rentals.</p>
+              <p className="text-sm leading-relaxed text-white/50">
+                India&apos;s trusted rental verification platform for secure,
+                transparent rentals.
+              </p>
             </div>
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">RentVerify</h4>
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">
+                RentVerify
+              </h4>
               <ul className="space-y-2.5 text-sm text-white/60">
                 {rentverifyLinks.map((item) => (
-                  <li key={item.label}><Link to={item.to} className="hover:text-white">{item.label}</Link></li>
+                  <li key={item.label}>
+                    <Link to={item.to} className="hover:text-white">
+                      {item.label}
+                    </Link>
+                  </li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">Company</h4>
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">
+                Company
+              </h4>
               <ul className="space-y-2.5 text-sm text-white/60">
                 {companyLinks.map((item) => (
-                  <li key={item.label}><Link to={item.to} className="hover:text-white">{item.label}</Link></li>
+                  <li key={item.label}>
+                    <Link to={item.to} className="hover:text-white">
+                      {item.label}
+                    </Link>
+                  </li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">Contact Us</h4>
+              <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">
+                Contact Us
+              </h4>
               <div className="space-y-2.5 text-sm text-white/60">
-                <p>Toll Free: <span className="font-medium text-white">1800-XXX-XXXX</span></p>
+                <p>
+                  Toll Free:{" "}
+                  <span className="font-medium text-white">1800-XXX-XXXX</span>
+                </p>
                 <p>9:30 AM - 6:30 PM (Mon-Sun)</p>
-                <p>Email: <a href="mailto:support@rentverify.in" className="text-[#ff385c] hover:underline">support@rentverify.in</a></p>
+                <p>
+                  Email:{" "}
+                  <a
+                    href="mailto:support@rentverify.in"
+                    className="text-primary hover:underline"
+                  >
+                    support@rentverify.in
+                  </a>
+                </p>
               </div>
             </div>
           </div>
           <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-8 text-xs text-white/30 sm:flex-row">
             <p>Copyright 2026 RentVerify. All rights reserved.</p>
-            <p>Crafted with love by <a href="https://ajstudioz.com" className="text-white/60 hover:text-white">AJ STUDIOZ</a></p>
+            <p>
+              Crafted with love by{" "}
+              <a
+                href="https://ajstudioz.com"
+                className="text-white/60 hover:text-white"
+              >
+                AJ STUDIOZ
+              </a>
+            </p>
           </div>
         </div>
       </footer>
     </div>
   );
 }
+
+

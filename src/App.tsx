@@ -7,8 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
-import { MobileAppBottomNav } from "@/components/MobileAppBottomNav";
-import { NativeAppHeader } from "@/components/NativeAppHeader";
+import { DeviceAnalyticsTracker } from "@/components/DeviceAnalyticsTracker";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -51,6 +50,7 @@ import TenantProfile from "./pages/tenant/Profile";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import PropertyBooking from "./pages/PropertyBooking";
+import SearchResults from "./pages/SearchResults";
 
 const queryClient = new QueryClient();
 
@@ -62,56 +62,154 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <NativeAppHeader />
-            <div className="app-content-with-tabs">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/property/:id" element={<PropertyDetail />} />
-                <Route path="/property/:id/book" element={<PropertyBooking />} />
-                <Route path="/for-tenants" element={<ForTenantsPage />} />
-                <Route path="/for-owners" element={<ForOwnersPage />} />
-                <Route path="/about-us" element={<AboutUsPage />} />
-                <Route path="/our-services" element={<OurServicesPage />} />
-                <Route path="/price-trends" element={<PriceTrendsPage />} />
-                <Route path="/post-property-free" element={<PostPropertyFreePage />} />
-                <Route path="/articles" element={<ArticlesPage />} />
-                <Route path="/sitemap" element={<SitemapPage />} />
-                <Route path="/company" element={<CompanyPage />} />
-                <Route path="/about-aj-studioz" element={<AboutAJStudiozPage />} />
-                <Route path="/contact-us" element={<ContactUsPage />} />
-                <Route path="/careers" element={<CareersPage />} />
-                <Route path="/terms-conditions" element={<TermsAndConditionsPage />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                <Route path="/safety-guide" element={<SafetyGuidePage />} />
+            <DeviceAnalyticsTracker />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/property/:id" element={<PropertyDetail />} />
+              <Route path="/property/:id/book" element={<PropertyBooking />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route path="/for-tenants" element={<ForTenantsPage />} />
+              <Route path="/for-owners" element={<ForOwnersPage />} />
+              <Route path="/about-us" element={<AboutUsPage />} />
+              <Route path="/our-services" element={<OurServicesPage />} />
+              <Route path="/price-trends" element={<PriceTrendsPage />} />
+              <Route
+                path="/post-property-free"
+                element={<PostPropertyFreePage />}
+              />
+              <Route path="/articles" element={<ArticlesPage />} />
+              <Route path="/sitemap" element={<SitemapPage />} />
+              <Route path="/company" element={<CompanyPage />} />
+              <Route
+                path="/about-aj-studioz"
+                element={<AboutAJStudiozPage />}
+              />
+              <Route path="/contact-us" element={<ContactUsPage />} />
+              <Route path="/careers" element={<CareersPage />} />
+              <Route
+                path="/terms-conditions"
+                element={<TermsAndConditionsPage />}
+              />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/safety-guide" element={<SafetyGuidePage />} />
 
-                {/* Landlord Routes */}
-                <Route path="/landlord/dashboard" element={<ProtectedRoute requiredRole="landlord"><LandlordDashboard /></ProtectedRoute>} />
-                <Route path="/landlord/add-property" element={<ProtectedRoute requiredRole="landlord"><AddProperty /></ProtectedRoute>} />
-                <Route path="/landlord/listings" element={<ProtectedRoute requiredRole="landlord"><Listings /></ProtectedRoute>} />
-                <Route path="/landlord/requests" element={<ProtectedRoute requiredRole="landlord"><Requests /></ProtectedRoute>} />
-                <Route path="/landlord/messages" element={<ProtectedRoute requiredRole="landlord"><LandlordMessages /></ProtectedRoute>} />
-                <Route path="/landlord/profile" element={<ProtectedRoute requiredRole="landlord"><LandlordProfile /></ProtectedRoute>} />
+              {/* Landlord Routes */}
+              <Route
+                path="/landlord/dashboard"
+                element={
+                  <ProtectedRoute requiredRole="landlord">
+                    <LandlordDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/landlord/add-property"
+                element={
+                  <ProtectedRoute requiredRole="landlord">
+                    <AddProperty />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/landlord/listings"
+                element={
+                  <ProtectedRoute requiredRole="landlord">
+                    <Listings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/landlord/requests"
+                element={
+                  <ProtectedRoute requiredRole="landlord">
+                    <Requests />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/landlord/messages"
+                element={
+                  <ProtectedRoute requiredRole="landlord">
+                    <LandlordMessages />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/landlord/profile"
+                element={
+                  <ProtectedRoute requiredRole="landlord">
+                    <LandlordProfile />
+                  </ProtectedRoute>
+                }
+              />
 
-                {/* Tenant Routes */}
-                <Route path="/tenant/dashboard" element={<ProtectedRoute requiredRole="tenant"><TenantDashboard /></ProtectedRoute>} />
-                <Route path="/tenant/saved" element={<ProtectedRoute requiredRole="tenant"><SavedHouses /></ProtectedRoute>} />
-                <Route path="/tenant/applications" element={<ProtectedRoute requiredRole="tenant"><Applications /></ProtectedRoute>} />
-                <Route path="/tenant/bookings" element={<ProtectedRoute requiredRole="tenant"><MyBookings /></ProtectedRoute>} />
-                <Route path="/tenant/messages" element={<ProtectedRoute requiredRole="tenant"><TenantMessages /></ProtectedRoute>} />
-                <Route path="/tenant/profile" element={<ProtectedRoute requiredRole="tenant"><TenantProfile /></ProtectedRoute>} />
+              {/* Tenant Routes */}
+              <Route
+                path="/tenant/dashboard"
+                element={
+                  <ProtectedRoute requiredRole="tenant">
+                    <TenantDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tenant/saved"
+                element={
+                  <ProtectedRoute requiredRole="tenant">
+                    <SavedHouses />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tenant/applications"
+                element={
+                  <ProtectedRoute requiredRole="tenant">
+                    <Applications />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tenant/bookings"
+                element={
+                  <ProtectedRoute requiredRole="tenant">
+                    <MyBookings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tenant/messages"
+                element={
+                  <ProtectedRoute requiredRole="tenant">
+                    <TenantMessages />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tenant/profile"
+                element={
+                  <ProtectedRoute requiredRole="tenant">
+                    <TenantProfile />
+                  </ProtectedRoute>
+                }
+              />
 
-                {/* Admin Routes */}
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
 
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-            <MobileAppBottomNav />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
