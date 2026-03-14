@@ -160,4 +160,12 @@
   body.app-native [data-native-topbar="true"] {
     padding-top: var(--safe-area-top);
   }
+
+  body.app-native.app-bottom-nav-visible .app-content-with-tabs {
+    padding-bottom: calc(var(--safe-area-bottom) + 5rem);
+  }
+
+  body.app-native .app-web-footer {
+    display: none !important;
+  }
 }

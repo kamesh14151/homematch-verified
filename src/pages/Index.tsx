@@ -1450,7 +1450,7 @@ export default function Index() {
         </div>
       </section>
 
-      <footer className="bg-[#0f2a5c] py-12 text-white sm:py-14">
+      <footer className="app-web-footer bg-[#0f2a5c] py-12 text-white sm:py-14">
         <div className="container mx-auto px-4">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
