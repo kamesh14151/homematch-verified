@@ -203,10 +203,21 @@ export default function PropertyDetail() {
         videoUrl: propertyRow.video_url ?? null,
       });
       setLoading(false);
+
+      // Check if saved
+      if (user) {
+        const { data: savedRow } = await supabase
+          .from("saved_properties")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("property_id", propertyRow.id)
+          .maybeSingle();
+        setIsSaved(!!savedRow);
+      }
     };
 
     void loadProperty();
-  }, [id]);
+  }, [id, user]);
 
   const mapEmbedUrl = useMemo(
     () => `https://www.google.com/maps?q=${encodeURIComponent(property.address)}&output=embed`,
