@@ -688,83 +688,93 @@ export default function TenantDashboard() {
                   </div>
 
                   {/* card list */}
-                  <div className="flex-1 divide-y divide-border/40 overflow-y-auto dark:divide-white/5" style={{ maxHeight: "388px" }}>
-                    {nearbyProperties.slice(0, 12).map((property) => (
+                  <div className="flex-1 overflow-y-auto" style={{ maxHeight: "388px" }}>
+                    {nearbyProperties.slice(0, 12).map((property, idx) => (
                       <div
                         key={property.id}
                         id={`nc-${property.id}`}
                         onMouseEnter={() => setHoveredPropertyId(property.id)}
                         onMouseLeave={() => setHoveredPropertyId(null)}
-                        className={`flex gap-0 transition-colors ${
+                        className={`group relative flex items-stretch gap-3 border-b border-border/30 px-3 py-2.5 transition-colors last:border-0 dark:border-white/5 ${
                           hoveredPropertyId === property.id
-                            ? "bg-primary/5 dark:bg-primary/10"
-                            : "hover:bg-muted/30 dark:hover:bg-zinc-900/60"
+                            ? "bg-primary/5 dark:bg-primary/8"
+                            : "hover:bg-muted/20 dark:hover:bg-zinc-900/50"
                         }`}
                       >
+                        {/* Row number */}
+                        <span className="absolute left-2 top-2 text-[9px] font-bold text-muted-foreground/40 select-none">
+                          {idx + 1}
+                        </span>
+
                         {/* Thumbnail */}
-                        <div className="relative h-[90px] w-[90px] shrink-0 overflow-hidden">
+                        <div className="relative ml-3 h-[72px] w-[88px] shrink-0 overflow-hidden rounded-lg">
                           {property.imageUrl ? (
                             <img
                               src={property.imageUrl}
                               alt={property.title}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                             />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-muted">
-                              <Home className="h-8 w-8 text-muted-foreground/30" />
+                            <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-gradient-to-br from-muted to-muted/60">
+                              <Home className="h-5 w-5 text-muted-foreground/40" />
+                              <span className="text-[9px] text-muted-foreground/40">No photo</span>
                             </div>
                           )}
                           {property.verified && (
-                            <span className="absolute left-1.5 top-1.5 flex items-center gap-0.5 rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
-                              <BadgeCheck className="h-2.5 w-2.5" /> Verified
+                            <span className="absolute bottom-1 left-1 flex items-center gap-0.5 rounded bg-emerald-500/90 px-1 py-0.5 text-[8px] font-bold leading-none text-white backdrop-blur-sm">
+                              ✓
                             </span>
                           )}
                         </div>
 
-                        {/* Details */}
-                        <div className="flex flex-1 flex-col justify-between px-3 py-2">
-                          <div>
-                            <h3 className="line-clamp-1 text-sm font-semibold text-foreground">
+                        {/* Content */}
+                        <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+                          {/* Top: title + location */}
+                          <div className="min-w-0">
+                            <h3 className="line-clamp-1 text-[13px] font-semibold leading-tight text-foreground">
                               {property.title}
                             </h3>
-                            <p className="mt-0.5 flex items-center gap-0.5 text-[11px] text-muted-foreground">
-                              <MapPin className="h-3 w-3 shrink-0" />
+                            <p className="mt-0.5 flex items-start gap-0.5 text-[10px] leading-tight text-muted-foreground">
+                              <MapPin className="mt-px h-2.5 w-2.5 shrink-0" />
                               <span className="line-clamp-1">{property.address}</span>
                             </p>
-                            <div className="mt-1.5 flex flex-wrap gap-1">
-                              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                                {property.houseType}
-                              </span>
-                              {property.furnishing && (
-                                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground capitalize">
-                                  {property.furnishing}
-                                </span>
-                              )}
-                              {property.area && (
-                                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                                  {property.area} sq.ft
-                                </span>
-                              )}
-                            </div>
                           </div>
 
-                          <div className="mt-2 flex items-end justify-between">
-                            <div>
-                              <p className="text-sm font-bold text-foreground">
+                          {/* Chips row */}
+                          <div className="mt-1.5 flex items-center gap-1 overflow-hidden">
+                            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                              {property.houseType}
+                            </span>
+                            {property.furnishing && (
+                              <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium capitalize text-muted-foreground">
+                                {property.furnishing}
+                              </span>
+                            )}
+                            {property.area && (
+                              <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                                {property.area} sq.ft
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Bottom: price + button */}
+                          <div className="mt-1.5 flex items-center justify-between gap-2">
+                            <div className="min-w-0">
+                              <span className="text-[13px] font-bold text-foreground">
                                 ₹{property.rent.toLocaleString("en-IN")}
-                                <span className="text-[11px] font-normal text-muted-foreground">/mo</span>
-                              </p>
-                              {property.securityDeposit && (
-                                <p className="text-[10px] text-muted-foreground">
-                                  ₹{property.securityDeposit.toLocaleString("en-IN")} deposit
-                                </p>
-                              )}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground">/mo</span>
+                              {property.securityDeposit ? (
+                                <span className="ml-1.5 text-[9px] text-muted-foreground/70">
+                                  · ₹{(property.securityDeposit / 1000).toFixed(0)}k dep.
+                                </span>
+                              ) : null}
                             </div>
                             <Link
                               to={`/property/${property.id}`}
-                              className="rounded-full bg-primary px-3 py-1.5 text-[11px] font-bold text-primary-foreground transition-all hover:scale-105 hover:shadow-md"
+                              className="shrink-0 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold text-primary-foreground shadow-sm transition-all hover:brightness-110 hover:shadow-md"
                             >
-                              Book a Visit
+                              Book Visit
                             </Link>
                           </div>
                         </div>
