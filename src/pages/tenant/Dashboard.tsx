@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -9,6 +9,11 @@ import {
   Home,
   SlidersHorizontal,
   Loader2,
+  Navigation,
+  Locate,
+  MapPin,
+  ChevronRight,
+  BadgeCheck,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { TenantLeaseEscrow } from "@/components/TenantLeaseEscrow";
@@ -19,6 +24,7 @@ import {
 } from "@/components/dashboard-ui";
 import { StatCard } from "@/components/StatCard";
 import { PropertyCard } from "@/components/PropertyCard";
+import { PropertyMap } from "@/components/PropertyMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,6 +38,45 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+// ---------------------------------------------------------------------------
+// City coordinate lookup for location-based ranking
+// ---------------------------------------------------------------------------
+const CITY_COORDS: Record<string, [number, number]> = {
+  bangalore: [12.9716, 77.5946],
+  bengaluru: [12.9716, 77.5946],
+  chennai: [13.0827, 80.2707],
+  hyderabad: [17.385, 78.4867],
+  mumbai: [19.076, 72.8777],
+  pune: [18.5204, 73.8567],
+  delhi: [28.6139, 77.209],
+  noida: [28.5355, 77.391],
+  gurgaon: [28.4595, 77.0266],
+  gurugram: [28.4595, 77.0266],
+  kolkata: [22.5726, 88.3639],
+  ahmedabad: [23.0225, 72.5714],
+  jaipur: [26.9124, 75.7873],
+};
+
+/** Deterministic jitter so the same property always lands at the same pin. */
+function hashFraction(s: string): number {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  return (h % 1000) / 1000;
+}
+
+function guessPropertyCoords(id: string, address: string): [number, number] | null {
+  const lower = address.toLowerCase();
+  for (const [city, base] of Object.entries(CITY_COORDS)) {
+    if (lower.includes(city)) {
+      return [
+        base[0] + (hashFraction(id + "lat") - 0.5) * 0.04,
+        base[1] + (hashFraction(id + "lng") - 0.5) * 0.04,
+      ];
+    }
+  }
+  return null;
+}
+
 type Property = {
   id: string;
   title: string;
@@ -40,6 +85,9 @@ type Property = {
   houseType: string;
   verified: boolean;
   imageUrl?: string;
+  securityDeposit?: number;
+  area?: number;
+  furnishing?: string;
 };
 
 export default function TenantDashboard() {
@@ -53,6 +101,11 @@ export default function TenantDashboard() {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [hasActiveBooking, setHasActiveBooking] = useState(false);
 
+  // Location state
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number; city: string } | null>(null);
+  const [locationStatus, setLocationStatus] = useState<"detecting" | "gps" | "ip" | "default">("detecting");
+  const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
+
   const navItems = useMemo(
     () => [
       { title: "Search Houses", url: "/tenant/dashboard", icon: Search },
@@ -64,6 +117,71 @@ export default function TenantDashboard() {
     ],
     [messageCount]
   );
+
+  // ---------------------------------------------------------------------------
+  // Location detection: GPS first, fallback to IP
+  // ---------------------------------------------------------------------------
+  const applyGPSCoords = useCallback(async (lat: number, lng: number) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=en`
+      );
+      const data = await res.json();
+      const city =
+        data?.address?.city ||
+        data?.address?.town ||
+        data?.address?.suburb ||
+        data?.address?.state ||
+        "your area";
+      setUserLocation({ lat, lng, city });
+      setLocationStatus("gps");
+    } catch {
+      setUserLocation({ lat, lng, city: "your area" });
+      setLocationStatus("gps");
+    }
+  }, []);
+
+  const requestGPS = useCallback(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { void applyGPSCoords(pos.coords.latitude, pos.coords.longitude); },
+      () => { /* user denied, do nothing */ },
+      { timeout: 8000 }
+    );
+  }, [applyGPSCoords]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const detect = async () => {
+      // Try GPS (silently — don't prompt if already denied)
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+        );
+        if (!cancelled) await applyGPSCoords(pos.coords.latitude, pos.coords.longitude);
+        return;
+      } catch { /* continue to IP fallback */ }
+
+      // Fallback: IP geolocation
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        if (!cancelled && data?.latitude) {
+          setUserLocation({ lat: data.latitude, lng: data.longitude, city: data.city || "your area" });
+          setLocationStatus("ip");
+          return;
+        }
+      } catch { /* ignore */ }
+
+      // Last resort default (Bangalore)
+      if (!cancelled) {
+        setUserLocation({ lat: 12.9716, lng: 77.5946, city: "Bangalore" });
+        setLocationStatus("default");
+      }
+    };
+    void detect();
+    return () => { cancelled = true; };
+  }, [applyGPSCoords]);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,7 +195,7 @@ export default function TenantDashboard() {
         await Promise.all([
           supabase
             .from("properties")
-            .select("id, title, address, rent, house_type, is_verified")
+            .select("id, title, address, rent, house_type, is_verified, security_deposit_amount, super_builtup_area, furnishing")
             .order("created_at", { ascending: false })
             .limit(50),
           user
@@ -157,6 +275,9 @@ export default function TenantDashboard() {
           houseType: item.house_type,
           verified: !!item.is_verified,
           imageUrl: imageMap.get(item.id),
+          securityDeposit: (item as any).security_deposit_amount ?? undefined,
+          area: (item as any).super_builtup_area ?? undefined,
+          furnishing: (item as any).furnishing ?? undefined,
         }))
       );
       setLoading(false);
@@ -193,6 +314,46 @@ export default function TenantDashboard() {
 
     return result;
   }, [properties, searchQuery, houseTypeFilter, rentFilter]);
+
+  // ---------------------------------------------------------------------------
+  // Near-you sorting: city-matched properties bubble to the top
+  // ---------------------------------------------------------------------------
+  const nearbyProperties = useMemo(() => {
+    if (!userLocation) return filteredProperties;
+    const cityLower = userLocation.city.toLowerCase();
+    const isLocal = (address: string) => {
+      const addrLower = address.toLowerCase();
+      if (addrLower.includes(cityLower)) return true;
+      // also match broad city aliases
+      return Object.keys(CITY_COORDS).some(
+        (c) => cityLower.includes(c) && addrLower.includes(c)
+      );
+    };
+    return [...filteredProperties].sort((a, b) => {
+      const aL = isLocal(a.address);
+      const bL = isLocal(b.address);
+      if (aL && !bL) return -1;
+      if (!aL && bL) return 1;
+      return 0;
+    });
+  }, [filteredProperties, userLocation]);
+
+  // Map pin data (only properties we can geocode)
+  const mapListings = useMemo(() => {
+    return nearbyProperties
+      .slice(0, 15)
+      .map((p) => {
+        const coords = guessPropertyCoords(p.id, p.address);
+        if (!coords) return null;
+        return { id: p.id, title: p.title, rent: p.rent, image: p.imageUrl, lat: coords[0], lng: coords[1] };
+      })
+      .filter(Boolean) as Array<{ id: string; title: string; rent: number; image?: string; lat: number; lng: number }>;
+  }, [nearbyProperties]);
+
+  const mapCenter = useMemo<[number, number]>(
+    () => (userLocation ? [userLocation.lat, userLocation.lng] : [12.9716, 77.5946]),
+    [userLocation]
+  );
 
   const handleToggleSave = async (propertyId: string) => {
     if (!user) {
@@ -430,36 +591,196 @@ export default function TenantDashboard() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-6 xl:grid-cols-[1.45fr_0.55fr]">
-            <DashboardPanel
-              title="Recommended Listings"
-              description="Verified homes that fit active search behavior."
-              actionLabel="Open search"
-              actionTo="/"
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
-                {filteredProperties.slice(0, 6).map((property) => (
-                  <PropertyCard
-                    key={property.id}
-                    id={property.id}
-                    title={property.title}
-                    address={property.address}
-                    rent={property.rent}
-                    houseType={property.houseType}
-                    imageUrl={property.imageUrl}
-                    verified={property.verified}
-                    isSaved={savedIds.has(property.id)}
-                    onSave={() => handleToggleSave(property.id)}
-                  />
-                ))}
+          <div className="space-y-4">
+            {/* Location source banner */}
+            {locationStatus === "ip" && userLocation && (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-800 dark:border-blue-800/30 dark:bg-blue-950/20 dark:text-blue-300">
+                <span className="flex items-center gap-2">
+                  <Navigation className="h-4 w-4 shrink-0" />
+                  Showing homes near <strong className="mx-1">{userLocation.city}</strong> based on your IP address.
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 rounded-full border-blue-300 bg-white px-3 text-xs text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:bg-transparent dark:text-blue-400"
+                  onClick={requestGPS}
+                >
+                  <Locate className="mr-1.5 h-3.5 w-3.5" /> Enable GPS for accuracy
+                </Button>
               </div>
-            </DashboardPanel>
+            )}
+            {locationStatus === "gps" && userLocation && (
+              <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800 dark:border-emerald-800/30 dark:bg-emerald-950/20 dark:text-emerald-300">
+                <Locate className="h-4 w-4 shrink-0" />
+                Showing verified homes near <strong className="ml-1">{userLocation.city}</strong> using your GPS location.
+              </div>
+            )}
 
+            {/* ── Nestaway-style split layout ── */}
+            <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-background shadow-[0_18px_44px_-36px_rgba(91,71,56,0.22)] dark:border-white/8 dark:bg-zinc-950">
+              {/* Header bar */}
+              <div className="flex items-center justify-between border-b border-border/60 px-5 py-3.5 dark:border-white/8">
+                <div>
+                  <h2 className="font-semibold text-foreground">
+                    Recommended Near You
+                    {locationStatus === "detecting" && (
+                      <span className="ml-2 text-xs font-normal text-muted-foreground">Detecting location…</span>
+                    )}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {nearbyProperties.length} verified homes
+                    {userLocation ? ` · ${userLocation.city}` : ""}
+                  </p>
+                </div>
+                <Link
+                  to="/"
+                  className="flex items-center gap-1 rounded-full border border-border/60 bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground dark:border-white/8 dark:bg-zinc-900/60"
+                >
+                  All listings <ChevronRight className="h-3 w-3" />
+                </Link>
+              </div>
+
+              {/* Map + card list */}
+              <div className="flex flex-col lg:flex-row" style={{ minHeight: "520px" }}>
+                {/* LEFT: Leaflet map */}
+                <div className="relative h-72 shrink-0 lg:h-auto lg:flex-1" style={{ zIndex: 0 }}>
+                  {userLocation ? (
+                    <PropertyMap
+                      listings={mapListings}
+                      center={mapCenter}
+                      zoom={12}
+                      selectedId={hoveredPropertyId ?? undefined}
+                      userMarker={mapCenter}
+                      onMarkerClick={(id) => {
+                        setHoveredPropertyId(id);
+                        document.getElementById(`nc-${id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-muted/30">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/50" />
+                    </div>
+                  )}
+                </div>
+
+                {/* RIGHT: scrollable property card list */}
+                <div className="flex w-full flex-col lg:w-[380px] lg:shrink-0 xl:w-[420px]">
+                  {/* mini filter chips */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto border-b border-border/50 px-3 py-2 dark:border-white/8">
+                    {["All", "1 BHK", "2 BHK", "3 BHK", "Furnished"].map((chip) => (
+                      <button
+                        key={chip}
+                        onClick={() => {
+                          if (chip === "All") { setHouseTypeFilter("all"); }
+                          else if (chip === "Furnished") { setHouseTypeFilter("all"); }
+                          else setHouseTypeFilter(chip);
+                        }}
+                        className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
+                          (chip === "All" && houseTypeFilter === "all") ||
+                          houseTypeFilter === chip
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        {chip}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* card list */}
+                  <div className="flex-1 divide-y divide-border/40 overflow-y-auto dark:divide-white/5" style={{ maxHeight: "464px" }}>
+                    {nearbyProperties.slice(0, 12).map((property) => (
+                      <div
+                        key={property.id}
+                        id={`nc-${property.id}`}
+                        onMouseEnter={() => setHoveredPropertyId(property.id)}
+                        onMouseLeave={() => setHoveredPropertyId(null)}
+                        className={`flex gap-0 transition-colors ${
+                          hoveredPropertyId === property.id
+                            ? "bg-primary/5 dark:bg-primary/10"
+                            : "hover:bg-muted/30 dark:hover:bg-zinc-900/60"
+                        }`}
+                      >
+                        {/* Thumbnail */}
+                        <div className="relative h-[120px] w-[120px] shrink-0 overflow-hidden">
+                          {property.imageUrl ? (
+                            <img
+                              src={property.imageUrl}
+                              alt={property.title}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-muted">
+                              <Home className="h-8 w-8 text-muted-foreground/30" />
+                            </div>
+                          )}
+                          {property.verified && (
+                            <span className="absolute left-1.5 top-1.5 flex items-center gap-0.5 rounded-full bg-emerald-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                              <BadgeCheck className="h-2.5 w-2.5" /> Verified
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Details */}
+                        <div className="flex flex-1 flex-col justify-between p-3">
+                          <div>
+                            <h3 className="line-clamp-1 text-sm font-semibold text-foreground">
+                              {property.title}
+                            </h3>
+                            <p className="mt-0.5 flex items-center gap-0.5 text-[11px] text-muted-foreground">
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              <span className="line-clamp-1">{property.address}</span>
+                            </p>
+                            <div className="mt-1.5 flex flex-wrap gap-1">
+                              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                {property.houseType}
+                              </span>
+                              {property.furnishing && (
+                                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground capitalize">
+                                  {property.furnishing}
+                                </span>
+                              )}
+                              {property.area && (
+                                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                  {property.area} sq.ft
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="mt-2 flex items-end justify-between">
+                            <div>
+                              <p className="text-sm font-bold text-foreground">
+                                ₹{property.rent.toLocaleString("en-IN")}
+                                <span className="text-[11px] font-normal text-muted-foreground">/mo</span>
+                              </p>
+                              {property.securityDeposit && (
+                                <p className="text-[10px] text-muted-foreground">
+                                  ₹{property.securityDeposit.toLocaleString("en-IN")} deposit
+                                </p>
+                              )}
+                            </div>
+                            <Link
+                              to={`/property/${property.id}`}
+                              className="rounded-full bg-primary px-3 py-1.5 text-[11px] font-bold text-primary-foreground transition-all hover:scale-105 hover:shadow-md"
+                            >
+                              Book a Visit
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tenant Insights — kept below the map split */}
             <DashboardPanel
               title="Tenant Insights"
               description="Signals that keep your housing search focused."
             >
-              <div className="space-y-3">
+              <div className="grid gap-3 sm:grid-cols-3">
                 <MiniInsight
                   icon={Bookmark}
                   title="Shortlist"
@@ -478,11 +799,6 @@ export default function TenantDashboard() {
                   value={`${messageCount} messages`}
                   tone="green"
                 />
-                <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm leading-7 text-muted-foreground dark:border-white/8 dark:bg-zinc-900/72 dark:text-zinc-300/85">
-                  Strong rental decisions come from comparing budget,
-                  furnishing, commute fit, and owner credibility together. Keep
-                  your shortlist focused and active.
-                </div>
               </div>
             </DashboardPanel>
           </div>

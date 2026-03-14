@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -18,14 +18,23 @@ L.Icon.Default.mergeOptions({
 });
 
 // A custom HTML icon for modern property pins
-const createPriceIcon = (price: number | string) => {
+const createPriceIcon = (price: number | string, selected = false) => {
   return L.divIcon({
     className: "custom-price-marker",
-    html: `<div class="bg-primary text-primary-foreground font-bold px-3 py-1.5 rounded-full shadow-md text-xs whitespace-nowrap border-2 border-background">₹${price}</div>`,
+    html: selected
+      ? `<div class="bg-zinc-900 text-white font-bold px-3 py-1.5 rounded-full shadow-xl text-xs whitespace-nowrap border-2 border-white scale-110 ring-2 ring-primary">₹${price}</div>`
+      : `<div class="bg-primary text-primary-foreground font-bold px-3 py-1.5 rounded-full shadow-md text-xs whitespace-nowrap border-2 border-background">₹${price}</div>`,
     iconSize: [undefined, undefined] as any,
     iconAnchor: [30, 15],
   });
 };
+
+const userLocationIcon = L.divIcon({
+  className: "user-location-marker",
+  html: `<div class="h-4 w-4 rounded-full bg-blue-500 border-2 border-white shadow-lg ring-4 ring-blue-500/30"></div>`,
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+});
 
 type MapListing = {
   id: string;
@@ -47,10 +56,16 @@ export function PropertyMap({
   listings,
   center = [12.9716, 77.5946], // Default to Bangalore coordinates
   zoom = 12,
+  selectedId,
+  userMarker,
+  onMarkerClick,
 }: {
   listings: MapListing[];
   center?: [number, number];
   zoom?: number;
+  selectedId?: string;
+  userMarker?: [number, number];
+  onMarkerClick?: (id: string) => void;
 }) {
   const mapRef = useRef<L.Map>(null);
 
@@ -80,7 +95,8 @@ export function PropertyMap({
           <Marker
             key={listing.id}
             position={[listing.lat, listing.lng]}
-            icon={createPriceIcon((listing.rent / 1000).toFixed(1) + "k")}
+            icon={createPriceIcon((listing.rent / 1000).toFixed(1) + "k", listing.id === selectedId)}
+            eventHandlers={{ click: () => onMarkerClick?.(listing.id) }}
           >
             <Popup className="property-popup">
               <Link to={`/property/${listing.id}`} className="block w-48">
@@ -103,6 +119,12 @@ export function PropertyMap({
             </Popup>
           </Marker>
         ))}
+        {/* User location blue dot */}
+        {userMarker && (
+          <Marker position={userMarker} icon={userLocationIcon}>
+            <Popup><span className="text-sm font-medium">You are here</span></Popup>
+          </Marker>
+        )}
         {listings.length === 0 && <ChangeView center={center} zoom={zoom} />}
       </MapContainer>
       <style>{`
