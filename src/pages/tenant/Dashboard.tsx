@@ -85,7 +85,7 @@ export default function TenantDashboard() {
         });
       }
 
-      const savedSet = new Set((savedResult.data ?? []).map((s: any) => s.property_id));
+      const savedSet = new Set<string>((savedResult.data ?? []).map((s: any) => s.property_id as string));
       setSavedIds(savedSet);
       setSavedCount(savedSet.size);
       setApplicationsCount(applicationsResult.count ?? 0);

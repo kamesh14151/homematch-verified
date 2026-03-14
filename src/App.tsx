@@ -64,6 +64,8 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/property/:id" element={<PropertyDetail />} />
               <Route path="/property/:id/book" element={<PropertyBooking />} />
               <Route path="/for-tenants" element={<ForTenantsPage />} />
