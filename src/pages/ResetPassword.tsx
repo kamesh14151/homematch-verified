@@ -36,22 +36,37 @@ export default function ResetPassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      toast({ title: "Too short", description: "Password must be at least 6 characters.", variant: "destructive" });
+      toast({
+        title: "Too short",
+        description: "Password must be at least 6 characters.",
+        variant: "destructive",
+      });
       return;
     }
     if (password !== confirm) {
-      toast({ title: "Mismatch", description: "Passwords do not match.", variant: "destructive" });
+      toast({
+        title: "Mismatch",
+        description: "Passwords do not match.",
+        variant: "destructive",
+      });
       return;
     }
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
     setSuccess(true);
-    toast({ title: "Password updated", description: "You can now sign in with your new password." });
+    toast({
+      title: "Password updated",
+      description: "You can now sign in with your new password.",
+    });
     setTimeout(() => navigate("/login"), 2000);
   };
 
@@ -67,24 +82,34 @@ export default function ResetPassword() {
             <div className="text-center">
               <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
               <h1 className="mt-4 text-2xl font-bold">Password Updated</h1>
-              <p className="mt-2 text-sm text-muted-foreground">Redirecting you to login...</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Redirecting you to login...
+              </p>
             </div>
           ) : !validSession ? (
             <div className="text-center">
               <h1 className="text-2xl font-bold">Invalid or Expired Link</h1>
-              <p className="mt-2 text-sm text-muted-foreground">This reset link may have expired. Please request a new one.</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                This reset link may have expired. Please request a new one.
+              </p>
               <Button asChild className="mt-4 rounded-xl" variant="outline">
                 <Link to="/forgot-password">Request New Link</Link>
               </Button>
             </div>
           ) : (
             <>
-              <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-[28px]">Set new password</h1>
-              <p className="mt-1.5 text-sm text-muted-foreground">Enter your new password below.</p>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-[28px]">
+                Set new password
+              </h1>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Enter your new password below.
+              </p>
 
               <form onSubmit={handleSubmit} className="mt-5 space-y-3">
                 <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">New Password</Label>
+                  <Label className="text-sm text-muted-foreground">
+                    New Password
+                  </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -102,12 +127,18 @@ export default function ResetPassword() {
                       className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 text-muted-foreground"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Confirm Password</Label>
+                  <Label className="text-sm text-muted-foreground">
+                    Confirm Password
+                  </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -120,7 +151,11 @@ export default function ResetPassword() {
                     />
                   </div>
                 </div>
-                <Button type="submit" className="h-10 w-full rounded-xl text-sm font-semibold" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="h-10 w-full rounded-xl text-sm font-semibold"
+                  disabled={loading}
+                >
                   {loading ? "Updating..." : "Update Password"}
                 </Button>
               </form>
@@ -132,7 +167,11 @@ export default function ResetPassword() {
       </div>
 
       <div className="relative hidden overflow-hidden rounded-l-3xl lg:block lg:w-1/2">
-        <img src={loginHero} alt="Property" className="absolute inset-0 h-full w-full object-cover" />
+        <img
+          src={loginHero}
+          alt="Property"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>
     </div>

@@ -2,11 +2,21 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Shield, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { ADMIN_PASSWORD, isAdminAuthenticated, setAdminAuthenticated } from "@/lib/admin-auth";
+import {
+  ADMIN_PASSWORD,
+  isAdminAuthenticated,
+  setAdminAuthenticated,
+} from "@/lib/admin-auth";
 
 export default function AdminLogin() {
   const [password, setPassword] = useState("");
@@ -33,7 +43,10 @@ export default function AdminLogin() {
     }
 
     setAdminAuthenticated(true);
-    toast({ title: "Admin access granted", description: "Welcome to Admin Dashboard." });
+    toast({
+      title: "Admin access granted",
+      description: "Welcome to Admin Dashboard.",
+    });
     navigate("/admin/dashboard", { replace: true });
   };
 
@@ -45,7 +58,9 @@ export default function AdminLogin() {
             <Shield className="h-5 w-5" />
             <CardTitle>Admin Login</CardTitle>
           </div>
-          <CardDescription>Enter admin password to access platform controls.</CardDescription>
+          <CardDescription>
+            Enter admin password to access platform controls.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -6,7 +6,10 @@ interface ProtectedRouteProps {
   requiredRole?: string;
 }
 
-export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+export function ProtectedRoute({
+  children,
+  requiredRole,
+}: ProtectedRouteProps) {
   const { user, userRole, loading } = useAuth();
 
   if (loading) {
@@ -20,7 +23,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   if (!user) return <Navigate to="/login" replace />;
 
   if (requiredRole && userRole !== requiredRole) {
-    const redirect = userRole === "landlord" ? "/landlord/dashboard" : "/tenant/dashboard";
+    const redirect =
+      userRole === "landlord" ? "/landlord/dashboard" : "/tenant/dashboard";
     return <Navigate to={redirect} replace />;
   }
 

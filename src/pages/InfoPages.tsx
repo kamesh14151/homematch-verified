@@ -13,22 +13,38 @@ type InfoPageProps = {
   ctaLink?: string;
 };
 
-function InfoPageTemplate({ title, subtitle, intro, bullets, ctaLabel, ctaLink = "/register" }: InfoPageProps) {
+function InfoPageTemplate({
+  title,
+  subtitle,
+  intro,
+  bullets,
+  ctaLabel,
+  ctaLink = "/register",
+}: InfoPageProps) {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container mx-auto px-4 py-10 sm:py-14">
+      <main className="container mx-auto px-4 pb-14 pt-28 sm:pb-16 sm:pt-32">
         <div className="mx-auto max-w-4xl">
-          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-primary">{subtitle}</p>
-          <h1 className="text-3xl font-bold leading-tight sm:text-4xl">{title}</h1>
-          <p className="mt-4 text-base leading-relaxed text-muted-foreground">{intro}</p>
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-primary">
+            {subtitle}
+          </p>
+          <h1 className="text-3xl font-bold leading-tight sm:text-4xl">
+            {title}
+          </h1>
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            {intro}
+          </p>
 
           <Card className="mt-8 border">
             <CardContent className="p-5 sm:p-7">
               <h2 className="mb-4 text-lg font-semibold">How it works</h2>
               <div className="space-y-3">
                 {bullets.map((point) => (
-                  <div key={point} className="flex items-start gap-2.5 text-sm text-muted-foreground sm:text-base">
+                  <div
+                    key={point}
+                    className="flex items-start gap-2.5 text-sm text-muted-foreground sm:text-base"
+                  >
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <span>{point}</span>
                   </div>
@@ -40,7 +56,9 @@ function InfoPageTemplate({ title, subtitle, intro, bullets, ctaLabel, ctaLink =
           {ctaLabel && (
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild>
-                <Link to={ctaLink}>{ctaLabel} <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link to={ctaLink}>
+                  {ctaLabel} <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
               <Button variant="outline" asChild>
                 <Link to="/">Back to Home</Link>

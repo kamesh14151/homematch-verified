@@ -1,12 +1,25 @@
 import { useEffect, useState } from "react";
-import { Building2, Home, PlusCircle, ListChecks, MessageSquare, UserCircle } from "lucide-react";
+import {
+  Building2,
+  Home,
+  PlusCircle,
+  ListChecks,
+  MessageSquare,
+  UserCircle,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -76,7 +89,8 @@ const parsePincodeCsv = (csvText: string): PincodeResult[] => {
   if (lines.length <= 1) return [];
 
   const headers = parseCsvLine(lines[0]).map((header) => header.toLowerCase());
-  const getIndex = (name: string) => headers.findIndex((header) => header === name.toLowerCase());
+  const getIndex = (name: string) =>
+    headers.findIndex((header) => header === name.toLowerCase());
 
   const cityIndex = getIndex("City");
   const areaIndex = getIndex("Area");
@@ -84,23 +98,31 @@ const parsePincodeCsv = (csvText: string): PincodeResult[] => {
   const districtIndex = getIndex("District");
   const stateIndex = getIndex("State");
 
-  if ([cityIndex, areaIndex, pincodeIndex, districtIndex, stateIndex].some((index) => index === -1)) {
+  if (
+    [cityIndex, areaIndex, pincodeIndex, districtIndex, stateIndex].some(
+      (index) => index === -1
+    )
+  ) {
     return [];
   }
 
-  return lines.slice(1).map((line) => {
-    const cols = parseCsvLine(line);
-    return {
-      city: cols[cityIndex] ?? "",
-      area: cols[areaIndex] ?? "",
-      pincode: (cols[pincodeIndex] ?? "").replace(/\D/g, "").slice(0, 6),
-      district: cols[districtIndex] ?? "",
-      state: cols[stateIndex] ?? "",
-    };
-  }).filter((item) => item.pincode.length > 0);
+  return lines
+    .slice(1)
+    .map((line) => {
+      const cols = parseCsvLine(line);
+      return {
+        city: cols[cityIndex] ?? "",
+        area: cols[areaIndex] ?? "",
+        pincode: (cols[pincodeIndex] ?? "").replace(/\D/g, "").slice(0, 6),
+        district: cols[districtIndex] ?? "",
+        state: cols[stateIndex] ?? "",
+      };
+    })
+    .filter((item) => item.pincode.length > 0);
 };
 
-const toKey = (record: PincodeResult) => `${record.pincode}|${record.area}|${record.city}|${record.district}|${record.state}`;
+const toKey = (record: PincodeResult) =>
+  `${record.pincode}|${record.area}|${record.city}|${record.district}|${record.state}`;
 
 const dedupeBy = (records: PincodeResult[]) => {
   const map = new Map<string, PincodeResult>();
@@ -124,7 +146,9 @@ export default function AddProperty() {
   const [pincodeOptions, setPincodeOptions] = useState<SuggestionOption[]>([]);
   const [areaOptions, setAreaOptions] = useState<SuggestionOption[]>([]);
   const [cityOptions, setCityOptions] = useState<SuggestionOption[]>([]);
-  const [districtOptions, setDistrictOptions] = useState<SuggestionOption[]>([]);
+  const [districtOptions, setDistrictOptions] = useState<SuggestionOption[]>(
+    []
+  );
   const [stateOptions, setStateOptions] = useState<SuggestionOption[]>([]);
   const [showPincodeDropdown, setShowPincodeDropdown] = useState(false);
   const [showAreaDropdown, setShowAreaDropdown] = useState(false);
@@ -164,7 +188,10 @@ export default function AddProperty() {
     parkingFacility: false,
   });
 
-  const updateField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
+  const updateField = <K extends keyof typeof form>(
+    key: K,
+    value: (typeof form)[K]
+  ) => {
     setForm((previous) => ({ ...previous, [key]: value }));
   };
 
@@ -196,8 +223,12 @@ export default function AddProperty() {
       setPincodeOptions([]);
       return;
     }
-    const matches = dedupeBy(dataset.filter((item) => item.pincode.startsWith(q))).slice(0, 50);
-    setPincodeOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+    const matches = dedupeBy(
+      dataset.filter((item) => item.pincode.startsWith(q))
+    ).slice(0, 50);
+    setPincodeOptions(
+      matches.map((record) => ({ label: recordLabel(record), record }))
+    );
   }, [dataset, form.pincode]);
 
   useEffect(() => {
@@ -206,8 +237,12 @@ export default function AddProperty() {
       setAreaOptions([]);
       return;
     }
-    const matches = dedupeBy(dataset.filter((item) => item.area.toLowerCase().includes(q))).slice(0, 50);
-    setAreaOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+    const matches = dedupeBy(
+      dataset.filter((item) => item.area.toLowerCase().includes(q))
+    ).slice(0, 50);
+    setAreaOptions(
+      matches.map((record) => ({ label: recordLabel(record), record }))
+    );
   }, [dataset, form.area]);
 
   useEffect(() => {
@@ -216,8 +251,12 @@ export default function AddProperty() {
       setCityOptions([]);
       return;
     }
-    const matches = dedupeBy(dataset.filter((item) => item.city.toLowerCase().includes(q))).slice(0, 50);
-    setCityOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+    const matches = dedupeBy(
+      dataset.filter((item) => item.city.toLowerCase().includes(q))
+    ).slice(0, 50);
+    setCityOptions(
+      matches.map((record) => ({ label: recordLabel(record), record }))
+    );
   }, [dataset, form.city]);
 
   useEffect(() => {
@@ -226,8 +265,12 @@ export default function AddProperty() {
       setDistrictOptions([]);
       return;
     }
-    const matches = dedupeBy(dataset.filter((item) => item.district.toLowerCase().includes(q))).slice(0, 50);
-    setDistrictOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+    const matches = dedupeBy(
+      dataset.filter((item) => item.district.toLowerCase().includes(q))
+    ).slice(0, 50);
+    setDistrictOptions(
+      matches.map((record) => ({ label: recordLabel(record), record }))
+    );
   }, [dataset, form.district]);
 
   useEffect(() => {
@@ -236,14 +279,22 @@ export default function AddProperty() {
       setStateOptions([]);
       return;
     }
-    const matches = dedupeBy(dataset.filter((item) => item.state.toLowerCase().includes(q))).slice(0, 50);
-    setStateOptions(matches.map((record) => ({ label: recordLabel(record), record })));
+    const matches = dedupeBy(
+      dataset.filter((item) => item.state.toLowerCase().includes(q))
+    ).slice(0, 50);
+    setStateOptions(
+      matches.map((record) => ({ label: recordLabel(record), record }))
+    );
   }, [dataset, form.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      toast({ title: "Please log in", description: "Login as landlord to publish property.", variant: "destructive" });
+      toast({
+        title: "Please log in",
+        description: "Login as landlord to publish property.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -254,7 +305,11 @@ export default function AddProperty() {
       .maybeSingle();
 
     if (landlordError) {
-      toast({ title: "Verification check failed", description: landlordError.message, variant: "destructive" });
+      toast({
+        title: "Verification check failed",
+        description: landlordError.message,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -268,13 +323,32 @@ export default function AddProperty() {
       return;
     }
 
-    const composedAddress = [form.addressLine, form.area, form.city, form.district, form.state, form.pincode]
+    const composedAddress = [
+      form.addressLine,
+      form.area,
+      form.city,
+      form.district,
+      form.state,
+      form.pincode,
+    ]
       .map((item) => item.trim())
       .filter(Boolean)
       .join(", ");
 
-    if (!form.title || !composedAddress || !form.rent || !form.houseType || !form.securityDepositAmount || !form.bookingHoldAmount) {
-      toast({ title: "Missing required details", description: "Please fill title, location details, rent, booking prices and house type.", variant: "destructive" });
+    if (
+      !form.title ||
+      !composedAddress ||
+      !form.rent ||
+      !form.houseType ||
+      !form.securityDepositAmount ||
+      !form.bookingHoldAmount
+    ) {
+      toast({
+        title: "Missing required details",
+        description:
+          "Please fill title, location details, rent, booking prices and house type.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -299,7 +373,9 @@ export default function AddProperty() {
         property_type: form.propertyType || null,
         bedrooms: form.bedrooms ? Number(form.bedrooms) : null,
         bathrooms: form.bathrooms ? Number(form.bathrooms) : null,
-        super_builtup_area: form.superBuiltupArea ? Number(form.superBuiltupArea) : null,
+        super_builtup_area: form.superBuiltupArea
+          ? Number(form.superBuiltupArea)
+          : null,
         furnishing: form.furnishing || null,
         listed_by: form.listedBy || null,
         floor_no: form.floorNo ? Number(form.floorNo) : null,
@@ -313,7 +389,11 @@ export default function AddProperty() {
       .single();
 
     if (error) {
-      toast({ title: "Publish failed", description: error.message, variant: "destructive" });
+      toast({
+        title: "Publish failed",
+        description: error.message,
+        variant: "destructive",
+      });
       setLoading(false);
       return;
     }
@@ -322,7 +402,9 @@ export default function AddProperty() {
       const uploadResults = await Promise.all(
         imageFiles.map(async (file, index) => {
           const cleanFileName = file.name.replace(/\s+/g, "-").toLowerCase();
-          const filePath = `${user.id}/${data.id}/${Date.now()}-${index}-${cleanFileName}`;
+          const filePath = `${user.id}/${
+            data.id
+          }/${Date.now()}-${index}-${cleanFileName}`;
           const { error: uploadError } = await supabase.storage
             .from("property-images")
             .upload(filePath, file, { upsert: false });
@@ -331,7 +413,9 @@ export default function AddProperty() {
             return { success: false as const, error: uploadError.message };
           }
 
-          const { data: publicUrlData } = supabase.storage.from("property-images").getPublicUrl(filePath);
+          const { data: publicUrlData } = supabase.storage
+            .from("property-images")
+            .getPublicUrl(filePath);
           return {
             success: true as const,
             imageUrl: publicUrlData.publicUrl,
@@ -342,21 +426,30 @@ export default function AddProperty() {
 
       const successfulUploads = uploadResults.filter((item) => item.success);
       if (successfulUploads.length > 0) {
-        const { error: imagesInsertError } = await supabase.from("property_images").insert(
-          successfulUploads.map((item) => ({
-            property_id: data.id,
-            image_url: item.imageUrl,
-            display_order: item.displayOrder,
-          }))
-        );
+        const { error: imagesInsertError } = await supabase
+          .from("property_images")
+          .insert(
+            successfulUploads.map((item) => ({
+              property_id: data.id,
+              image_url: item.imageUrl,
+              display_order: item.displayOrder,
+            }))
+          );
 
         if (imagesInsertError) {
-          toast({ title: "Image save warning", description: imagesInsertError.message, variant: "destructive" });
+          toast({
+            title: "Image save warning",
+            description: imagesInsertError.message,
+            variant: "destructive",
+          });
         }
       }
     }
 
-    toast({ title: "Property published", description: "Your listing is now live." });
+    toast({
+      title: "Property published",
+      description: "Your listing is now live.",
+    });
     setLoading(false);
     navigate(`/property/${data.id}`);
   };
@@ -366,7 +459,9 @@ export default function AddProperty() {
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Add New Property</h1>
-          <p className="text-muted-foreground">Fill in the details to list your property</p>
+          <p className="text-muted-foreground">
+            Fill in the details to list your property
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -381,7 +476,9 @@ export default function AddProperty() {
                   <Input
                     placeholder="Rental for 2BHK Gated Community Apartment"
                     value={form.title}
-                    onChange={(event) => updateField("title", event.target.value)}
+                    onChange={(event) =>
+                      updateField("title", event.target.value)
+                    }
                     required
                   />
                 </div>
@@ -390,7 +487,9 @@ export default function AddProperty() {
                   <Textarea
                     placeholder="House / street / landmark"
                     value={form.addressLine}
-                    onChange={(event) => updateField("addressLine", event.target.value)}
+                    onChange={(event) =>
+                      updateField("addressLine", event.target.value)
+                    }
                     required
                   />
                 </div>
@@ -406,7 +505,9 @@ export default function AddProperty() {
                         setShowAreaDropdown(true);
                       }}
                       onFocus={() => setShowAreaDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowAreaDropdown(false), 120)}
+                      onBlur={() =>
+                        setTimeout(() => setShowAreaDropdown(false), 120)
+                      }
                     />
                     {showAreaDropdown && form.area.trim().length >= 1 && (
                       <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
@@ -426,7 +527,9 @@ export default function AddProperty() {
                             </button>
                           ))
                         ) : (
-                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching areas found</div>
+                          <div className="px-3 py-2 text-sm text-muted-foreground">
+                            No matching areas found
+                          </div>
                         )}
                       </div>
                     )}
@@ -444,7 +547,9 @@ export default function AddProperty() {
                         setShowCityDropdown(true);
                       }}
                       onFocus={() => setShowCityDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowCityDropdown(false), 120)}
+                      onBlur={() =>
+                        setTimeout(() => setShowCityDropdown(false), 120)
+                      }
                     />
                     {showCityDropdown && form.city.trim().length >= 1 && (
                       <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
@@ -464,7 +569,9 @@ export default function AddProperty() {
                             </button>
                           ))
                         ) : (
-                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching cities found</div>
+                          <div className="px-3 py-2 text-sm text-muted-foreground">
+                            No matching cities found
+                          </div>
                         )}
                       </div>
                     )}
@@ -482,30 +589,35 @@ export default function AddProperty() {
                         setShowDistrictDropdown(true);
                       }}
                       onFocus={() => setShowDistrictDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowDistrictDropdown(false), 120)}
+                      onBlur={() =>
+                        setTimeout(() => setShowDistrictDropdown(false), 120)
+                      }
                     />
-                    {showDistrictDropdown && form.district.trim().length >= 1 && (
-                      <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
-                        {districtOptions.length > 0 ? (
-                          districtOptions.map((option, index) => (
-                            <button
-                              key={`${option.record.pincode}-${option.record.district}-${index}`}
-                              type="button"
-                              className="block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent last:border-b-0"
-                              onMouseDown={(event) => event.preventDefault()}
-                              onClick={() => {
-                                applyRecordToLocationFields(option.record);
-                                setShowDistrictDropdown(false);
-                              }}
-                            >
-                              {option.label}
-                            </button>
-                          ))
-                        ) : (
-                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching districts found</div>
-                        )}
-                      </div>
-                    )}
+                    {showDistrictDropdown &&
+                      form.district.trim().length >= 1 && (
+                        <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
+                          {districtOptions.length > 0 ? (
+                            districtOptions.map((option, index) => (
+                              <button
+                                key={`${option.record.pincode}-${option.record.district}-${index}`}
+                                type="button"
+                                className="block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent last:border-b-0"
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={() => {
+                                  applyRecordToLocationFields(option.record);
+                                  setShowDistrictDropdown(false);
+                                }}
+                              >
+                                {option.label}
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-3 py-2 text-sm text-muted-foreground">
+                              No matching districts found
+                            </div>
+                          )}
+                        </div>
+                      )}
                   </div>
                 </div>
 
@@ -520,7 +632,9 @@ export default function AddProperty() {
                         setShowStateDropdown(true);
                       }}
                       onFocus={() => setShowStateDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowStateDropdown(false), 120)}
+                      onBlur={() =>
+                        setTimeout(() => setShowStateDropdown(false), 120)
+                      }
                     />
                     {showStateDropdown && form.state.trim().length >= 1 && (
                       <div className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-md border bg-background shadow-md">
@@ -540,7 +654,9 @@ export default function AddProperty() {
                             </button>
                           ))
                         ) : (
-                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching states found</div>
+                          <div className="px-3 py-2 text-sm text-muted-foreground">
+                            No matching states found
+                          </div>
                         )}
                       </div>
                     )}
@@ -554,11 +670,16 @@ export default function AddProperty() {
                       placeholder="Type 63... and select"
                       value={form.pincode}
                       onChange={(event) => {
-                        updateField("pincode", event.target.value.replace(/\D/g, "").slice(0, 6));
+                        updateField(
+                          "pincode",
+                          event.target.value.replace(/\D/g, "").slice(0, 6)
+                        );
                         setShowPincodeDropdown(true);
                       }}
                       onFocus={() => setShowPincodeDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowPincodeDropdown(false), 120)}
+                      onBlur={() =>
+                        setTimeout(() => setShowPincodeDropdown(false), 120)
+                      }
                       inputMode="numeric"
                       pattern="[0-9]{6}"
                     />
@@ -580,12 +701,17 @@ export default function AddProperty() {
                             </button>
                           ))
                         ) : (
-                          <div className="px-3 py-2 text-sm text-muted-foreground">No matching PIN codes found</div>
+                          <div className="px-3 py-2 text-sm text-muted-foreground">
+                            No matching PIN codes found
+                          </div>
                         )}
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">Type any starting digits (e.g. 63) to see matching India PIN codes</p>
+                  <p className="text-xs text-muted-foreground">
+                    Type any starting digits (e.g. 63) to see matching India PIN
+                    codes
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label>Monthly Rent (₹)</Label>
@@ -593,7 +719,9 @@ export default function AddProperty() {
                     type="number"
                     placeholder="15000"
                     value={form.rent}
-                    onChange={(event) => updateField("rent", event.target.value)}
+                    onChange={(event) =>
+                      updateField("rent", event.target.value)
+                    }
                     required
                   />
                 </div>
@@ -603,7 +731,9 @@ export default function AddProperty() {
                     type="number"
                     placeholder="30000"
                     value={form.securityDepositAmount}
-                    onChange={(event) => updateField("securityDepositAmount", event.target.value)}
+                    onChange={(event) =>
+                      updateField("securityDepositAmount", event.target.value)
+                    }
                     required
                   />
                 </div>
@@ -613,15 +743,25 @@ export default function AddProperty() {
                     type="number"
                     placeholder="5000"
                     value={form.bookingHoldAmount}
-                    onChange={(event) => updateField("bookingHoldAmount", event.target.value)}
+                    onChange={(event) =>
+                      updateField("bookingHoldAmount", event.target.value)
+                    }
                     required
                   />
-                  <p className="text-xs text-muted-foreground">This is the exact upfront amount tenants see on the booking page.</p>
+                  <p className="text-xs text-muted-foreground">
+                    This is the exact upfront amount tenants see on the booking
+                    page.
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label>House Type</Label>
-                  <Select value={form.houseType} onValueChange={(value) => updateField("houseType", value)}>
-                    <SelectTrigger><SelectValue placeholder="Select BHK" /></SelectTrigger>
+                  <Select
+                    value={form.houseType}
+                    onValueChange={(value) => updateField("houseType", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select BHK" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="1 BHK">1 BHK</SelectItem>
                       <SelectItem value="2 BHK">2 BHK</SelectItem>
@@ -633,20 +773,40 @@ export default function AddProperty() {
                 </div>
                 <div className="space-y-2">
                   <Label>Type</Label>
-                  <Select value={form.propertyType} onValueChange={(value) => updateField("propertyType", value)}>
-                    <SelectTrigger><SelectValue placeholder="Select property type" /></SelectTrigger>
+                  <Select
+                    value={form.propertyType}
+                    onValueChange={(value) =>
+                      updateField("propertyType", value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select property type" />
+                    </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Flats / Apartments">Flats / Apartments</SelectItem>
-                      <SelectItem value="Independent House / Villa">Independent House / Villa</SelectItem>
-                      <SelectItem value="Builder Floor">Builder Floor</SelectItem>
-                      <SelectItem value="Studio Apartment">Studio Apartment</SelectItem>
+                      <SelectItem value="Flats / Apartments">
+                        Flats / Apartments
+                      </SelectItem>
+                      <SelectItem value="Independent House / Villa">
+                        Independent House / Villa
+                      </SelectItem>
+                      <SelectItem value="Builder Floor">
+                        Builder Floor
+                      </SelectItem>
+                      <SelectItem value="Studio Apartment">
+                        Studio Apartment
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Bedrooms</Label>
-                  <Select value={form.bedrooms} onValueChange={(value) => updateField("bedrooms", value)}>
-                    <SelectTrigger><SelectValue placeholder="Select bedrooms" /></SelectTrigger>
+                  <Select
+                    value={form.bedrooms}
+                    onValueChange={(value) => updateField("bedrooms", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select bedrooms" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="1">1</SelectItem>
                       <SelectItem value="2">2</SelectItem>
@@ -658,8 +818,13 @@ export default function AddProperty() {
                 </div>
                 <div className="space-y-2">
                   <Label>Bathrooms</Label>
-                  <Select value={form.bathrooms} onValueChange={(value) => updateField("bathrooms", value)}>
-                    <SelectTrigger><SelectValue placeholder="Select bathrooms" /></SelectTrigger>
+                  <Select
+                    value={form.bathrooms}
+                    onValueChange={(value) => updateField("bathrooms", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select bathrooms" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="1">1</SelectItem>
                       <SelectItem value="2">2</SelectItem>
@@ -674,24 +839,40 @@ export default function AddProperty() {
                     type="number"
                     placeholder="900"
                     value={form.superBuiltupArea}
-                    onChange={(event) => updateField("superBuiltupArea", event.target.value)}
+                    onChange={(event) =>
+                      updateField("superBuiltupArea", event.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Furnishing</Label>
-                  <Select value={form.furnishing} onValueChange={(value) => updateField("furnishing", value)}>
-                    <SelectTrigger><SelectValue placeholder="Select furnishing" /></SelectTrigger>
+                  <Select
+                    value={form.furnishing}
+                    onValueChange={(value) => updateField("furnishing", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select furnishing" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Unfurnished">Unfurnished</SelectItem>
-                      <SelectItem value="Semi-Furnished">Semi-Furnished</SelectItem>
-                      <SelectItem value="Fully Furnished">Fully Furnished</SelectItem>
+                      <SelectItem value="Semi-Furnished">
+                        Semi-Furnished
+                      </SelectItem>
+                      <SelectItem value="Fully Furnished">
+                        Fully Furnished
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Listed By</Label>
-                  <Select value={form.listedBy} onValueChange={(value) => updateField("listedBy", value)}>
-                    <SelectTrigger><SelectValue placeholder="Select owner type" /></SelectTrigger>
+                  <Select
+                    value={form.listedBy}
+                    onValueChange={(value) => updateField("listedBy", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select owner type" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Owner">Owner</SelectItem>
                       <SelectItem value="Builder">Builder</SelectItem>
@@ -705,7 +886,9 @@ export default function AddProperty() {
                     type="number"
                     placeholder="1"
                     value={form.floorNo}
-                    onChange={(event) => updateField("floorNo", event.target.value)}
+                    onChange={(event) =>
+                      updateField("floorNo", event.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -714,7 +897,9 @@ export default function AddProperty() {
                     type="number"
                     placeholder="5"
                     value={form.totalFloors}
-                    onChange={(event) => updateField("totalFloors", event.target.value)}
+                    onChange={(event) =>
+                      updateField("totalFloors", event.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -723,13 +908,20 @@ export default function AddProperty() {
                     type="number"
                     placeholder="2"
                     value={form.parkingSlots}
-                    onChange={(event) => updateField("parkingSlots", event.target.value)}
+                    onChange={(event) =>
+                      updateField("parkingSlots", event.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Facing</Label>
-                  <Select value={form.facing} onValueChange={(value) => updateField("facing", value)}>
-                    <SelectTrigger><SelectValue placeholder="Select facing" /></SelectTrigger>
+                  <Select
+                    value={form.facing}
+                    onValueChange={(value) => updateField("facing", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select facing" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="North">North</SelectItem>
                       <SelectItem value="South">South</SelectItem>
@@ -747,7 +939,9 @@ export default function AddProperty() {
                   <Input
                     placeholder="Mahaveer Palace"
                     value={form.projectName}
-                    onChange={(event) => updateField("projectName", event.target.value)}
+                    onChange={(event) =>
+                      updateField("projectName", event.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -756,7 +950,9 @@ export default function AddProperty() {
                     type="number"
                     placeholder="2000"
                     value={form.maintenance}
-                    onChange={(event) => updateField("maintenance", event.target.value)}
+                    onChange={(event) =>
+                      updateField("maintenance", event.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -764,7 +960,9 @@ export default function AddProperty() {
                   <Input
                     placeholder="Electricity board bill number"
                     value={form.ebBillNumber}
-                    onChange={(event) => updateField("ebBillNumber", event.target.value)}
+                    onChange={(event) =>
+                      updateField("ebBillNumber", event.target.value)
+                    }
                   />
                 </div>
               </CardContent>
@@ -772,7 +970,9 @@ export default function AddProperty() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Description & Facilities</CardTitle>
+                <CardTitle className="text-lg">
+                  Description & Facilities
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -781,20 +981,40 @@ export default function AddProperty() {
                     placeholder="Describe the property, neighborhood, nearby facilities..."
                     rows={4}
                     value={form.description}
-                    onChange={(event) => updateField("description", event.target.value)}
+                    onChange={(event) =>
+                      updateField("description", event.target.value)
+                    }
                   />
                 </div>
                 <div className="flex flex-wrap gap-6">
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="water" checked={form.waterSupply} onCheckedChange={(checked) => updateField("waterSupply", !!checked)} />
+                    <Checkbox
+                      id="water"
+                      checked={form.waterSupply}
+                      onCheckedChange={(checked) =>
+                        updateField("waterSupply", !!checked)
+                      }
+                    />
                     <Label htmlFor="water">Water Supply</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="meter" checked={form.separateMeter} onCheckedChange={(checked) => updateField("separateMeter", !!checked)} />
+                    <Checkbox
+                      id="meter"
+                      checked={form.separateMeter}
+                      onCheckedChange={(checked) =>
+                        updateField("separateMeter", !!checked)
+                      }
+                    />
                     <Label htmlFor="meter">Separate Electricity Meter</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="parking" checked={form.parkingFacility} onCheckedChange={(checked) => updateField("parkingFacility", !!checked)} />
+                    <Checkbox
+                      id="parking"
+                      checked={form.parkingFacility}
+                      onCheckedChange={(checked) =>
+                        updateField("parkingFacility", !!checked)
+                      }
+                    />
                     <Label htmlFor="parking">Parking Available</Label>
                   </div>
                 </div>
@@ -812,10 +1032,13 @@ export default function AddProperty() {
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={(event) => setImageFiles(Array.from(event.target.files ?? []))}
+                    onChange={(event) =>
+                      setImageFiles(Array.from(event.target.files ?? []))
+                    }
                   />
                   <p className="text-xs text-muted-foreground">
-                    Upload up to 10 images (JPG, PNG). Selected: {imageFiles.length}
+                    Upload up to 10 images (JPG, PNG). Selected:{" "}
+                    {imageFiles.length}
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -823,9 +1046,13 @@ export default function AddProperty() {
                   <Input
                     placeholder="https://youtube.com/watch?v=..."
                     value={form.videoUrl}
-                    onChange={(event) => updateField("videoUrl", event.target.value)}
+                    onChange={(event) =>
+                      updateField("videoUrl", event.target.value)
+                    }
                   />
-                  <p className="text-xs text-muted-foreground">YouTube or direct video link</p>
+                  <p className="text-xs text-muted-foreground">
+                    YouTube or direct video link
+                  </p>
                 </div>
               </CardContent>
             </Card>

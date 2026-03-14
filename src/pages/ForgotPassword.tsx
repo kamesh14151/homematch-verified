@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail, ArrowLeft } from "lucide-react";
+import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { BrandWordmark } from "@/components/BrandWordmark";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import loginHero from "@/assets/login-hero.jpg";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -24,68 +21,135 @@ export default function ForgotPassword() {
     });
     setLoading(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
     setSent(true);
-    toast({ title: "Email sent", description: "Check your inbox for the reset link." });
+    toast({
+      title: "Email sent",
+      description: "Check your inbox for the reset link.",
+    });
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <div className="flex w-full flex-col justify-between px-6 py-4 sm:px-8 lg:w-1/2 lg:px-12 lg:py-5">
-        <Link to="/" className="inline-flex items-center gap-2 self-start">
-          <BrandWordmark compact />
-        </Link>
-
-        <div className="mx-auto w-full max-w-[350px]">
-          <Link to="/login" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> Back to login
-          </Link>
-
-          <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-[28px]">Reset your password</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            {sent
-              ? "We've sent a password reset link to your email. Check your inbox and follow the instructions."
-              : "Enter your email address and we'll send you a link to reset your password."}
-          </p>
-
-          {!sent && (
-            <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-              <div className="space-y-1">
-                <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="h-10 rounded-xl border-border bg-muted/50 pl-10 text-foreground placeholder:text-muted-foreground/60"
-                    required
-                  />
-                </div>
-              </div>
-              <Button type="submit" className="h-10 w-full rounded-xl text-sm font-semibold" disabled={loading}>
-                {loading ? "Sending..." : "Send Reset Link"}
-              </Button>
-            </form>
-          )}
-
-          {sent && (
-            <Button asChild className="mt-5 h-10 w-full rounded-xl text-sm font-semibold" variant="outline">
-              <Link to="/login">Return to Login</Link>
-            </Button>
-          )}
-        </div>
-
-        <div />
+    <div className="relative flex min-h-screen items-center justify-center p-4">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden bg-[linear-gradient(180deg,#fffaf3_0%,#fffdf8_100%)]">
+        <div className="absolute -left-[10%] -top-[10%] h-[50%] w-[50%] rounded-full bg-primary/8 blur-3xl filter" />
+        <div className="absolute -right-[10%] bottom-[10%] h-[50%] w-[50%] rounded-full bg-amber-100/60 blur-3xl filter" />
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />
       </div>
 
-      <div className="relative hidden overflow-hidden rounded-l-3xl lg:block lg:w-1/2">
-        <img src={loginHero} alt="Property" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+      <div className="relative z-10 w-full max-w-[1000px] overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] lg:flex lg:h-[650px]">
+        {/* Left Side */}
+        <div className="hidden flex-col justify-between bg-zinc-900 p-12 text-white lg:flex lg:w-5/12">
+          <div>
+            <Link to="/" className="inline-flex">
+              <BrandWordmark theme="dark" />
+            </Link>
+            <div className="mt-16">
+              <h2 className="text-3xl font-semibold leading-tight tracking-tight">
+                Secure your <br /> RentVerify account.
+              </h2>
+              <p className="mt-4 text-base font-light text-zinc-400">
+                A verified account gives you access to top tier homes and safe
+                document sharing. Don't lose access.
+              </p>
+            </div>
+            <div className="mt-12 space-y-6">
+              {[
+                "Regain account access simply",
+                "Password-less verification",
+                "Advanced data protection",
+              ].map((text, i) => (
+                <div key={i} className="flex items-center gap-3 text-zinc-300">
+                  <CheckCircle2 className="h-5 w-5 text-primary" />
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="text-sm text-zinc-500">
+            © {new Date().getFullYear()} RentVerify. All rights reserved.
+          </div>
+        </div>
+
+        {/* Right Side */}
+        <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-7/12 lg:px-16 xl:px-24">
+          <div className="mb-8 lg:hidden">
+            <Link to="/">
+              <BrandWordmark />
+            </Link>
+          </div>
+
+          <div className="mb-8">
+            <Link
+              to="/login"
+              className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" /> Back to login
+            </Link>
+
+            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">
+              Reset Password
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {sent
+                ? "We've sent a password reset link to your email. Check your inbox and follow the instructions."
+                : "Enter your email address and we'll send you a link to reset your password."}
+            </p>
+          </div>
+
+          {!sent ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="group relative rounded-xl border border-border bg-white transition-all focus-within:border-zinc-800 focus-within:ring-1 focus-within:ring-zinc-800">
+                <div className="absolute left-3 top-3 text-xs font-semibold text-muted-foreground transition-colors group-focus-within:text-zinc-800">
+                  Email
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-transparent px-3 pb-3 pt-7 text-sm text-foreground outline-none placeholder:text-transparent focus:placeholder:text-muted-foreground/50"
+                  required
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="h-12 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90"
+                disabled={loading}
+              >
+                {loading ? "Sending..." : "Send reset link"}
+              </Button>
+            </form>
+          ) : (
+            <Button
+              className="h-12 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90"
+              onClick={() => setSent(false)}
+            >
+              Try another email
+            </Button>
+          )}
+
+          <div className="mt-8 text-center text-sm">
+            <p className="text-muted-foreground">
+              Remembered your password?{" "}
+              <Link
+                to="/login"
+                className="font-semibold text-foreground hover:underline"
+              >
+                Back to login
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

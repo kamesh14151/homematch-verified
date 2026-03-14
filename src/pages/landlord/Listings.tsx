@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { Building2, Home, PlusCircle, ListChecks, MessageSquare, UserCircle } from "lucide-react";
+import {
+  Building2,
+  Home,
+  PlusCircle,
+  ListChecks,
+  MessageSquare,
+  UserCircle,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { PropertyCard } from "@/components/PropertyCard";
@@ -47,7 +54,11 @@ export default function Listings() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        toast({ title: "Unable to load listings", description: error.message, variant: "destructive" });
+        toast({
+          title: "Unable to load listings",
+          description: error.message,
+          variant: "destructive",
+        });
         setLoading(false);
         return;
       }
@@ -92,7 +103,9 @@ export default function Listings() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">My Listings</h1>
-            <p className="text-muted-foreground">Manage your property listings</p>
+            <p className="text-muted-foreground">
+              Manage your property listings
+            </p>
           </div>
           <Button asChild>
             <Link to="/landlord/add-property">
@@ -102,12 +115,16 @@ export default function Listings() {
         </div>
 
         {loading ? (
-          <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">Loading your listings...</div>
+          <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">
+            Loading your listings...
+          </div>
         ) : listings.length === 0 ? (
           <div className="rounded-lg border bg-card p-8 text-center">
             <Building2 className="mx-auto h-12 w-12 text-muted-foreground/30" />
             <h3 className="mt-4 font-semibold">No listings yet</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Your published properties will appear here</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your published properties will appear here
+            </p>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

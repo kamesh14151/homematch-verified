@@ -1,7 +1,13 @@
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface FilterBarProps {
   onSearch?: (query: string) => void;
@@ -9,7 +15,11 @@ interface FilterBarProps {
   showFilters?: boolean;
 }
 
-export function FilterBar({ onSearch, onFilterChange, showFilters = true }: FilterBarProps) {
+export function FilterBar({
+  onSearch,
+  onFilterChange,
+  showFilters = true,
+}: FilterBarProps) {
   return (
     <div className="space-y-4">
       <div className="flex gap-3">

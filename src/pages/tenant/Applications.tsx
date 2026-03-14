@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { Search, Bookmark, FileText, MessageSquare, UserCircle, Home } from "lucide-react";
+import {
+  Search,
+  Bookmark,
+  FileText,
+  MessageSquare,
+  UserCircle,
+  Home,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +28,13 @@ export default function Applications() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState<
-    Array<{ id: string; propertyTitle: string; status: string; createdAt: string; latestMessage: string }>
+    Array<{
+      id: string;
+      propertyTitle: string;
+      status: string;
+      createdAt: string;
+      latestMessage: string;
+    }>
   >([]);
 
   useEffect(() => {
@@ -42,12 +55,15 @@ export default function Applications() {
         .from("properties")
         .select("id, title")
         .in("id", propertyIds);
-      const propertyMap = new Map((properties ?? []).map((item) => [item.id, item.title]));
+      const propertyMap = new Map(
+        (properties ?? []).map((item) => [item.id, item.title])
+      );
 
       setApplications(
         (rows ?? []).map((item) => {
           const lines = (item.message ?? "").split("\n").filter(Boolean);
-          const latestMessage = lines.length > 0 ? lines[lines.length - 1] : "No message yet";
+          const latestMessage =
+            lines.length > 0 ? lines[lines.length - 1] : "No message yet";
           return {
             id: item.id,
             propertyTitle: propertyMap.get(item.property_id) || "Property",
@@ -68,16 +84,22 @@ export default function Applications() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">My Applications</h1>
-          <p className="text-muted-foreground">Track your property applications</p>
+          <p className="text-muted-foreground">
+            Track your property applications
+          </p>
         </div>
 
         {loading ? (
-          <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">Loading applications...</div>
+          <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">
+            Loading applications...
+          </div>
         ) : applications.length === 0 ? (
           <div className="rounded-lg border bg-card p-8 text-center">
             <FileText className="mx-auto h-12 w-12 text-muted-foreground/30" />
             <h3 className="mt-4 font-semibold">No applications yet</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Your submitted applications will appear here</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Your submitted applications will appear here
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -86,13 +108,19 @@ export default function Applications() {
                 <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="font-semibold">{application.propertyTitle}</p>
-                    <p className="text-sm text-muted-foreground line-clamp-1">{application.latestMessage}</p>
-                    <p className="text-xs text-muted-foreground">Applied on {application.createdAt}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {application.latestMessage}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Applied on {application.createdAt}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary">{application.status}</Badge>
                     <Button variant="outline" asChild>
-                      <Link to={`/tenant/messages?app=${application.id}`}>Open Chat</Link>
+                      <Link to={`/tenant/messages?app=${application.id}`}>
+                        Open Chat
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>

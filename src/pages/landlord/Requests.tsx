@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Home, PlusCircle, ListChecks, MessageSquare, UserCircle, Users } from "lucide-react";
+import {
+  Building2,
+  Home,
+  PlusCircle,
+  ListChecks,
+  MessageSquare,
+  UserCircle,
+  Users,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,7 +53,9 @@ export default function Requests() {
       .select("id, title")
       .eq("landlord_id", user.id);
 
-    const propertyMap = new Map((properties ?? []).map((item) => [item.id, item.title]));
+    const propertyMap = new Map(
+      (properties ?? []).map((item) => [item.id, item.title])
+    );
     const propertyIds = (properties ?? []).map((item) => item.id);
 
     if (propertyIds.length === 0) {
@@ -61,23 +71,35 @@ export default function Requests() {
       .order("updated_at", { ascending: false });
 
     if (error) {
-      toast({ title: "Unable to load requests", description: error.message, variant: "destructive" });
+      toast({
+        title: "Unable to load requests",
+        description: error.message,
+        variant: "destructive",
+      });
       setLoading(false);
       return;
     }
 
-    const tenantIds = Array.from(new Set((applicationRows ?? []).map((item) => item.tenant_id)));
+    const tenantIds = Array.from(
+      new Set((applicationRows ?? []).map((item) => item.tenant_id))
+    );
     const { data: profileRows } = await supabase
       .from("profiles")
       .select("user_id, full_name")
       .in("user_id", tenantIds);
 
-    const tenantMap = new Map((profileRows ?? []).map((item) => [item.user_id, item.full_name || "Tenant"]));
+    const tenantMap = new Map(
+      (profileRows ?? []).map((item) => [
+        item.user_id,
+        item.full_name || "Tenant",
+      ])
+    );
 
     setRequests(
       (applicationRows ?? []).map((item) => {
         const lines = (item.message ?? "").split("\n").filter(Boolean);
-        const latestMessage = lines.length > 0 ? lines[lines.length - 1] : "No message yet";
+        const latestMessage =
+          lines.length > 0 ? lines[lines.length - 1] : "No message yet";
         return {
           id: item.id,
           status: item.status,
@@ -95,12 +117,25 @@ export default function Requests() {
     void loadRequests();
   }, [user]);
 
-  const pendingCount = useMemo(() => requests.filter((item) => item.status === "pending").length, [requests]);
+  const pendingCount = useMemo(
+    () => requests.filter((item) => item.status === "pending").length,
+    [requests]
+  );
 
-  const handleStatusUpdate = async (applicationId: string, status: "approved" | "rejected") => {
-    const { error } = await supabase.from("applications").update({ status }).eq("id", applicationId);
+  const handleStatusUpdate = async (
+    applicationId: string,
+    status: "approved" | "rejected"
+  ) => {
+    const { error } = await supabase
+      .from("applications")
+      .update({ status })
+      .eq("id", applicationId);
     if (error) {
-      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+      toast({
+        title: "Update failed",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
     toast({ title: `Request ${status}` });
@@ -112,16 +147,22 @@ export default function Requests() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Tenant Requests</h1>
-          <p className="text-muted-foreground">Review and manage tenant applications ({pendingCount} pending)</p>
+          <p className="text-muted-foreground">
+            Review and manage tenant applications ({pendingCount} pending)
+          </p>
         </div>
 
         {loading ? (
-          <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">Loading tenant requests...</div>
+          <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">
+            Loading tenant requests...
+          </div>
         ) : requests.length === 0 ? (
           <div className="rounded-lg border bg-card p-8 text-center">
             <Users className="mx-auto h-12 w-12 text-muted-foreground/30" />
             <h3 className="mt-4 font-semibold">No requests yet</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Tenant applications will appear here</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Tenant applications will appear here
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -133,14 +174,22 @@ export default function Requests() {
                       <p className="font-semibold">{request.tenantName}</p>
                       <Badge variant="secondary">{request.status}</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{request.propertyTitle}</p>
-                    <p className="text-sm text-muted-foreground line-clamp-1">{request.latestMessage}</p>
-                    <p className="text-xs text-muted-foreground">Requested on {request.createdAt}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {request.propertyTitle}
+                    </p>
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {request.latestMessage}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Requested on {request.createdAt}
+                    </p>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
                     <Button variant="outline" asChild>
-                      <Link to={`/landlord/messages?app=${request.id}`}>Open Chat</Link>
+                      <Link to={`/landlord/messages?app=${request.id}`}>
+                        Open Chat
+                      </Link>
                     </Button>
                     <Button
                       variant="default"

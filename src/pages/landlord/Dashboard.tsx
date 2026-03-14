@@ -1,8 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Building2, Home, Users, MessageSquare, ListChecks, PlusCircle, Sparkles, UserCircle } from "lucide-react";
+import {
+  Building2,
+  Home,
+  Users,
+  MessageSquare,
+  ListChecks,
+  PlusCircle,
+  Sparkles,
+  UserCircle,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { DashboardHero, DashboardPanel, MiniInsight } from "@/components/dashboard-ui";
+import {
+  DashboardHero,
+  DashboardPanel,
+  MiniInsight,
+} from "@/components/dashboard-ui";
+import {
+  ChartLineInteractive,
+  type LineTrendPoint,
+} from "@/components/ChartLineInteractive";
 import { PropertyCard } from "@/components/PropertyCard";
 import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
@@ -25,6 +42,13 @@ export default function LandlordDashboard() {
   const [loading, setLoading] = useState(true);
   const [requestsCount, setRequestsCount] = useState(0);
   const [messageThreads, setMessageThreads] = useState(0);
+  const [applicationEvents, setApplicationEvents] = useState<
+    Array<{
+      id: string;
+      message: string | null;
+      created_at: string;
+    }>
+  >([]);
   const [properties, setProperties] = useState<
     Array<{
       id: string;
@@ -48,12 +72,18 @@ export default function LandlordDashboard() {
 
       const { data, error } = await supabase
         .from("properties")
-        .select("id, title, address, rent, house_type, is_verified, is_active, created_at")
+        .select(
+          "id, title, address, rent, house_type, is_verified, is_active, created_at"
+        )
         .eq("landlord_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error) {
-        toast({ title: "Unable to load dashboard", description: error.message, variant: "destructive" });
+        toast({
+          title: "Unable to load dashboard",
+          description: error.message,
+          variant: "destructive",
+        });
         setLoading(false);
         return;
       }
@@ -81,11 +111,20 @@ export default function LandlordDashboard() {
 
         const { data: applicationThreads } = await supabase
           .from("applications")
-          .select("id, message")
+          .select("id, message, created_at")
           .in("property_id", propertyIds);
 
         setRequestsCount(applicationsCount ?? 0);
-        setMessageThreads((applicationThreads ?? []).filter((thread) => !!thread.message?.trim()).length);
+        setMessageThreads(
+          (applicationThreads ?? []).filter(
+            (thread) => !!thread.message?.trim()
+          ).length
+        );
+        setApplicationEvents(applicationThreads ?? []);
+      } else {
+        setRequestsCount(0);
+        setMessageThreads(0);
+        setApplicationEvents([]);
       }
 
       setProperties(
@@ -107,13 +146,19 @@ export default function LandlordDashboard() {
     void loadDashboardData();
   }, [toast, user]);
 
-  const activeListings = useMemo(() => properties.filter((item) => item.active).length, [properties]);
+  const activeListings = useMemo(
+    () => properties.filter((item) => item.active).length,
+    [properties]
+  );
 
   const addedThisMonth = useMemo(() => {
     const now = new Date();
     return properties.filter((item) => {
       const created = new Date(item.createdAt);
-      return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+      return (
+        created.getMonth() === now.getMonth() &&
+        created.getFullYear() === now.getFullYear()
+      );
     }).length;
   }, [properties]);
 
@@ -123,50 +168,147 @@ export default function LandlordDashboard() {
     return `${ratio}% active inventory`;
   }, [activeListings, properties.length]);
 
+  const monthlyTrendData = useMemo<LineTrendPoint[]>(() => {
+    const months: LineTrendPoint[] = [];
+    const monthIndex = new Map<string, number>();
+    const now = new Date();
+
+    for (let offset = 5; offset >= 0; offset -= 1) {
+      const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      monthIndex.set(key, months.length);
+      months.push({
+        date: `${key}-01`,
+        revenue: 0,
+        applications: 0,
+      });
+    }
+
+    properties.forEach((property) => {
+      const created = new Date(property.createdAt);
+      const key = `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, "0")}`;
+      const index = monthIndex.get(key);
+      if (index !== undefined) {
+        months[index].revenue += property.rent;
+      }
+    });
+
+    applicationEvents.forEach((event) => {
+      const created = new Date(event.created_at);
+      const key = `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, "0")}`;
+      const index = monthIndex.get(key);
+      if (index !== undefined) {
+        months[index].applications += 1;
+      }
+    });
+
+    return months;
+  }, [applicationEvents, properties]);
+
   return (
     <DashboardLayout navItems={navItems} title="Landlord">
       <div className="space-y-6">
         <DashboardHero
           eyebrow="Landlord control center"
-          title="Manage inventory, trust, and tenant demand from one branded workspace"
-          description="Premium landlord operations need fast listing visibility, cleaner tenant intake, and decision-friendly analytics. This dashboard now gives you all three in one consistent system."
-          accent="blue"
+          title={
+            properties.length === 0
+              ? "Publish your first verified rental listing"
+              : "Keep your active rentals and tenant pipeline in sync"
+          }
+          description={
+            properties.length === 0
+              ? "Add your first property in a few steps and start receiving verified tenant requests with clear document flows."
+              : requestsCount > 0
+              ? `You have ${requestsCount} tenant request${
+                  requestsCount === 1 ? "" : "s"
+                } waiting. Review applications, update listing health, and keep conversations moving.`
+              : "Your listings are live. Keep photos and details fresh to convert more verified tenant interest into confirmed bookings."
+          }
+          accent="rose"
           actions={
             <>
-              <Button asChild className="bg-white text-[#0f2d68] hover:bg-white/90">
+              <Button
+                asChild
+                className="rounded-full bg-zinc-900 px-6 font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900"
+              >
                 <Link to="/landlord/add-property">Add Property</Link>
               </Button>
-              <Button asChild variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/15">
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full border-slate-200 px-6 font-semibold shadow-sm hover:bg-slate-50 dark:border-white/8 dark:hover:bg-zinc-800"
+              >
                 <Link to="/landlord/requests">Review Requests</Link>
               </Button>
             </>
           }
         >
-          <div className="space-y-3 text-white">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/65">Performance snapshot</p>
-            <MiniInsight icon={Building2} title="Portfolio" value={`${properties.length} listings`} />
-            <MiniInsight icon={Sparkles} title="Inventory health" value={occupancyHealth} tone="green" />
+          <div className="space-y-3">
+            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500 dark:text-zinc-400">
+              Performance snapshot
+            </p>
+            <MiniInsight
+              icon={Building2}
+              title="Portfolio"
+              value={`${properties.length} listings`}
+              tone="blue"
+            />
+            <MiniInsight
+              icon={Sparkles}
+              title="Inventory health"
+              value={occupancyHealth}
+              tone="green"
+            />
           </div>
         </DashboardHero>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Total Properties" value={properties.length} icon={Building2} description="Listed on platform" />
-          <StatCard title="Active Listings" value={activeListings} icon={Home} trend={`+${addedThisMonth} this month`} />
-          <StatCard title="Pending Requests" value={requestsCount} icon={Users} description="Tenant applications" />
-          <StatCard title="Messages" value={messageThreads} icon={MessageSquare} description="Active conversations" />
+          <StatCard
+            title="Total Properties"
+            value={properties.length}
+            icon={Building2}
+            description="Listed on platform"
+          />
+          <StatCard
+            title="Active Listings"
+            value={activeListings}
+            icon={Home}
+            trend={`+${addedThisMonth} this month`}
+          />
+          <StatCard
+            title="Pending Requests"
+            value={requestsCount}
+            icon={Users}
+            description="Tenant applications"
+          />
+          <StatCard
+            title="Messages"
+            value={messageThreads}
+            icon={MessageSquare}
+            description="Active conversations"
+          />
         </div>
 
         {loading ? (
-          <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">Loading dashboard data...</div>
+          <div className="rounded-[1.75rem] border border-border/70 bg-background/82 p-8 text-center text-muted-foreground shadow-[0_18px_44px_-36px_rgba(91,71,56,0.22)] dark:border-white/8 dark:bg-zinc-950/88 dark:text-zinc-300/85">
+            Loading dashboard data...
+          </div>
         ) : properties.length === 0 ? (
-          <div className="rounded-lg border bg-card p-8 text-center">
+          <div className="rounded-[1.75rem] border border-border/70 bg-background/82 p-8 text-center shadow-[0_18px_44px_-36px_rgba(91,71,56,0.22)] dark:border-white/8 dark:bg-zinc-950/88">
             <Building2 className="mx-auto h-12 w-12 text-muted-foreground/30" />
             <h3 className="mt-4 font-semibold">No properties listed yet</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Start by adding your first property listing</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Start by adding your first property listing
+            </p>
           </div>
         ) : (
           <div className="grid gap-6 xl:grid-cols-[1.45fr_0.55fr]">
-            <DashboardPanel title="Recent Listings" description="Your newest properties with premium visibility for quick review." actionLabel="View all" actionTo="/landlord/listings">
+            <DashboardPanel
+              title="Recent Listings"
+              description="Your newest properties with premium visibility for quick review."
+              actionLabel="View all"
+              actionTo="/landlord/listings"
+            >
               <div className="grid gap-4 sm:grid-cols-2">
                 {properties.slice(0, 4).map((property) => (
                   <PropertyCard
@@ -183,14 +325,34 @@ export default function LandlordDashboard() {
               </div>
             </DashboardPanel>
 
-            <DashboardPanel title="Owner Insights" description="Signals you should act on this week.">
+            <DashboardPanel
+              title="Owner Insights"
+              description="Signals you should act on this week."
+            >
               <div className="space-y-3">
-                <MiniInsight icon={ListChecks} title="Demand pipeline" value={`${requestsCount} tenant requests`} tone="amber" />
-                <MiniInsight icon={MessageSquare} title="Conversations" value={`${messageThreads} active threads`} tone="blue" />
-                <MiniInsight icon={Home} title="Activation" value={occupancyHealth} tone="green" />
-                <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-4 text-sm leading-7 text-muted-foreground dark:border-white/10 dark:bg-white/5">
-                  Properties with strong visuals and complete verification details typically convert better. Keep listings active and current to improve response speed.
-                </div>
+                <MiniInsight
+                  icon={ListChecks}
+                  title="Demand pipeline"
+                  value={`${requestsCount} tenant requests`}
+                  tone="amber"
+                />
+                <MiniInsight
+                  icon={MessageSquare}
+                  title="Conversations"
+                  value={`${messageThreads} active threads`}
+                  tone="blue"
+                />
+                <MiniInsight
+                  icon={Home}
+                  title="Activation"
+                  value={occupancyHealth}
+                  tone="green"
+                />
+                <ChartLineInteractive
+                  data={monthlyTrendData}
+                  title="Revenue & Demand Trend"
+                  subtitle="Monthly rent value and applications (last 6 months)"
+                />
               </div>
             </DashboardPanel>
           </div>

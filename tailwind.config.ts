@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Urbanist"', '"Urbanist Fallback"', '"Inter"', 'sans-serif'],
-        display: ['"Urbanist"', '"Urbanist Fallback"', 'sans-serif'],
+        sans: ['"Manrope"', '"Inter"', 'sans-serif'],
+        display: ['"Manrope"', '"Inter"', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -23,14 +23,14 @@ export default {
         ring: "hsl(var(--ring))",
         background: {
           DEFAULT: "hsl(var(--background))",
-          secondary: "hsl(var(--background-secondary))",
-          tertiary: "hsl(var(--background-tertiary))",
+          secondary: "hsl(var(--secondary))",
+          tertiary: "hsl(var(--secondary))",
         },
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
-          hover: "hsl(var(--brand-primary-hover))",
+          hover: "hsl(var(--primary))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -55,17 +55,7 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
-          hover: "hsl(var(--card-hover))",
-        },
-        brand: {
-          primary: "hsl(var(--brand-primary))",
-          "primary-hover": "hsl(var(--brand-primary-hover))",
-          yellow: "hsl(var(--brand-yellow))",
-          "text-dark": "hsl(var(--brand-text-dark))",
-          "text-muted": "hsl(var(--brand-text-muted))",
-          terracotta: "hsl(var(--brand-terracotta))",
-          sand: "hsl(var(--brand-sand))",
-          beige: "hsl(var(--brand-beige))",
+          hover: "hsl(var(--accent))",
         },
         success: {
           DEFAULT: "hsl(var(--success))",

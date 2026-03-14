@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { Building2, Home, PlusCircle, ListChecks, MessageSquare, UserCircle, ShieldCheck } from "lucide-react";
+import {
+  Building2,
+  Home,
+  PlusCircle,
+  ListChecks,
+  MessageSquare,
+  UserCircle,
+  ShieldCheck,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -66,7 +74,11 @@ export default function LandlordProfile() {
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 
     if (!panRegex.test(normalizedPan)) {
-      toast({ title: "Invalid PAN", description: "Enter valid PAN format (e.g. ABCDE1234F).", variant: "destructive" });
+      toast({
+        title: "Invalid PAN",
+        description: "Enter valid PAN format (e.g. ABCDE1234F).",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -79,7 +91,8 @@ export default function LandlordProfile() {
     if (error || !data?.verified) {
       toast({
         title: "PAN verification failed",
-        description: error?.message || data?.message || "Provider is not configured.",
+        description:
+          error?.message || data?.message || "Provider is not configured.",
         variant: "destructive",
       });
       return;
@@ -91,13 +104,20 @@ export default function LandlordProfile() {
       .eq("user_id", user.id);
 
     if (saveError) {
-      toast({ title: "Save failed", description: saveError.message, variant: "destructive" });
+      toast({
+        title: "Save failed",
+        description: saveError.message,
+        variant: "destructive",
+      });
       return;
     }
 
     setPanNumber(normalizedPan);
     setPanVerified(true);
-    toast({ title: "PAN verified", description: "Verification status updated." });
+    toast({
+      title: "PAN verified",
+      description: "Verification status updated.",
+    });
   };
 
   const handleSave = async () => {
@@ -111,7 +131,11 @@ export default function LandlordProfile() {
 
     if (profileError) {
       setSaving(false);
-      toast({ title: "Save failed", description: profileError.message, variant: "destructive" });
+      toast({
+        title: "Save failed",
+        description: profileError.message,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -128,11 +152,18 @@ export default function LandlordProfile() {
     setSaving(false);
 
     if (landlordError) {
-      toast({ title: "Save failed", description: landlordError.message, variant: "destructive" });
+      toast({
+        title: "Save failed",
+        description: landlordError.message,
+        variant: "destructive",
+      });
       return;
     }
 
-    toast({ title: "Profile updated", description: "Your landlord profile has been saved." });
+    toast({
+      title: "Profile updated",
+      description: "Your landlord profile has been saved.",
+    });
   };
 
   return (
@@ -152,14 +183,19 @@ export default function LandlordProfile() {
                   <ShieldCheck className="h-3 w-3" /> PAN Verified
                 </Badge>
               ) : (
-                <Badge variant="secondary" className="gap-1">PAN Not Verified</Badge>
+                <Badge variant="secondary" className="gap-1">
+                  PAN Not Verified
+                </Badge>
               )}
             </div>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Full Name</Label>
-              <Input value={fullName} onChange={(event) => setFullName(event.target.value)} />
+              <Input
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>Email</Label>
@@ -167,7 +203,11 @@ export default function LandlordProfile() {
             </div>
             <div className="space-y-2">
               <Label>Phone</Label>
-              <Input placeholder="+91 98765 43210" value={phone} onChange={(event) => setPhone(event.target.value)} />
+              <Input
+                placeholder="+91 98765 43210"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>PAN Number</Label>
@@ -180,21 +220,32 @@ export default function LandlordProfile() {
                     setPanNumber(event.target.value.toUpperCase());
                   }}
                 />
-                <Button type="button" variant="outline" onClick={() => void handleVerifyPan()} disabled={verifyingPan}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => void handleVerifyPan()}
+                  disabled={verifyingPan}
+                >
                   {verifyingPan ? "Verifying..." : "Verify"}
                 </Button>
               </div>
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label>Address</Label>
-              <Input placeholder="Your address" value={address} onChange={(event) => setAddress(event.target.value)} />
+              <Input
+                placeholder="Your address"
+                value={address}
+                onChange={(event) => setAddress(event.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>PIN Code</Label>
               <Input
                 placeholder="600001"
                 value={pincode}
-                onChange={(event) => setPincode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                onChange={(event) =>
+                  setPincode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                }
                 inputMode="numeric"
                 pattern="[0-9]{6}"
               />
@@ -202,7 +253,11 @@ export default function LandlordProfile() {
           </CardContent>
         </Card>
 
-        <Button className="w-full" onClick={() => void handleSave()} disabled={saving}>
+        <Button
+          className="w-full"
+          onClick={() => void handleSave()}
+          disabled={saving}
+        >
           {saving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
