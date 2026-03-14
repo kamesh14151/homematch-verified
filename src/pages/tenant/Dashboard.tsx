@@ -641,9 +641,9 @@ export default function TenantDashboard() {
               </div>
 
               {/* Map + card list */}
-              <div className="flex flex-col lg:flex-row" style={{ minHeight: "520px" }}>
+              <div className="flex flex-col lg:grid lg:grid-cols-[55%_45%]" style={{ height: "440px" }}>
                 {/* LEFT: Leaflet map */}
-                <div className="relative h-72 shrink-0 lg:h-auto lg:flex-1" style={{ zIndex: 0 }}>
+                <div className="relative h-52 lg:h-full" style={{ zIndex: 0 }}>
                   {userLocation ? (
                     <PropertyMap
                       listings={mapListings}
@@ -664,7 +664,7 @@ export default function TenantDashboard() {
                 </div>
 
                 {/* RIGHT: scrollable property card list */}
-                <div className="flex w-full flex-col lg:w-[380px] lg:shrink-0 xl:w-[420px]">
+                <div className="flex flex-col border-t border-border/50 lg:border-l lg:border-t-0 dark:border-white/8">
                   {/* mini filter chips */}
                   <div className="flex items-center gap-1.5 overflow-x-auto border-b border-border/50 px-3 py-2 dark:border-white/8">
                     {["All", "1 BHK", "2 BHK", "3 BHK", "Furnished"].map((chip) => (
@@ -688,7 +688,7 @@ export default function TenantDashboard() {
                   </div>
 
                   {/* card list */}
-                  <div className="flex-1 divide-y divide-border/40 overflow-y-auto dark:divide-white/5" style={{ maxHeight: "464px" }}>
+                  <div className="flex-1 divide-y divide-border/40 overflow-y-auto dark:divide-white/5" style={{ maxHeight: "388px" }}>
                     {nearbyProperties.slice(0, 12).map((property) => (
                       <div
                         key={property.id}
@@ -702,7 +702,7 @@ export default function TenantDashboard() {
                         }`}
                       >
                         {/* Thumbnail */}
-                        <div className="relative h-[120px] w-[120px] shrink-0 overflow-hidden">
+                        <div className="relative h-[90px] w-[90px] shrink-0 overflow-hidden">
                           {property.imageUrl ? (
                             <img
                               src={property.imageUrl}
@@ -722,7 +722,7 @@ export default function TenantDashboard() {
                         </div>
 
                         {/* Details */}
-                        <div className="flex flex-1 flex-col justify-between p-3">
+                        <div className="flex flex-1 flex-col justify-between px-3 py-2">
                           <div>
                             <h3 className="line-clamp-1 text-sm font-semibold text-foreground">
                               {property.title}
